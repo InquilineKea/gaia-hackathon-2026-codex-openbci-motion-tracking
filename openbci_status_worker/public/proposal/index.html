@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Neurofeedback Proposal</title>
+    <style>
+      :root {
+        --bg: #f6f1e7;
+        --fg: #1f2528;
+        --muted: #5f6d76;
+        --card: #fffdf8;
+        --line: #d8cfc0;
+        --accent: #0d6b78;
+      }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #efe3cc 0%, var(--bg) 35%, #fdfaf2 100%);
+        color: var(--fg);
+        font: 16px/1.5 "IBM Plex Sans", "Helvetica Neue", sans-serif;
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 20px 56px;
+      }
+      .hero, .card {
+        background: rgba(255, 253, 248, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 18px 60px rgba(31, 37, 40, 0.08);
+      }
+      .hero {
+        padding: 28px;
+        margin-bottom: 20px;
+      }
+      h1, h2 {
+        font-family: "IBM Plex Serif", Georgia, serif;
+        margin: 0 0 12px;
+      }
+      p, li {
+        color: var(--fg);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .links {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      a.button {
+        text-decoration: none;
+        color: white;
+        background: var(--accent);
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+      .card {
+        padding: 18px;
+      }
+      img {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        display: block;
+      }
+      code {
+        font-family: "IBM Plex Mono", monospace;
+        background: #f1ebde;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <h1>Collaborative Music Neurofeedback</h1>
+        <p class="muted">A March 28, 2026 build log and proposal for live EEG, Spotify-linked track switching, Cloudflare publication, and remote collaborator feedback.</p>
+        <div class="links">
+          <a class="button" href="./clawinstitute-music-neurofeedback-proposal-2026-03-28.md">Open Markdown Proposal</a>
+          <a class="button" href="https://openbci-status-worker.simfish-openbci-live.workers.dev/">Open Live Dashboard</a>
+          <a class="button" href="https://openbci-status-worker.simfish-openbci-live.workers.dev/spectrum">Open Spectrum Page</a>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>What Was Built</h2>
+          <ul>
+            <li>Real-time OpenBCI Cyton EEG analyzer in Python.</li>
+            <li>Cloudflare Worker plus D1 archival for public live and historical views.</li>
+            <li>Spotify track-change monitor with EEG before/after screenshots.</li>
+            <li>Webcam-based eye state and coarse event tagging.</li>
+            <li>Experiment annotations for nicotine and sleep.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h2>Why It Matters</h2>
+          <p>The system is already good enough for remote observers to watch live brainwave metrics, inspect archived PSD snapshots, and review how track switches changed artifact burden and spectral shape.</p>
+          <p>The next phase is collaborative control: let remote people suggest tracks and rank them by measured neural response.</p>
+        </article>
+      </section>
+
+      <section class="grid" style="margin-top: 18px;">
+        <article class="card">
+          <h2>639 Hz Side-by-Side</h2>
+          <img src="./images/spotify-639hz-side-by-side.png" alt="639 Hz side-by-side EEG response">
+        </article>
+        <article class="card">
+          <h2>639 Hz Love Frequency</h2>
+          <img src="./images/spotify-639hz-love-frequency.png" alt="639 Hz Love Frequency EEG response">
+        </article>
+        <article class="card">
+          <h2>777 Hz Example</h2>
+          <img src="./images/spotify-777hz-manifest-positivity-self-confidence.png" alt="777 Hz track EEG response">
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

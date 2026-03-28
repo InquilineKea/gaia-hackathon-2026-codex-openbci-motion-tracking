@@ -7,6 +7,7 @@ const DEFAULT_LIVE = {
   updated_at: null,
   status_text: DEFAULT_STATUS,
   metrics: null,
+  spotify: null,
   spectrum: {
     channels: [],
     frequencies_hz: [],
@@ -177,6 +178,7 @@ async function getSpectra(env, limit) {
       id,
       updated_at,
       received_at,
+      payload_json,
       paf_hz,
       gamma_delta_ratio,
       one_over_f_slope,
@@ -192,7 +194,17 @@ async function getSpectra(env, limit) {
   )
     .bind(limit)
     .all();
-  return results ?? [];
+  return (results ?? []).map((item) => {
+    let spotify = null;
+    try {
+      const payload = JSON.parse(item.payload_json);
+      spotify = payload?.spotify ?? null;
+    } catch {}
+    return {
+      ...item,
+      spotify,
+    };
+  });
 }
 
 async function getSnapshot(env, id) {
@@ -711,6 +723,19 @@ function spectrumPageHtml() {
         return '<div class="metric"><div class="label">' + label + '</div><div class="value">' + value + '</div></div>';
       }
 
+      function trackLabel(spotify) {
+        if (!spotify) return "n/a";
+        const artist = spotify.artist || "unknown artist";
+        const track = spotify.track || "unknown track";
+        return artist + " - " + track;
+      }
+
+      function eventLabel(updatedAt, spotify, prefix) {
+        const timeLabel = updatedAt || "n/a";
+        const track = trackLabel(spotify);
+        return prefix + ": " + timeLabel + "  |  " + track;
+      }
+
       function drawSpectrum(livePayload, archivedPayload) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#ffffff";
@@ -722,6 +747,8 @@ function spectrumPageHtml() {
         const archivedSpectrum = archivedPayload?.payload?.spectrum || null;
         const archivedFreqs = archivedSpectrum?.frequencies_hz || [];
         const archivedPsd = archivedSpectrum?.median_psd || [];
+        const liveSpotify = livePayload?.spotify || null;
+        const archivedSpotify = archivedPayload?.payload?.spotify || null;
 
         if (!liveFreqs.length || !livePsd.length) {
           ctx.fillStyle = "#5f6d76";
@@ -730,7 +757,7 @@ function spectrumPageHtml() {
           return;
         }
 
-        const padding = { left: 54, right: 16, top: 20, bottom: 42 };
+        const padding = { left: 54, right: 16, top: 56, bottom: 42 };
         const width = canvas.width - padding.left - padding.right;
         const height = canvas.height - padding.top - padding.bottom;
         const values = [...livePsd, ...archivedPsd].filter((value) => Number.isFinite(value) && value > 0);
@@ -738,6 +765,14 @@ function spectrumPageHtml() {
         const yMax = Math.log10(Math.max(...values));
         const xMin = liveFreqs[0];
         const xMax = liveFreqs[liveFreqs.length - 1];
+
+        ctx.fillStyle = "#182229";
+        ctx.font = "12px IBM Plex Mono, monospace";
+        ctx.fillText(eventLabel(livePayload?.updated_at, liveSpotify, "Live"), padding.left, 18);
+        if (archivedPayload) {
+          ctx.fillStyle = "#6e3b2f";
+          ctx.fillText(eventLabel(archivedPayload?.updated_at, archivedSpotify, "Archive"), padding.left, 36);
+        }
 
         function xOf(freq) {
           return padding.left + ((freq - xMin) / (xMax - xMin)) * width;
@@ -800,19 +835,25 @@ function spectrumPageHtml() {
       function renderSummary(livePayload, archivedPayload, historyInfo) {
         const m = livePayload?.metrics || {};
         const archived = archivedPayload?.payload?.metrics || {};
+        const liveSpotify = livePayload?.spotify || null;
+        const archivedSpotify = archivedPayload?.payload?.spotify || null;
         summaryEl.innerHTML =
           metricTile("Live PAF", fmt(m.paf_hz, 2, " Hz")) +
           metricTile("Live 1/f", fmt(m.one_over_f_slope, 2)) +
+          metricTile("Live track", trackLabel(liveSpotify)) +
           metricTile("Archive every", String(historyInfo.interval_seconds || 120) + " s") +
           metricTile("Archived spectra", String(historyInfo.count || 0)) +
           metricTile("Selected archive", archivedPayload ? String(archivedPayload.id) : "none") +
+          metricTile("Selected track", trackLabel(archivedSpotify)) +
           metricTile("Selected PAF", archivedPayload ? fmt(archived.paf_hz, 2, " Hz") : "n/a");
       }
 
       function renderArchive(items) {
         archiveEl.innerHTML = items.map((item) => {
           const label = item.updated_at || "n/a";
-          const subtitle = "PAF " + fmt(item.paf_hz, 2, " Hz") + " • bins " + (item.spectrum_points || 0);
+          const spotify = item.spotify || null;
+          const track = spotify ? (spotify.track || "unknown track") : "no spotify label";
+          const subtitle = track + " • PAF " + fmt(item.paf_hz, 2, " Hz") + " • bins " + (item.spectrum_points || 0);
           return '<button data-id="' + item.id + '"><strong>#' + item.id + '</strong> ' + label +
             '<div class="muted">' + subtitle + '</div></button>';
         }).join("");

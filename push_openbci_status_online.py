@@ -14,6 +14,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Push the local OpenBCI OpenBCI status text and live JSON online.")
     parser.add_argument("--status-path", type=Path, default=Path("/Users/simfish/Documents/GitHub/gaia-hackathon-2026/openbci_live_status.txt"))
     parser.add_argument("--payload-path", type=Path, default=Path("/Users/simfish/Documents/GitHub/gaia-hackathon-2026/openbci_live_payload.json"))
+    parser.add_argument(
+        "--spotify-status-path",
+        type=Path,
+        default=Path("/Users/simfish/Documents/GitHub/gaia-hackathon-2026/spotify_now_playing_status.json"),
+        help="Optional Spotify status JSON to attach to the live payload.",
+    )
     parser.add_argument("--url", help="Legacy alias for --status-url.")
     parser.add_argument("--status-url", help="Worker /update URL.")
     parser.add_argument("--live-url", help="Worker /live URL.")
@@ -50,6 +56,18 @@ def push_body(url: str, token: str, body: bytes, content_type: str) -> None:
         sys.stdout.flush()
 
 
+def load_spotify_status(path: Path) -> dict | None:
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text())
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    return payload
+
+
 def main() -> int:
     args = parse_args()
     status_url = args.status_url or args.url
@@ -61,11 +79,15 @@ def main() -> int:
     try:
         while True:
             if args.payload_path.exists() and live_url:
-                body = args.payload_path.read_text()
-                digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
-                if digest != last_payload_digest:
-                    try:
-                        json.loads(body)
+                raw_body = args.payload_path.read_text()
+                try:
+                    payload = json.loads(raw_body)
+                    spotify = load_spotify_status(args.spotify_status_path)
+                    if spotify:
+                        payload["spotify"] = spotify
+                    body = json.dumps(payload, separators=(",", ":"))
+                    digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
+                    if digest != last_payload_digest:
                         push_body(
                             live_url,
                             args.token,
@@ -73,8 +95,8 @@ def main() -> int:
                             "application/json; charset=utf-8",
                         )
                         last_payload_digest = digest
-                    except (json.JSONDecodeError, RuntimeError) as exc:
-                        print(f"payload push failed: {exc}", file=sys.stderr)
+                except (json.JSONDecodeError, RuntimeError) as exc:
+                    print(f"payload push failed: {exc}", file=sys.stderr)
 
             if args.status_path.exists() and status_url:
                 body = args.status_path.read_text()
