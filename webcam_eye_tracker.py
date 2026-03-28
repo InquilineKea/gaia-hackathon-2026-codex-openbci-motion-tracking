@@ -17,11 +17,14 @@ class EyeTrackStatus:
     unix_time: float
     face_detected: bool
     eyes_detected: int
+    eye_state: str
+    eye_closed_duration_sec: float
     gaze_x: float | None
     gaze_y: float | None
     gaze_horizontal: str
     gaze_vertical: str
     confidence: float
+    event_tags: list[str]
 
 
 def parse_args() -> argparse.Namespace:
@@ -33,6 +36,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--display", action="store_true")
     parser.add_argument("--stdout-mode", choices=["heartbeat", "events", "quiet"], default="heartbeat")
     parser.add_argument("--duration-sec", type=float, default=0.0, help="0 means run until stopped.")
+    parser.add_argument(
+        "--eyes-closed-hold-sec",
+        type=float,
+        default=0.35,
+        help="Require this much sustained eye loss before marking eyes_closed.",
+    )
     parser.add_argument(
         "--status-path",
         type=Path,
@@ -71,11 +80,14 @@ def format_status(status: EyeTrackStatus) -> str:
             f"timestamp: {status.timestamp}",
             f"face_detected: {str(status.face_detected).lower()}",
             f"eyes_detected: {status.eyes_detected}",
+            f"eye_state: {status.eye_state}",
+            f"eye_closed_duration_sec: {status.eye_closed_duration_sec:.2f}",
             f"gaze_x: {fmt(status.gaze_x)}",
             f"gaze_y: {fmt(status.gaze_y)}",
             f"gaze_horizontal: {status.gaze_horizontal}",
             f"gaze_vertical: {status.gaze_vertical}",
             f"confidence: {status.confidence:.3f}",
+            f"event_tags: {', '.join(status.event_tags) if status.event_tags else 'none'}",
             "",
         ]
     )
@@ -84,9 +96,12 @@ def format_status(status: EyeTrackStatus) -> str:
 def stdout_line(status: EyeTrackStatus) -> str:
     gx = "n/a" if status.gaze_x is None else f"{status.gaze_x:.2f}"
     gy = "n/a" if status.gaze_y is None else f"{status.gaze_y:.2f}"
+    tags = ",".join(status.event_tags) if status.event_tags else "none"
     return (
         f"{status.timestamp} face={'yes' if status.face_detected else 'no'} eyes={status.eyes_detected} "
-        f"gx={gx} gy={gy} hz={status.gaze_horizontal} vt={status.gaze_vertical} conf={status.confidence:.2f}"
+        f"state={status.eye_state} closed={status.eye_closed_duration_sec:.2f}s "
+        f"gx={gx} gy={gy} hz={status.gaze_horizontal} vt={status.gaze_vertical} conf={status.confidence:.2f} "
+        f"tags={tags}"
     )
 
 
@@ -94,11 +109,45 @@ def should_print_event(curr: EyeTrackStatus, prev: EyeTrackStatus | None) -> boo
     if prev is None:
         return True
     return (
+        curr.eye_state != prev.eye_state
+        or curr.event_tags != prev.event_tags
+        or
         curr.gaze_horizontal != prev.gaze_horizontal
         or curr.gaze_vertical != prev.gaze_vertical
         or curr.eyes_detected != prev.eyes_detected
         or curr.face_detected != prev.face_detected
     )
+
+
+def classify_eye_state(
+    face_detected: bool,
+    eyes_found: int,
+    confidence: float,
+    closed_start_mono: float | None,
+    now_mono: float,
+    closed_hold_sec: float,
+) -> tuple[str, float, list[str], float | None]:
+    tags: list[str] = []
+    if not face_detected:
+        return "no_face", 0.0, tags, None
+
+    likely_closed = eyes_found == 0 or (eyes_found == 1 and confidence < 0.08)
+    if likely_closed:
+        if closed_start_mono is None:
+            closed_start_mono = now_mono
+        closed_duration = max(0.0, now_mono - closed_start_mono)
+    else:
+        closed_start_mono = None
+        closed_duration = 0.0
+
+    if closed_duration >= closed_hold_sec:
+        tags.append("eyes_closed")
+        return "closed", closed_duration, tags, closed_start_mono
+    if eyes_found >= 2 and confidence >= 0.08:
+        return "open", 0.0, tags, None
+    if likely_closed:
+        return "closing", closed_duration, tags, closed_start_mono
+    return "partial", 0.0, tags, None
 
 
 def detect_primary_face(gray: np.ndarray, detector: cv2.CascadeClassifier) -> tuple[int, int, int, int] | None:
@@ -173,6 +222,7 @@ def main() -> int:
     started = time.monotonic()
     last_emit = 0.0
     last_printed: EyeTrackStatus | None = None
+    eye_closed_start_mono: float | None = None
     args.events_path.parent.mkdir(parents=True, exist_ok=True)
 
     with args.events_path.open("a") as log_handle:
@@ -219,6 +269,15 @@ def main() -> int:
                         gaze_y = float(np.mean(ys))
                         confidence = float(np.mean(confs)) if confs else 0.0
 
+                now_mono = time.monotonic()
+                eye_state, eye_closed_duration_sec, event_tags, eye_closed_start_mono = classify_eye_state(
+                    face_detected=face_box is not None,
+                    eyes_found=eyes_found,
+                    confidence=confidence,
+                    closed_start_mono=eye_closed_start_mono,
+                    now_mono=now_mono,
+                    closed_hold_sec=args.eyes_closed_hold_sec,
+                )
                 hz, vt = gaze_labels(gaze_x, gaze_y)
                 wall_time, unix_time = now_stamp()
                 status = EyeTrackStatus(
@@ -226,17 +285,22 @@ def main() -> int:
                     unix_time=unix_time,
                     face_detected=face_box is not None,
                     eyes_detected=eyes_found,
+                    eye_state=eye_state,
+                    eye_closed_duration_sec=eye_closed_duration_sec,
                     gaze_x=gaze_x,
                     gaze_y=gaze_y,
                     gaze_horizontal=hz,
                     gaze_vertical=vt,
                     confidence=confidence,
+                    event_tags=event_tags,
                 )
 
-                text = f"{hz}/{vt} eyes={eyes_found} conf={confidence:.2f}"
+                text = (
+                    f"{hz}/{vt} eyes={eyes_found} state={eye_state} "
+                    f"closed={eye_closed_duration_sec:.1f}s conf={confidence:.2f}"
+                )
                 cv2.putText(overlay, text, (14, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 255, 255), 2, cv2.LINE_AA)
 
-                now_mono = time.monotonic()
                 if (now_mono - last_emit) >= max(0.1, 1.0 / args.fps):
                     args.status_path.write_text(format_status(status))
                     args.json_path.write_text(json.dumps(asdict(status), indent=2))

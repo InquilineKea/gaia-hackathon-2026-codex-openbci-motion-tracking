@@ -8,6 +8,7 @@ import subprocess
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+from urllib.request import urlopen
 
 import numpy as np
 from scipy import stats
@@ -50,6 +51,11 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("/Users/simfish/Documents/GitHub/gaia-hackathon-2026/openbci_status_worker"),
     )
+    parser.add_argument(
+        "--history-url",
+        default="https://openbci-status-worker.simfish-openbci-live.workers.dev/history.json?limit=500",
+        help="Public history endpoint used as a fallback baseline source.",
+    )
     parser.add_argument("--sound", default="Glass")
     return parser.parse_args()
 
@@ -90,7 +96,13 @@ def query_d1(wrangler_dir: Path, database_name: str, command: str) -> list[dict]
     return payload[0].get("results", [])
 
 
-def recent_archived_rows(args: argparse.Namespace, start: datetime) -> list[dict]:
+def query_public_history(history_url: str) -> list[dict]:
+    with urlopen(history_url, timeout=10) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    return payload.get("items", [])
+
+
+def recent_archived_rows(args: argparse.Namespace, start: datetime) -> tuple[list[dict], str]:
     baseline_start = naive_iso(start - timedelta(seconds=args.baseline_sec))
     baseline_end = naive_iso(start)
     sql = (
@@ -99,7 +111,15 @@ def recent_archived_rows(args: argparse.Namespace, start: datetime) -> list[dict
         f"WHERE updated_at >= '{baseline_start}' AND updated_at < '{baseline_end}' "
         "ORDER BY updated_at ASC"
     )
-    return query_d1(args.wrangler_dir, args.d1_name, sql)
+    try:
+        rows = query_d1(args.wrangler_dir, args.d1_name, sql)
+        if rows:
+            return rows, "d1_recent_window"
+    except Exception:
+        pass
+    rows = query_public_history(args.history_url)
+    rows.reverse()
+    return rows, "public_history_average"
 
 
 def capture_segment(args: argparse.Namespace, start_monotonic: float, duration_sec: float) -> list[dict]:
@@ -200,12 +220,14 @@ def build_report(
     start: datetime,
     end: datetime,
     baseline: list[dict],
+    baseline_source: str,
     closed: list[dict],
     metric_summaries: list[dict],
 ) -> str:
     lines = [
         "Eyes-Closed Comparison",
         f"baseline_window: {naive_iso(start - timedelta(seconds=60))} to {naive_iso(start)}",
+        f"baseline_source: {baseline_source}",
         f"closed_window: {naive_iso(start)} to {naive_iso(end)}",
         f"baseline_snapshots: {len(baseline)}",
         f"closed_snapshots: {len(closed)}",
@@ -242,17 +264,18 @@ def play_sound(name: str) -> None:
 def main() -> int:
     args = parse_args()
     started_dt = datetime.now()
-    baseline = recent_archived_rows(args, started_dt)
+    baseline, baseline_source = recent_archived_rows(args, started_dt)
     started_monotonic = time.monotonic()
     closed = capture_segment(args, started_monotonic, args.duration_sec)
     ended_dt = datetime.now()
     play_sound(args.sound)
 
     metric_summaries = [summarise_metric(baseline, closed, key) for key in METRICS]
-    report = build_report(started_dt, ended_dt, baseline, closed, metric_summaries)
+    report = build_report(started_dt, ended_dt, baseline, baseline_source, closed, metric_summaries)
     summary = {
         "started_at": naive_iso(started_dt),
         "ended_at": naive_iso(ended_dt),
+        "baseline_source": baseline_source,
         "baseline_snapshots": baseline,
         "closed_snapshots": closed,
         "metrics": metric_summaries,

@@ -21,6 +21,7 @@ class EventSnapshot:
     skin_score: float
     hand_candidate_count: int
     held_object_candidate: bool
+    nicotine_lozenge_candidate: bool
     unusual_motion: bool
     activity_level: str
     event_tags: list[str]
@@ -38,7 +39,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stdout-mode", choices=["events", "heartbeat", "quiet"], default="events")
     parser.add_argument(
         "--electrode-labels",
-        default="BIAS,L-FRONT,L-MID,L-LOW,CROWN,R-FRONT,R-MID,R-LOW,BACK",
+        default="BIAS,L-UPPER,L-MID,L-LOW,CENTER,R-UPPER,R-MID,R-LOW,REAR",
         help="Comma-separated approximate overlay labels, first label used for left-most bias point.",
     )
     parser.add_argument("--status-path", type=Path, default=Path("/Users/simfish/Documents/GitHub/gaia-hackathon-2026/webcam_event_status.txt"))
@@ -64,6 +65,7 @@ def make_status_text(snapshot: EventSnapshot) -> str:
             f"skin_score: {snapshot.skin_score:.4f}",
             f"hand_candidate_count: {snapshot.hand_candidate_count}",
             f"held_object_candidate: {str(snapshot.held_object_candidate).lower()}",
+            f"nicotine_lozenge_candidate: {str(snapshot.nicotine_lozenge_candidate).lower()}",
             f"unusual_motion: {str(snapshot.unusual_motion).lower()}",
             f"activity_level: {snapshot.activity_level}",
             f"event_tags: {', '.join(snapshot.event_tags) if snapshot.event_tags else 'none'}",
@@ -81,6 +83,7 @@ def make_stdout_line(snapshot: EventSnapshot) -> str:
         f"skin={snapshot.skin_score:.4f} "
         f"hands={snapshot.hand_candidate_count} "
         f"held={'yes' if snapshot.held_object_candidate else 'no'} "
+        f"lozenge={'yes' if snapshot.nicotine_lozenge_candidate else 'no'} "
         f"weird={'yes' if snapshot.unusual_motion else 'no'} "
         f"level={snapshot.activity_level} "
         f"tags={tags}"
@@ -88,7 +91,7 @@ def make_stdout_line(snapshot: EventSnapshot) -> str:
 
 
 def should_print_event(snapshot: EventSnapshot, previous: EventSnapshot | None) -> bool:
-    interesting_tags = {"held_object_candidate", "unusual_motion", "high_motion", "multiple_hand_candidates"}
+    interesting_tags = {"held_object_candidate", "nicotine_lozenge_candidate", "unusual_motion", "high_motion", "multiple_hand_candidates"}
     if any(tag in interesting_tags for tag in snapshot.event_tags):
         return True
     if previous is None:
@@ -168,7 +171,45 @@ def intersection_over_union(a: tuple[int, int, int, int, float], b: tuple[int, i
     return inter / float(area_a + area_b - inter)
 
 
-def classify_activity(motion_score: float, hand_count: int, held_object: bool, unusual_motion: bool) -> tuple[str, list[str]]:
+def mouth_region(face_box: tuple[int, int, int, int]) -> tuple[int, int, int, int, float]:
+    x, y, w, h = face_box
+    mx = x + int(0.26 * w)
+    my = y + int(0.58 * h)
+    mw = max(12, int(0.48 * w))
+    mh = max(12, int(0.24 * h))
+    return mx, my, mw, mh, float(mw * mh)
+
+
+def box_center(box: tuple[int, int, int, int, float]) -> tuple[float, float]:
+    x, y, w, h, _ = box
+    return x + 0.5 * w, y + 0.5 * h
+
+
+def detect_nicotine_lozenge_candidate(
+    face_box: tuple[int, int, int, int] | None,
+    skin_boxes: list[tuple[int, int, int, int, float]],
+    held_object_candidate: bool,
+) -> bool:
+    if face_box is None or not held_object_candidate:
+        return False
+    mouth_box = mouth_region(face_box)
+    mx, my, mw, mh, _ = mouth_box
+    for skin_box in skin_boxes:
+        overlap = intersection_over_union(skin_box, mouth_box)
+        cx, cy = box_center(skin_box)
+        near_mouth_center = (mx - 0.10 * mw) <= cx <= (mx + 1.10 * mw) and (my - 0.25 * mh) <= cy <= (my + 1.25 * mh)
+        if overlap > 0.03 or near_mouth_center:
+            return True
+    return False
+
+
+def classify_activity(
+    motion_score: float,
+    hand_count: int,
+    held_object: bool,
+    nicotine_lozenge_candidate: bool,
+    unusual_motion: bool,
+) -> tuple[str, list[str]]:
     tags: list[str] = []
     if hand_count > 0:
         tags.append("hand_present")
@@ -176,12 +217,14 @@ def classify_activity(motion_score: float, hand_count: int, held_object: bool, u
         tags.append("multiple_hand_candidates")
     if held_object:
         tags.append("held_object_candidate")
+    if nicotine_lozenge_candidate:
+        tags.append("nicotine_lozenge_candidate")
     if unusual_motion:
         tags.append("unusual_motion")
     if motion_score > 0.18:
         tags.append("high_motion")
 
-    if unusual_motion or held_object:
+    if unusual_motion or held_object or nicotine_lozenge_candidate:
         return "interesting", tags
     if hand_count > 0 or motion_score > 0.05:
         return "active", tags
@@ -269,10 +312,17 @@ def main() -> int:
                     held_object_candidate = True
                     break
 
+            nicotine_lozenge_candidate = detect_nicotine_lozenge_candidate(
+                face_box=face_box,
+                skin_boxes=skin_boxes,
+                held_object_candidate=held_object_candidate,
+            )
+
             activity_level, tags = classify_activity(
                 motion_score=motion_score,
                 hand_count=len(skin_boxes),
                 held_object=held_object_candidate,
+                nicotine_lozenge_candidate=nicotine_lozenge_candidate,
                 unusual_motion=unusual_motion,
             )
 
@@ -284,6 +334,7 @@ def main() -> int:
                 skin_score=skin_score,
                 hand_candidate_count=len(skin_boxes),
                 held_object_candidate=held_object_candidate,
+                nicotine_lozenge_candidate=nicotine_lozenge_candidate,
                 unusual_motion=unusual_motion,
                 activity_level=activity_level,
                 event_tags=tags,
@@ -295,7 +346,14 @@ def main() -> int:
                 cv2.rectangle(overlay, (x, y), (x + bw, y + bh), (0, 180, 255), 2)
             for x, y, bw, bh, _ in skin_boxes:
                 cv2.rectangle(overlay, (x, y), (x + bw, y + bh), (0, 255, 0), 2)
-            text = f"{activity_level}  hands={len(skin_boxes)}  held={int(held_object_candidate)}  weird={int(unusual_motion)}"
+            if face_box is not None:
+                mx, my, mw, mh, _ = mouth_region(face_box)
+                cv2.rectangle(overlay, (mx, my), (mx + mw, my + mh), (255, 100, 180), 1)
+                cv2.putText(overlay, "mouth", (mx, max(14, my - 4)), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (255, 100, 180), 1, cv2.LINE_AA)
+            text = (
+                f"{activity_level} hands={len(skin_boxes)} held={int(held_object_candidate)} "
+                f"lozenge={int(nicotine_lozenge_candidate)} weird={int(unusual_motion)}"
+            )
             cv2.putText(overlay, text, (14, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.62, (255, 255, 255), 2, cv2.LINE_AA)
             draw_electrode_overlay(overlay, face_box, electrode_labels)
 
