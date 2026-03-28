@@ -1,0 +1,51 @@
+Spotify Track Frequency Summary
+generated_at: 2026-03-28T15:41:25-0400
+source: spotify_eeg_change_results filenames
+
+Tracks with explicit advertised frequencies in the title
+- 2026-03-28T15:05:49 | 528 hz whole body regeneration | 528.0 Hz
+- 2026-03-28T15:08:34 | solfeggio frequencies 417 hz | 417.0 Hz
+- 2026-03-28T15:10:02 | 417 hz manifest positive energy | 417.0 Hz
+- 2026-03-28T15:10:33 | 396 hz let go of fear guilt | 396.0 Hz
+- 2026-03-28T15:12:09 | 417 hz facilitate change | 417.0 Hz
+- 2026-03-28T15:14:10 | 528 hz fall asleep | 528.0 Hz
+- 2026-03-28T15:14:47 | 852 hz let go of overthinking worries | 852.0 Hz
+- 2026-03-28T15:17:18 | 3.2 hz healing sleep binaural beats | 3.2 Hz
+- 2026-03-28T15:19:16 | 777 hz manifest positivity self confidence | 777.0 Hz
+- 2026-03-28T15:24:12 | 396 hz binaural sleep no fade loopable | 396.0 Hz
+- 2026-03-28T15:27:17 | 40 hz gamma conditioning | 40.0 Hz
+
+Tracks without an explicit Hz label in the title
+- shiva s meditation
+- serene waters
+- sleep
+- i feel lost trance edit
+- en retour
+- amerika
+- deutschland
+- ohne dich
+- fauna
+- reflections
+- in the end
+- numb
+- what i ve done
+- don t touch my clogs
+- tall warm glass of milk
+- nco ntsoov txog hnub siav tu
+- gleam
+- mowgli s road
+- mein land
+- glad you came
+
+Observed explicit frequencies
+- 3.2 Hz
+- 40.0 Hz
+- 396.0 Hz
+- 417.0 Hz
+- 528.0 Hz
+- 777.0 Hz
+- 852.0 Hz
+
+Important note
+- these are title-advertised frequencies, not measured acoustic spectra
+- actual audio energy, band content, loudness, tempo, and spectral centroid would require either system audio capture or Spotify audio-analysis metadata

@@ -1,0 +1,53 @@
+Focus Trend Summary
+computed_at: 2026-03-28T15:38:36-0400
+history_window: 2026-03-28T13:15:14 to 2026-03-28T15:38:55
+history_source: Cloudflare D1 eeg_snapshots
+
+Method
+- alertness_focus_proxy: derived mainly from alpha/theta ratio and PAF proximity to ~10 Hz
+- signal_cleanliness_score: derived mainly from artifact flag, gamma/delta ratio, 1/f slope, and 1/f r2
+- note: these are inferred proxies, not validated clinical scores
+
+[focus_zone]
+window: 2026-03-28T13:33:47 to 2026-03-28T15:23:17
+samples: 929
+alertness_focus_mean: 47.85
+alertness_focus_median: 45.58
+signal_cleanliness_mean: 55.09
+signal_cleanliness_median: 64.28
+alpha_theta_mean: 0.503
+paf_mean_hz: 9.469
+
+[drowsy_window]
+window: 2026-03-28T15:23:17 to 2026-03-28T15:39:12
+samples: 598
+alertness_focus_mean: 34.38
+alertness_focus_median: 33.74
+signal_cleanliness_mean: 70.20
+signal_cleanliness_median: 76.48
+alpha_theta_mean: 0.345
+paf_mean_hz: 9.010
+
+[last_10_min]
+window: 2026-03-28T15:28:36 to 2026-03-28T15:39:12
+samples: 396
+alertness_focus_mean: 32.92
+alertness_focus_median: 30.49
+signal_cleanliness_mean: 74.61
+signal_cleanliness_median: 81.01
+alpha_theta_mean: 0.340
+paf_mean_hz: 8.852
+
+[first_15_min_vs_last_15_min]
+first_15_min_alertness_focus_mean: 40.30
+last_15_min_alertness_focus_mean: 34.69
+delta_alertness_focus_mean: -5.61
+first_15_min_signal_cleanliness_mean: 47.41
+last_15_min_signal_cleanliness_mean: 69.98
+delta_signal_cleanliness_mean: +22.57
+
+Interpretation
+- relative to your annotated focus-zone block, the recent drowsy window shows a lower inferred alertness/focus proxy by about 13.47 points, or about 28 percent lower
+- in the last 10 minutes, the inferred alertness/focus proxy is about 14.93 points below the focus-zone mean, or about 31 percent lower
+- at the same time, the EEG itself became cleaner: lower artifact burden, lower gamma/delta, steeper 1/f slope, and higher 1/f r2
+- this means your subjective report is consistent with reduced alertness, but not with worse electrode quality; if anything, the later signal is cleaner but quieter and less attention-like

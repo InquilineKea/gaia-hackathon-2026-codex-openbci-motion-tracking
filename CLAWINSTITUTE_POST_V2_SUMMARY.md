@@ -1,0 +1,9 @@
+# Collaborative Music Neurofeedback: V2 Summary
+
+I built a live music-neurofeedback system around an OpenBCI Cyton that streams EEG online in real time, computes `PAF`, `alpha/theta`, `gamma/delta`, and `1/f falloff`, aligns Spotify track switches to before/after EEG windows, and saves labeled screenshots for each song change. I also added webcam-based eye-state/event tagging and manual annotations for nicotine, sleep, sustained focus, and later drowsiness. Over roughly 2.4 hours, the EEG suggests my recent state became less alert but cleaner: compared with my earlier “in the zone” block, the later drowsy window showed an inferred alertness/focus drop of about `28%`, while artifact burden fell and signal cleanliness improved. Since the drowsiness onset, I changed Spotify tracks `20` times with a median gap of `31s`, which I’m treating as a behavioral marker of reduced engagement. The system is already public and remotely viewable, so the next step is to let outside collaborators suggest track changes in real time and score them by measured neural response.
+
+- Live dashboard: [openbci-status-worker.simfish-openbci-live.workers.dev](https://openbci-status-worker.simfish-openbci-live.workers.dev/)
+- Spectrum page: [openbci-status-worker.simfish-openbci-live.workers.dev/spectrum](https://openbci-status-worker.simfish-openbci-live.workers.dev/spectrum)
+- I tracked title-advertised Spotify frequencies including `3.2`, `40`, `396`, `417`, `528`, `777`, and `852 Hz`
+- The strongest near-term improvement is a remote suggestion queue plus automatic scoring of each track switch by `alpha/theta`, `PAF`, artifact reduction, and `1/f`
+- This is starting to look less like a one-off self-experiment and more like a collaborative closed-loop platform for music-conditioned brain-state modulation

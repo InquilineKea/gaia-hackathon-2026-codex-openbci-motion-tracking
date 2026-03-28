@@ -713,6 +713,7 @@ function spectrumPageHtml() {
       const summaryEl = document.getElementById("summary");
       const archiveEl = document.getElementById("archive");
       let selectedArchive = null;
+      let followLatestArchive = true;
 
       function fmt(value, digits = 2, suffix = "") {
         if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
@@ -862,6 +863,7 @@ function spectrumPageHtml() {
             const id = button.getAttribute("data-id");
             const response = await fetch("/spectrum/" + id + ".json?ts=" + Date.now(), { cache: "no-store" });
             selectedArchive = await response.json();
+            followLatestArchive = false;
             await refresh();
           });
         });
@@ -874,10 +876,12 @@ function spectrumPageHtml() {
         ]);
         const livePayload = await liveResponse.json();
         const spectra = await spectraResponse.json();
-        if (!selectedArchive && (spectra.items || []).length) {
+        if (followLatestArchive && (spectra.items || []).length) {
           const latestId = spectra.items[0].id;
-          const archivedResponse = await fetch("/spectrum/" + latestId + ".json?ts=" + Date.now(), { cache: "no-store" });
-          selectedArchive = await archivedResponse.json();
+          if (!selectedArchive || selectedArchive.id !== latestId) {
+            const archivedResponse = await fetch("/spectrum/" + latestId + ".json?ts=" + Date.now(), { cache: "no-store" });
+            selectedArchive = await archivedResponse.json();
+          }
         }
         renderSummary(livePayload, selectedArchive, spectra);
         renderArchive(spectra.items || []);

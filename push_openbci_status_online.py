@@ -9,6 +9,8 @@ import sys
 import time
 from pathlib import Path
 
+SPOTIFY_DELIM = " ||| "
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Push the local OpenBCI OpenBCI status text and live JSON online.")
@@ -19,6 +21,12 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("/Users/simfish/Documents/GitHub/gaia-hackathon-2026/spotify_now_playing_status.json"),
         help="Optional Spotify status JSON to attach to the live payload.",
+    )
+    parser.add_argument(
+        "--spotify-max-age-sec",
+        type=float,
+        default=15.0,
+        help="Treat the Spotify status JSON as stale after this many seconds and query Spotify directly.",
     )
     parser.add_argument("--url", help="Legacy alias for --status-url.")
     parser.add_argument("--status-url", help="Worker /update URL.")
@@ -56,7 +64,74 @@ def push_body(url: str, token: str, body: bytes, content_type: str) -> None:
         sys.stdout.flush()
 
 
-def load_spotify_status(path: Path) -> dict | None:
+def query_spotify_direct() -> dict | None:
+    unix_time = time.time()
+    wall_time = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(unix_time))
+    proc = subprocess.run(
+        [
+            "osascript",
+            "-e",
+            'if application "Spotify" is running then',
+            "-e",
+            f'tell application "Spotify" to return artist of current track & "{SPOTIFY_DELIM}" & name of current track & "{SPOTIFY_DELIM}" & album of current track & "{SPOTIFY_DELIM}" & id of current track & "{SPOTIFY_DELIM}" & (duration of current track as text) & "{SPOTIFY_DELIM}" & (player position as text) & "{SPOTIFY_DELIM}" & (player state as text)',
+            "-e",
+            "else",
+            "-e",
+            'return "NOT_RUNNING"',
+            "-e",
+            "end if",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    raw = (proc.stdout or "").strip()
+    if proc.returncode != 0 or raw == "NOT_RUNNING" or not raw:
+        return None
+    parts = [part.strip() for part in raw.split(SPOTIFY_DELIM)]
+    if len(parts) != 7:
+        return None
+    artist, track, album, uri, duration_text, position_text, player_state = parts
+    try:
+        duration_ms = int(float(duration_text))
+    except ValueError:
+        duration_ms = None
+    try:
+        position_sec = float(position_text)
+    except ValueError:
+        position_sec = None
+    return {
+        "timestamp": wall_time,
+        "unix_time": unix_time,
+        "running": True,
+        "player_state": player_state,
+        "artist": artist or None,
+        "track": track or None,
+        "album": album or None,
+        "uri": uri or None,
+        "duration_ms": duration_ms,
+        "position_sec": position_sec,
+        "source": "direct_query",
+    }
+
+
+def load_spotify_status(path: Path, max_age_sec: float) -> dict | None:
+    if path.exists():
+        age_sec = max(0.0, time.time() - path.stat().st_mtime)
+        if age_sec <= max_age_sec:
+            try:
+                payload = json.loads(path.read_text())
+            except Exception:
+                payload = None
+            if isinstance(payload, dict):
+                return payload
+    direct = query_spotify_direct()
+    if direct:
+        try:
+            path.write_text(json.dumps(direct, indent=2))
+        except Exception:
+            pass
+        return direct
     if not path.exists():
         return None
     try:
@@ -82,7 +157,7 @@ def main() -> int:
                 raw_body = args.payload_path.read_text()
                 try:
                     payload = json.loads(raw_body)
-                    spotify = load_spotify_status(args.spotify_status_path)
+                    spotify = load_spotify_status(args.spotify_status_path, args.spotify_max_age_sec)
                     if spotify:
                         payload["spotify"] = spotify
                     body = json.dumps(payload, separators=(",", ":"))
