@@ -1,0 +1,24 @@
+.DS_Store
+.mplconfig/
+__pycache__/
+cache/
+
+# Runtime outputs from live EEG and webcam tools
+openbci_live_payload.json
+openbci_live_status.txt
+openbci_live_summary.txt
+eyes_closed_compare_summary.json
+eyes_closed_compare_summary.txt
+hand_object_eeg_samples.jsonl
+hand_object_eeg_summary.json
+hand_object_eeg_summary.txt
+webcam_event_log.jsonl
+webcam_event_preview.jpg
+webcam_event_status.json
+webcam_event_status.txt
+webcam_eye_fixation_summary.json
+webcam_eye_fixation_summary.txt
+webcam_eye_log.jsonl
+webcam_eye_preview.jpg
+webcam_eye_status.json
+webcam_eye_status.txt

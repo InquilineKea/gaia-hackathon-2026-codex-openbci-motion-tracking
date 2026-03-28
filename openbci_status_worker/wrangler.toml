@@ -1,0 +1,17 @@
+name = "openbci-status-worker"
+main = "src/index.js"
+compatibility_date = "2026-03-28"
+
+[[kv_namespaces]]
+binding = "STATUS_KV"
+id = "7132a26225014c5284be68ff16fef6a4"
+
+[[d1_databases]]
+binding = "ARCHIVE_DB"
+database_name = "openbci-archive"
+database_id = "e8f250d4-ecd9-449f-b4b9-8a9536d73742"
+migrations_dir = "migrations"
+
+[vars]
+STATUS_CACHE_SECONDS = "2"
+SPECTRUM_ARCHIVE_INTERVAL_SEC = "120"
