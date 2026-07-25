@@ -1,0 +1,2295 @@
+<meta charset="utf-8">
+<!--
+  AURORA — a real-time neurofeedback toy for OpenBCI Cyton (2 channels)
+  ------------------------------------------------------------------------
+  Consumes normalized live EEG features from eeg_server.py over WebSocket.
+
+  Design intent: hue encodes intensity (cool->warm), the field's density/
+  speed/brightness encodes your normalized band power. Slow interpolation
+  is deliberate — it hides FFT jitter instead of exposing it.
+
+  There is also an AUDIO channel (press A, or the Audio button): by default,
+  broadband spectral rhythm and its short-term variation control pitch, pulse
+  cadence, and stereo orbit. This keeps the feedback useful with eyes closed.
+-->
+<style>
+  :root {
+    --bg: #0a0e1a;          /* deep petrol-navy, not pure black */
+    --bg2: #0f1626;
+    --ink: #dfe7f2;
+    --dim: #6f7f9b;
+    --line: #1e2a42;
+    --warn: #ff6b5e;
+    --good: #6fe3c4;
+    --tone: #f2c14e;        /* the audio channel's accent */
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  #wrap {
+    position: relative; width: 100%; height: 100%;
+    min-height: 560px; color: var(--ink);
+    font-family: var(--sans);
+    background: radial-gradient(120% 90% at 50% 30%, var(--bg2), var(--bg));
+    overflow: hidden; border-radius: 12px;
+  }
+  #field { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* ---- HUD ---- */
+  .hud { position: absolute; left: 0; right: 0; padding: 16px 18px; z-index: 3; pointer-events: none; }
+  .hud.top { top: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .hud.bottom { bottom: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+  .title { font-size: 12px; letter-spacing: .28em; text-transform: uppercase; color: var(--dim); }
+  .mode-tag { font-family: var(--mono); font-size: 12px; color: var(--good); margin-top: 4px; }
+
+  .readouts { display: flex; gap: 22px; font-family: var(--mono); font-size: 12px; text-align: right; }
+  .readouts .k { color: var(--dim); text-transform: uppercase; letter-spacing: .1em; font-size: 10px; }
+  .readouts .v { font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .readouts .d { color: var(--dim); font-size: 9px; line-height: 1.3; font-variant-numeric: tabular-nums; }
+
+  .panel { pointer-events: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+           background: rgba(10,16,30,.72); border: 1px solid var(--line); backdrop-filter: blur(8px);
+           padding: 8px; border-radius: 999px; }
+  button, .seg {
+    font-family: var(--mono); font-size: 12px; color: var(--ink);
+    background: #131c30; border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 13px; cursor: pointer; transition: background .15s, border-color .15s, transform .05s;
+  }
+  button:hover, .seg:hover { background: #1a2540; border-color: #2c3d63; }
+  button:active { transform: translateY(1px); }
+  button:focus-visible, .seg:focus-visible { outline: 2px solid var(--good); outline-offset: 2px; }
+  .seg.on { background: var(--good); color: #06231c; border-color: var(--good); font-weight: 600; }
+  #emgBtn { border-color: #4a2b2b; }
+  #emgBtn:active, #emgBtn.held { background: var(--warn); color: #2a0806; border-color: var(--warn); }
+  #wakeBtn { border-color: var(--tone); }
+  #wakeBtn.active { background: var(--tone); color: #241a00; border-color: var(--tone); }
+  .seg.audio.on { background: var(--tone); color: #241a00; border-color: var(--tone); }
+  .panel.audio-row { opacity: .55; transition: opacity .2s; }
+  .panel.audio-row.live { opacity: 1; }
+
+  .ch { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--dim); }
+  .bar { width: 46px; height: 5px; background: #16203a; border-radius: 3px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0%; background: var(--good); }
+
+  .banner { position: absolute; top: 205px; left: 50%; transform: translateX(-50%); z-index: 4;
+            font-family: var(--mono); font-size: 12px; letter-spacing: .05em;
+            color: var(--warn); border: 1px solid var(--warn); background: rgba(40,8,6,.6);
+            padding: 6px 14px; border-radius: 999px; opacity: 0; transition: opacity .2s; }
+  .banner.show { opacity: 1; }
+
+  .hint { position: absolute; left: 18px; bottom: 172px; z-index: 3; max-width: 300px;
+          font-size: 11px; line-height: 1.5; color: var(--dim); }
+  .hint b { color: var(--ink); font-weight: 600; }
+
+  .rl-log {
+    position: absolute; right: 18px; bottom: 172px; z-index: 6; width: min(440px, calc(100% - 36px));
+    max-height: calc(100% - 250px); overflow: auto; color: var(--ink);
+    background: rgba(10,16,30,.94); border: 1px solid var(--line);
+    backdrop-filter: blur(12px); border-radius: 14px; padding: 13px 14px;
+    font: 11px/1.45 var(--mono); box-shadow: 0 16px 46px rgba(0,0,0,.28);
+  }
+  .rl-log[hidden] { display: none; }
+  .rl-log-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .rl-log-title { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+  .rl-log-summary, .rl-log-note { color: var(--dim); margin-top: 6px; }
+  .rl-log h3 { margin: 13px 0 5px; color: var(--dim); font-size: 10px;
+               font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+  .rl-log table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .rl-log th, .rl-log td { padding: 5px 4px; text-align: left; border-bottom: 1px solid var(--line); }
+  .rl-log th { color: var(--dim); font-weight: 500; }
+  .rl-log td:nth-child(2), .rl-log td:nth-child(3),
+  .rl-log th:nth-child(2), .rl-log th:nth-child(3) { text-align: right; }
+  .rl-good { color: var(--good); }
+  .rl-bad { color: var(--warn); }
+  .rl-mixed { color: var(--tone); }
+  .rl-recent { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; }
+  .rl-recent time { color: var(--dim); }
+
+  @media (max-width: 640px) {
+    .readouts { gap: 14px; } .readouts .v { font-size: 16px; }
+    .hint { display: none; }
+    .rl-log { left: 12px; right: 12px; bottom: 164px; width: auto; }
+  }
+  @media (max-height: 650px) { .hint { display: none; } }
+  @media (prefers-reduced-motion: reduce) { /* particle motion is damped in JS */ }
+</style>
+
+<div id="wrap">
+  <canvas id="field"></canvas>
+
+  <div class="hud top">
+    <div>
+      <div class="title">Aurora · neurofeedback</div>
+      <div class="mode-tag" id="modeTag">RELAX · reward &alpha; (8–12 Hz) up · lower frequency, eyes-closed works best</div>
+      <div class="mode-tag" id="connTag" style="color:var(--dim)">connecting to live EEG…</div>
+      <div class="mode-tag" id="audTag" style="color:var(--dim)">audio off · bath · auto 5 min · press A</div>
+      <div class="mode-tag" id="flowTag" style="color:var(--dim)">2-channel flow proxy · div +0.00 · curl +0.00</div>
+      <div class="mode-tag" id="pzTag" style="color:var(--dim)">Posterior N5 Pz + N4 ≈P4/O2 · waiting for signal…</div>
+      <div style="margin-top:10px; display:flex; gap:14px;">
+        <span class="ch">CH1 <span class="bar"><i id="ch1"></i></span></span>
+        <span class="ch">CH2 <span class="bar"><i id="ch2"></i></span></span>
+      </div>
+    </div>
+    <div class="readouts">
+      <div><div class="k">band (norm)</div><div class="v" id="rBand">0.00</div><div class="d" id="dBand">Δ 0.00</div></div>
+      <div><div class="k">reward</div><div class="v" id="rRew" style="color:var(--good)">0.00</div></div>
+      <div><div class="k">rhythm Hz</div><div class="v" id="rSpeed">—</div><div class="d" id="dSpeed">Δ 0.00</div></div>
+      <div><div class="k">PAF Hz</div><div class="v" id="rPaf" style="color:var(--tone)">10.0</div><div class="d" id="dPaf">Δ 0.00</div></div>
+      <div><div class="k">&chi; exponent</div><div class="v" id="rChi">1.50</div><div class="d" id="dChi">Δ 0.00</div></div>
+      <div><div class="k">emg</div><div class="v" id="rEmg" style="color:var(--dim)">0.00</div></div>
+    </div>
+  </div>
+
+  <div class="banner" id="banner">EMG detected — feedback frozen</div>
+
+  <div class="hint">
+    <b>C</b> calibrates your session baseline. PAF drives radial speed; χ drives
+    high-frequency turbulence.<br><br>
+    <b>Eyes closed:</b> <b>A</b> toggles audio and <b>S</b> cycles bath, forest,
+    and rain; <b>W</b> triggers one capped wake pulse. Broadband rhythm controls
+    pitch across an expanded 40–3200 Hz audible range, cadence, and stereo orbit; its
+    short-term variation widens the orbit and melody. Alertness and entropy morph
+    the tuning from gently tense to consonant. The
+    two-channel <b>div</b> proxy expands/contracts the field and harmony.
+    N5 at Pz plus N4 in the approximate right P4/O2 region add independently
+    artifact-gated posterior vigilance, drowsiness, and exploratory on-task
+    proxies; these are personal trends, not a detector of thoughts.
+    A closed-loop arousal deficit controls brightness, tempo, contrast, and sparse
+    novelty cues; EMG rejection freezes misleading changes. <b>RL learn</b> tests
+    bounded pitch/light combinations for about 20 seconds, credits the recent
+    two-minute action history, and stores learned scores plus summarized clean
+    trial outcomes locally—never raw EEG. Click to hold/resume; Shift-click to
+    reset learning. <b>RL log</b> shows what has worked across sessions. Above
+    the arousal target, alerting flashes recede while attention and complexity
+    reveal more varied orbital families, counter-rotation, and slow precession.
+  </div>
+
+  <section class="rl-log" id="rlLogPanel" role="dialog" aria-modal="false"
+           aria-labelledby="rlLogTitle" hidden>
+    <div class="rl-log-head">
+      <div class="rl-log-title" id="rlLogTitle">Persistent RL log</div>
+      <button id="rlLogClose" aria-label="Close RL log">Close</button>
+    </div>
+    <div class="rl-log-summary" id="rlLogSummary">No completed clean trials yet.</div>
+    <h3>What consistently works</h3>
+    <div id="rlLogActions"></div>
+    <h3>Recent clean trials</h3>
+    <div class="rl-recent" id="rlLogRecent"></div>
+    <div class="rl-log-note">One record per ~20-second clean-EEG trial; history is capped at 500 trials.</div>
+  </section>
+
+  <div class="hud bottom">
+    <div class="panel">
+      <span class="seg on" id="segFocus">Focus · &beta;&uarr;</span>
+      <span class="seg" id="segRelax">Relax · &alpha;&uarr;</span>
+      <button id="calBtn">Calibrate</button>
+      <button id="sensBtn">Sensitivity 3×</button>
+      <button id="emgBtn">Inject EMG</button>
+      <button id="wakeBtn" title="One capped visual, musical, and electric-zap alert; no strobe">Wake pulse &#9889;</button>
+      <span class="seg on" id="rejBtn">Reject EMG</span>
+    </div>
+    <div class="panel audio-row" id="audioRow">
+      <button class="seg audio" id="audBtn" title="Toggle the tone (keyboard: A)">Audio &#9834; off</button>
+      <button id="sceneBtn" title="Cycle the procedural soundscape (keyboard: S)">Scene: bath</button>
+      <button id="autoSceneBtn" title="Cycle automatic scene-change interval">Auto: 5m</button>
+      <button id="pitchSrcBtn" title="What the pitch tracks">Pitch: rhythm</button>
+      <button id="scaleBtn" title="Snap the tone to a pentatonic scale, or glide continuously">Tone: glide</button>
+      <button class="on" id="rlBtn" aria-pressed="true" title="Learn bounded pitch and visual-intensity choices; click to hold, Shift-click to reset">RL: starting</button>
+      <button id="rlLogBtn" aria-expanded="false" aria-controls="rlLogPanel">RL log: 0</button>
+      <button id="volBtn">Vol 2</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('field');
+  const ctx = canvas.getContext('2d');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Closed-loop target and safety limits are shared by audio, visuals, and HUD.
+  const AROUSAL_TARGET = 0.78;
+  const AROUSAL_DEADBAND = 0.035;
+  const AROUSAL_ERROR_SPAN = 0.42;
+  const VISUAL_ALERT_MAX_HZ = 2.2; // below WCAG's three-flashes-per-second ceiling
+  const RL_STORAGE_KEY = 'aurora-contextual-bandit-v1';
+  const RL_LOG_STORAGE_KEY = 'aurora-rl-trial-log-v1';
+  const RL_LOG_LIMIT = 500;
+  const RL_SESSION_ID =
+    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const RL_BLOCK_SAMPLES = 80;      // roughly 20 seconds at the 4 Hz EEG stream
+  const RL_TRACE_BLOCKS = 6;        // delayed credit reaches roughly two minutes
+  const RL_TRACE_DECAY = 0.56;
+  const RL_ACTIONS = [
+    { frequencySemitones: -9, visualGain: 0.70 },
+    { frequencySemitones: -9, visualGain: 1.00 },
+    { frequencySemitones: -9, visualGain: 1.30 },
+    { frequencySemitones:  0, visualGain: 0.70 },
+    { frequencySemitones:  0, visualGain: 1.00 },
+    { frequencySemitones:  0, visualGain: 1.30 },
+    { frequencySemitones:  9, visualGain: 0.70 },
+    { frequencySemitones:  9, visualGain: 1.00 },
+    { frequencySemitones:  9, visualGain: 1.30 }
+  ];
+
+  let W = 0, H = 0, DPR = Math.min(devicePixelRatio || 1, 2);
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  // ---------------- STATE ----------------
+  const state = {
+    mode: 'relax',        // 'focus' (beta up) or 'relax' (alpha up)
+    baseline: null,       // null until calibrated
+    rejectEMG: true,
+    emgHeld: false,
+    // signals (0..1), smoothed for display
+    raw: 0.4, band: 0.4, reward: 0.4, emg: 0.03,
+    intensity: 0.4,       // the SLOW-interpolated value that actually drives visuals
+    ch1: 0.4, ch2: 0.4,
+    paf: 10.0, chi: 1.5, complexity: 0.5,
+    hasPz: false, posteriorClean: false,
+    posteriorVigilance: 0.5, onTaskDrive: 0.5, drowsinessDrive: 0.5,
+    posteriorThetaAlpha: 1, posteriorQuality: 'waiting', posteriorRms: NaN,
+    posteriorSitesClean: 0, posteriorSitesTotal: 0,
+    speed: NaN,           // spectral centroid, Hz — "how fast the spectrum runs"
+    engage: 0,            // log2(beta / (alpha+theta)) — octaves of beta dominance
+    rhythmFastBase: null, rhythmDeltaFast: 0, rhythmVariation: 0,
+    bandFlux: 0, lastBands: null, rhythmBand: '—',
+    pafDrive: 0.5, hfDrive: 0.5,
+    alertnessDrive: 0.5, complexityDrive: 0.5, rhythmPitchDrive: 0.5,
+    arousalCurrent: 0.5, arousalError: AROUSAL_TARGET - 0.5, arousalStim: 0,
+    arousalFast: 0.5, arousalSlow: 0.5, recentRise: 0,
+    detailDrive: 0,
+    rlFrequencySemitones: 0, rlVisualGain: 1,
+    euphonyTrackers: {
+      chi:        { mean: null, dev: 0.12,  floor: 0.08 },
+      engage:     { mean: null, dev: 0.012, floor: 0.006 },
+      speed:      { mean: null, dev: 0.025, floor: 0.012 },
+      complexity: { mean: null, dev: 0.008, floor: 0.004 }
+    },
+    sensitivity: 3,
+    motionBaseBand: null, motionBasePaf: null, motionBaseChi: null,
+    motionBaseSpeed: null, motionBaseEngage: null, motionBaseComplexity: null,
+    flowBaseMean: null, flowBaseDiff: null,
+    motionSamples: 0,
+    bandDelta: 0, pafDelta: 0, chiDelta: 0, speedDelta: 0, engageDelta: 0,
+    complexityDelta: 0,
+    divergence: 0, curl: 0, flowPhase: 0, flowRotation: 0,
+    wakeRemaining: 0, lastWakeAt: -10,
+    t: 0
+  };
+
+  // Return a personal, continuously adapting 0.12..0.88 score. Unlike the original
+  // fixed-gain deltas, this cannot pin euphony at 0% when a session baseline drifts.
+  // The mean moves slowly; the deviation estimate learns the amount this metric
+  // naturally changes for this person and electrode setup.
+  function adaptiveEuphonyScore(tracker, value, direction = 1) {
+    if (!Number.isFinite(value)) return 0.5;
+    if (!Number.isFinite(tracker.mean)) {
+      tracker.mean = value;
+      return 0.5;
+    }
+    const delta = value - tracker.mean;
+    const scale = Math.max(tracker.dev, tracker.floor);
+    const score = 0.5 + 0.38 * Math.tanh(direction * delta / (scale * 2));
+    tracker.mean += delta * 0.008;
+    tracker.dev += (Math.abs(delta) - tracker.dev) * 0.018;
+    return score;
+  }
+
+  function resetEuphonyTrackers() {
+    const T = state.euphonyTrackers;
+    T.chi.mean = state.chi;               T.chi.dev = 0.12;
+    T.engage.mean = state.engage;         T.engage.dev = 0.012;
+    T.speed.mean = Number.isFinite(state.speed) ? state.speed : null;
+    T.speed.dev = 0.025;
+    T.complexity.mean = state.complexity; T.complexity.dev = 0.008;
+    state.alertnessDrive = state.complexityDrive = state.rhythmPitchDrive = 0.5;
+    state.posteriorVigilance = state.onTaskDrive = state.drowsinessDrive = 0.5;
+    state.arousalCurrent = state.arousalFast = state.arousalSlow = 0.5;
+    state.arousalError = AROUSAL_TARGET - state.arousalCurrent;
+    state.arousalStim = state.recentRise = 0;
+    state.detailDrive = 0;
+  }
+
+  // ---------------- DELAYED-CREDIT ADAPTATION ----------------
+  // This is a small contextual bandit, not a claim that a single EEG session
+  // identifies causal brain dynamics. Continued random exploration, artifact
+  // rejection, bounded actions, and eligibility traces make it useful without
+  // letting a coincidental upward drift lock the system to one stimulus.
+  const rlPolicy = {
+    enabled: true,
+    q: {},
+    n: {},
+    totalChoices: 0,
+    currentContext: '',
+    currentAction: 4,
+    blockSamples: 0,
+    blockStartFast: 0.5,
+    blockStartSlow: 0.5,
+    fastOutcome: 0.5,
+    slowOutcome: 0.5,
+    eligibility: [],
+    lastReward: 0,
+    initialized: false
+  };
+
+  const rlLedger = {
+    storageAvailable: true,
+    totalSessions: 0,
+    totalTrials: 0,
+    aggregates: RL_ACTIONS.map(() => ({
+      trials: 0, rewardSum: 0, positive: 0, negative: 0, recentMean: 0
+    })),
+    trials: []
+  };
+
+  function rlLogFinite(value, fallback = 0) {
+    return Number.isFinite(value) ? value : fallback;
+  }
+
+  function rlLogRound(value) {
+    return Math.round(rlLogFinite(value) * 1000) / 1000;
+  }
+
+  function rlLogEscape(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+  }
+
+  function rlLogNormalizeAggregate(value) {
+    return {
+      trials: Math.max(0, Math.floor(rlLogFinite(value?.trials))),
+      rewardSum: rlLogFinite(value?.rewardSum),
+      positive: Math.max(0, Math.floor(rlLogFinite(value?.positive))),
+      negative: Math.max(0, Math.floor(rlLogFinite(value?.negative))),
+      recentMean: rlLogFinite(value?.recentMean)
+    };
+  }
+
+  function rlLogPersist() {
+    if (!rlLedger.storageAvailable) return;
+    try {
+      localStorage.setItem(RL_LOG_STORAGE_KEY, JSON.stringify({
+        version: 1,
+        totalSessions: rlLedger.totalSessions,
+        totalTrials: rlLedger.totalTrials,
+        aggregates: rlLedger.aggregates,
+        trials: rlLedger.trials
+      }));
+    } catch (_) {
+      rlLedger.storageAvailable = false;
+    }
+  }
+
+  function rlLogLoad() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RL_LOG_STORAGE_KEY));
+      if (saved?.version === 1) {
+        rlLedger.totalSessions =
+          Math.max(0, Math.floor(rlLogFinite(saved.totalSessions)));
+        rlLedger.totalTrials =
+          Math.max(0, Math.floor(rlLogFinite(saved.totalTrials)));
+        if (Array.isArray(saved.aggregates) &&
+            saved.aggregates.length === RL_ACTIONS.length) {
+          rlLedger.aggregates =
+            saved.aggregates.map(rlLogNormalizeAggregate);
+        }
+        if (Array.isArray(saved.trials)) {
+          rlLedger.trials = saved.trials.slice(-RL_LOG_LIMIT).flatMap(record => {
+            const action = Math.floor(rlLogFinite(record?.action, -1));
+            if (action < 0 || action >= RL_ACTIONS.length) return [];
+            return [{
+              time: Math.max(0, rlLogFinite(record.time)),
+              session: String(record.session || '').slice(0, 32),
+              context: String(record.context || '').slice(0, 48),
+              action,
+              reward: rlLogRound(record.reward),
+              shortChange: rlLogRound(record.shortChange),
+              longChange: rlLogRound(record.longChange),
+              startOutcome: rlLogRound(record.startOutcome),
+              endOutcome: rlLogRound(record.endOutcome),
+              arousal: rlLogRound(record.arousal),
+              complexity: rlLogRound(record.complexity),
+              onTask: rlLogRound(rlLogFinite(record.onTask, 0.5)),
+              drowsiness: rlLogRound(rlLogFinite(record.drowsiness, 0.5))
+            }];
+          });
+        }
+      }
+    } catch (_) {
+      rlLedger.storageAvailable = false;
+    }
+    rlLedger.totalSessions += 1;
+    rlLogPersist();
+    rlUpdateLogUI();
+  }
+
+  function rlLogRecord({
+    context, action, reward, shortChange, longChange, startOutcome, endOutcome
+  }) {
+    const aggregate = rlLedger.aggregates[action];
+    aggregate.trials += 1;
+    aggregate.rewardSum += reward;
+    if (reward > 0.08) aggregate.positive += 1;
+    if (reward < -0.08) aggregate.negative += 1;
+    aggregate.recentMean = aggregate.trials === 1
+      ? reward
+      : aggregate.recentMean * 0.82 + reward * 0.18;
+    rlLedger.totalTrials += 1;
+    rlLedger.trials.push({
+      time: Date.now(),
+      session: RL_SESSION_ID,
+      context,
+      action,
+      reward: rlLogRound(reward),
+      shortChange: rlLogRound(shortChange),
+      longChange: rlLogRound(longChange),
+      startOutcome: rlLogRound(startOutcome),
+      endOutcome: rlLogRound(endOutcome),
+      arousal: rlLogRound(state.arousalCurrent),
+      complexity: rlLogRound(state.complexityDrive),
+      onTask: rlLogRound(state.onTaskDrive),
+      drowsiness: rlLogRound(state.drowsinessDrive)
+    });
+    if (rlLedger.trials.length > RL_LOG_LIMIT) {
+      rlLedger.trials.splice(0, rlLedger.trials.length - RL_LOG_LIMIT);
+    }
+    rlLogPersist();
+    rlUpdateLogUI();
+  }
+
+  function rlLogAssessment(aggregate) {
+    if (aggregate.trials < 3) return { label: 'testing', className: 'rl-mixed' };
+    const mean = aggregate.rewardSum / aggregate.trials;
+    const positiveRate = aggregate.positive / aggregate.trials;
+    const negativeRate = aggregate.negative / aggregate.trials;
+    if (mean > 0.08 && positiveRate >= 0.60 && aggregate.recentMean > -0.02) {
+      return { label: 'works', className: 'rl-good' };
+    }
+    if (mean < -0.08 && negativeRate >= 0.60 && aggregate.recentMean < 0.02) {
+      return { label: "doesn't", className: 'rl-bad' };
+    }
+    return { label: 'mixed', className: 'rl-mixed' };
+  }
+
+  function rlLogActionLabel(index) {
+    const action = RL_ACTIONS[index];
+    const pitch =
+      `${action.frequencySemitones >= 0 ? '+' : ''}${action.frequencySemitones}st`;
+    return `${pitch} / ${Math.round(action.visualGain * 100)}% light`;
+  }
+
+  function rlUpdateLogUI() {
+    const button = document.getElementById('rlLogBtn');
+    const summary = document.getElementById('rlLogSummary');
+    const actions = document.getElementById('rlLogActions');
+    const recent = document.getElementById('rlLogRecent');
+    if (!button || !summary || !actions || !recent) return;
+    button.textContent = `RL log: ${rlLedger.totalTrials}`;
+    const storage = rlLedger.storageAvailable ? 'saved locally' : 'memory only';
+    summary.textContent =
+      `${rlLedger.totalSessions} session${rlLedger.totalSessions === 1 ? '' : 's'} · `
+      + `${rlLedger.totalTrials} clean trial${rlLedger.totalTrials === 1 ? '' : 's'} · ${storage}`;
+
+    const tried = rlLedger.aggregates
+      .map((aggregate, index) => ({
+        aggregate,
+        index,
+        mean: aggregate.trials ? aggregate.rewardSum / aggregate.trials : 0
+      }))
+      .filter(item => item.aggregate.trials > 0)
+      .sort((a, b) => b.mean - a.mean);
+    actions.innerHTML = tried.length
+      ? `<table aria-label="Persistent reinforcement-learning action outcomes">
+          <thead><tr><th>stimulus</th><th>trials</th><th>mean</th><th>finding</th></tr></thead>
+          <tbody>${tried.map(item => {
+            const assessment = rlLogAssessment(item.aggregate);
+            return `<tr>
+              <td>${rlLogEscape(rlLogActionLabel(item.index))}</td>
+              <td>${item.aggregate.trials}</td>
+              <td>${signed(item.mean, 2)}</td>
+              <td class="${assessment.className}">${assessment.label}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`
+      : '<div class="rl-log-note">The first finding appears after a clean 20-second trial.</div>';
+
+    const latest = rlLedger.trials.slice(-6).reverse();
+    recent.innerHTML = latest.length
+      ? latest.map(record => {
+        const time = new Date(record.time).toLocaleTimeString([], {
+          hour: '2-digit', minute: '2-digit'
+        });
+        const assessment = record.reward > 0.08
+          ? { label: 'helped', className: 'rl-good' }
+          : record.reward < -0.08
+            ? { label: "didn't help", className: 'rl-bad' }
+            : { label: 'neutral', className: 'rl-mixed' };
+        const posterior = Number.isFinite(record.onTask)
+          ? ` · on-task ${Math.round(record.onTask * 100)}%`
+          : '';
+        return `<time datetime="${new Date(record.time).toISOString()}">${rlLogEscape(time)}</time>
+          <span>${rlLogEscape(rlLogActionLabel(record.action))} · ${rlLogEscape(record.context.replaceAll(':', ' · '))}${posterior}</span>
+          <span class="${assessment.className}">${assessment.label} ${signed(record.reward, 2)}</span>`;
+      }).join('')
+      : '<span class="rl-log-note">No trials recorded yet.</span>';
+  }
+
+  function rlEnsureContext(context) {
+    if (!Array.isArray(rlPolicy.q[context]) ||
+        rlPolicy.q[context].length !== RL_ACTIONS.length) {
+      rlPolicy.q[context] = Array(RL_ACTIONS.length).fill(0);
+    }
+    if (!Array.isArray(rlPolicy.n[context]) ||
+        rlPolicy.n[context].length !== RL_ACTIONS.length) {
+      rlPolicy.n[context] = Array(RL_ACTIONS.length).fill(0);
+    }
+  }
+
+  function rlOutcome() {
+    // With Pz available, actions earn extra credit for posterior on-task
+    // movement. Complexity remains a smaller reward rather than being confused
+    // with alertness by itself.
+    return state.hasPz
+      ? clamp(
+          state.arousalCurrent * 0.58
+          + state.onTaskDrive * 0.27
+          + state.complexityDrive * 0.15
+        )
+      : clamp(state.arousalCurrent * 0.68 + state.complexityDrive * 0.32);
+  }
+
+  function rlContext() {
+    const level = state.arousalCurrent < 0.62 ? 'low' : 'ready';
+    const trendDelta = state.arousalFast - state.arousalSlow;
+    const trend = trendDelta < -0.025
+      ? 'falling'
+      : trendDelta > 0.025 ? 'rising' : 'steady';
+    const history = rlPolicy.slowOutcome < 0.50 ? 'history-low' : 'history-ok';
+    const attention = state.hasPz && state.onTaskDrive < 0.48
+      ? 'on-task-low'
+      : 'on-task-ok';
+    return `${level}:${trend}:${history}:${attention}`;
+  }
+
+  function rlChooseAction(context) {
+    rlEnsureContext(context);
+    rlEnsureContext('__global__');
+    const contextualN = rlPolicy.n[context];
+    const globalN = rlPolicy.n.__global__;
+    const contextualQ = rlPolicy.q[context];
+    const globalQ = rlPolicy.q.__global__;
+    const contextTotal = contextualN.reduce((sum, value) => sum + value, 0);
+    // Exploration never vanishes; EEG is non-stationary and correlations drift.
+    const epsilon = Math.max(0.08, 0.28 * Math.exp(-rlPolicy.totalChoices / 90));
+    let choice = 0;
+    if (Math.random() < epsilon) {
+      choice = Math.floor(Math.random() * RL_ACTIONS.length);
+    } else {
+      let bestScore = -Infinity;
+      for (let i = 0; i < RL_ACTIONS.length; i++) {
+        const learned = contextualQ[i] * 0.58 + globalQ[i] * 0.42;
+        const count = contextualN[i] + globalN[i] * 0.25;
+        const uncertainty =
+          0.24 * Math.sqrt(Math.log(contextTotal + rlPolicy.totalChoices + 3) / (count + 0.35));
+        const score = learned + uncertainty + Math.random() * 0.0001;
+        if (score > bestScore) {
+          bestScore = score;
+          choice = i;
+        }
+      }
+    }
+    rlPolicy.n[context][choice] += 1;
+    rlPolicy.n.__global__[choice] += 1;
+    rlPolicy.totalChoices += 1;
+    return choice;
+  }
+
+  function rlApplyAction(index) {
+    const action = RL_ACTIONS[index] || RL_ACTIONS[4];
+    rlPolicy.currentAction = RL_ACTIONS[index] ? index : 4;
+    state.rlFrequencySemitones = action.frequencySemitones;
+    state.rlVisualGain = action.visualGain;
+    rlUpdateButton();
+  }
+
+  function rlUpdateButton() {
+    const button = document.getElementById('rlBtn');
+    if (!button) return;
+    const action = RL_ACTIONS[rlPolicy.currentAction];
+    const pitch = `${action.frequencySemitones >= 0 ? '+' : ''}${action.frequencySemitones}st`;
+    const light = `${Math.round(action.visualGain * 100)}%`;
+    button.textContent = rlPolicy.enabled
+      ? `RL ${pitch} · light ${light}`
+      : `RL hold · ${pitch}/${light}`;
+    button.classList.toggle('on', rlPolicy.enabled);
+    button.setAttribute('aria-pressed', String(rlPolicy.enabled));
+    button.title = rlPolicy.enabled
+      ? `Learning · last reward ${signed(rlPolicy.lastReward, 2)} · click to hold · Shift-click to reset`
+      : 'Learning held; current bounded action remains active · click to resume · Shift-click to reset';
+  }
+
+  function rlPersist() {
+    try {
+      localStorage.setItem(RL_STORAGE_KEY, JSON.stringify({
+        version: 1,
+        q: rlPolicy.q,
+        n: rlPolicy.n,
+        totalChoices: rlPolicy.totalChoices
+      }));
+    } catch (_) {
+      // file:// privacy settings can disable localStorage; learning still works
+      // for this page lifetime and no raw EEG is ever written.
+    }
+  }
+
+  function rlLoad() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RL_STORAGE_KEY));
+      if (saved?.version !== 1 || !saved.q || !saved.n ||
+          typeof saved.q !== 'object' || typeof saved.n !== 'object' ||
+          Array.isArray(saved.q) || Array.isArray(saved.n)) return;
+      rlPolicy.q = saved.q;
+      rlPolicy.n = saved.n;
+      rlPolicy.totalChoices = Number.isFinite(saved.totalChoices)
+        ? Math.max(0, saved.totalChoices) : 0;
+      Object.keys(rlPolicy.q).forEach(rlEnsureContext);
+    } catch (_) {
+      // Ignore missing, blocked, or stale local policy data.
+    }
+  }
+
+  function rlUpdateEstimate(context, action, reward) {
+    rlEnsureContext(context);
+    rlEnsureContext('__global__');
+    const update = (key, weight) => {
+      const count = Math.max(1, rlPolicy.n[key][action]);
+      // Recency-weighted values adapt when the user's state or setup changes.
+      const alpha = Math.max(0.075, Math.min(0.30, 1 / Math.sqrt(count + 3)));
+      const old = rlPolicy.q[key][action];
+      rlPolicy.q[key][action] = old + alpha * weight * (reward - old);
+    };
+    update(context, 1);
+    update('__global__', 0.45);
+  }
+
+  function rlRestartEpisode(chooseNew = true) {
+    const outcome = rlOutcome();
+    rlPolicy.fastOutcome = outcome;
+    rlPolicy.slowOutcome = outcome;
+    rlPolicy.blockStartFast = outcome;
+    rlPolicy.blockStartSlow = outcome;
+    rlPolicy.blockSamples = 0;
+    rlPolicy.eligibility = [];
+    rlPolicy.initialized = true;
+    const context = rlContext();
+    rlPolicy.currentContext = context;
+    if (chooseNew) rlApplyAction(rlChooseAction(context));
+    else rlApplyAction(rlPolicy.currentAction);
+  }
+
+  function rlObserveCleanSample() {
+    const outcome = rlOutcome();
+    if (!rlPolicy.initialized) {
+      rlRestartEpisode();
+      return;
+    }
+    rlPolicy.fastOutcome += (outcome - rlPolicy.fastOutcome) * 0.16;
+    // At 4 Hz this roughly represents the preceding 80 seconds; eligibility
+    // traces extend actual stimulus credit to the preceding ~two minutes.
+    rlPolicy.slowOutcome += (outcome - rlPolicy.slowOutcome) * 0.003;
+    if (!rlPolicy.enabled) return;
+    rlPolicy.blockSamples += 1;
+    if (rlPolicy.blockSamples < RL_BLOCK_SAMPLES) return;
+
+    const shortChange = rlPolicy.fastOutcome - rlPolicy.blockStartFast;
+    const longChange = rlPolicy.slowOutcome - rlPolicy.blockStartSlow;
+    const overshoot = Math.max(0, state.arousalCurrent - 0.92) * 2.4;
+    const reward = clampSym(
+      Math.tanh(shortChange / 0.055) * 0.72
+      + Math.tanh(longChange / 0.028) * 0.28
+      - overshoot
+    );
+    rlPolicy.lastReward = reward;
+    rlPolicy.eligibility.unshift({
+      context: rlPolicy.currentContext,
+      action: rlPolicy.currentAction
+    });
+    rlPolicy.eligibility.length =
+      Math.min(rlPolicy.eligibility.length, RL_TRACE_BLOCKS);
+    rlPolicy.eligibility.forEach((entry, age) => {
+      rlUpdateEstimate(
+        entry.context,
+        entry.action,
+        reward * Math.pow(RL_TRACE_DECAY, age)
+      );
+    });
+    rlLogRecord({
+      context: rlPolicy.currentContext,
+      action: rlPolicy.currentAction,
+      reward,
+      shortChange,
+      longChange,
+      startOutcome: rlPolicy.blockStartFast,
+      endOutcome: rlPolicy.fastOutcome
+    });
+
+    const context = rlContext();
+    rlPolicy.currentContext = context;
+    rlApplyAction(rlChooseAction(context));
+    rlPolicy.blockSamples = 0;
+    rlPolicy.blockStartFast = rlPolicy.fastOutcome;
+    rlPolicy.blockStartSlow = rlPolicy.slowOutcome;
+    rlPersist();
+  }
+
+  function rlResetLearning() {
+    rlPolicy.q = {};
+    rlPolicy.n = {};
+    rlPolicy.totalChoices = 0;
+    rlPolicy.lastReward = 0;
+    try { localStorage.removeItem(RL_STORAGE_KEY); } catch (_) {}
+    rlRestartEpisode();
+  }
+
+  rlLogLoad();
+  rlLoad();
+  rlRestartEpisode();
+
+  // Feed the loop. `band` and `emg` are 0..1 (normalize your µV² first!).
+  function pushSample({
+    band, emg, ch1, ch2, paf, chi, centroid, engagement,
+    spectralEntropy, bands, posterior
+  }) {
+    if (state.emgHeld) {
+      band = Math.min(1, band + 0.35);
+      emg = Math.max(emg, 0.7);
+    }
+    state.raw = band;
+    state.ch1 = ch1 ?? band; state.ch2 = ch2 ?? band;
+    state.emg = emg;
+    if (posterior) {
+      state.hasPz = true;
+      state.posteriorClean =
+        posterior.clean !== false && !(emg > 0.25 && state.rejectEMG);
+      state.posteriorQuality = posterior.clean === false
+        ? String(posterior.quality_reason || 'artifact')
+        : state.posteriorClean ? 'clean' : 'other-channel EMG';
+      state.posteriorSitesClean =
+        Number.isFinite(posterior.sites_clean) ? posterior.sites_clean : 0;
+      state.posteriorSitesTotal =
+        Number.isFinite(posterior.sites_total) ? posterior.sites_total : 1;
+      if (Number.isFinite(posterior.rms_band_uv)) {
+        state.posteriorRms = posterior.rms_band_uv;
+      }
+      if (state.posteriorClean && !(emg > 0.25 && state.rejectEMG)) {
+        if (Number.isFinite(posterior.vigilance)) {
+          state.posteriorVigilance +=
+            (posterior.vigilance - state.posteriorVigilance) * 0.24;
+        }
+        if (Number.isFinite(posterior.on_task_proxy)) {
+          state.onTaskDrive +=
+            (posterior.on_task_proxy - state.onTaskDrive) * 0.24;
+        }
+        if (Number.isFinite(posterior.drowsiness)) {
+          state.drowsinessDrive +=
+            (posterior.drowsiness - state.drowsinessDrive) * 0.24;
+        }
+        if (Number.isFinite(posterior.theta_alpha)) {
+          state.posteriorThetaAlpha = posterior.theta_alpha;
+        }
+      }
+    }
+    if (Number.isFinite(paf)) state.paf = paf;
+    if (Number.isFinite(chi)) state.chi = chi;
+    if (Number.isFinite(centroid)) {
+      state.speed = centroid;
+      if (state.rhythmFastBase == null) state.rhythmFastBase = centroid;
+      if (!(emg > 0.25 && state.rejectEMG)) {
+        const fastChange = centroid - state.rhythmFastBase;
+        state.rhythmFastBase += fastChange * 0.10;
+        state.rhythmDeltaFast += (fastChange - state.rhythmDeltaFast) * 0.34;
+        const variationTarget = clamp(Math.abs(fastChange) / 0.22);
+        state.rhythmVariation += (variationTarget - state.rhythmVariation) * 0.24;
+      } else {
+        state.rhythmDeltaFast *= 0.80;
+        state.rhythmVariation *= 0.82;
+      }
+    }
+    if (bands) {
+      const names = ['delta', 'theta', 'alpha', 'beta', 'gamma'];
+      const values = names.map(name => Number(bands[name]) || 0);
+      const dominant = values.indexOf(Math.max(...values));
+      state.rhythmBand = names[dominant];
+      const rhythmArtifact = emg > 0.25 && state.rejectEMG;
+      if (!rhythmArtifact && state.lastBands) {
+        const flux = values.reduce((sum, value, i) => sum + Math.abs(value - state.lastBands[i]), 0) * 0.5;
+        const fluxTarget = clamp(flux * 14);
+        state.bandFlux += (fluxTarget - state.bandFlux) * 0.30;
+      }
+      if (rhythmArtifact) state.bandFlux *= 0.80;
+      state.lastBands = rhythmArtifact ? null : values;
+    }
+    if (Number.isFinite(spectralEntropy)) state.complexity = spectralEntropy;
+    // engagement is a ratio; hearing it in octaves (log2) makes a doubling and a
+    // halving the same size of pitch move in either direction.
+    if (Number.isFinite(engagement) && engagement > 0) state.engage = Math.log2(engagement);
+
+    // --- baseline normalization: reward rising ABOVE your own resting level ---
+    let b = band;
+    if (state.baseline != null) {
+      b = 0.5 + (band - state.baseline) * 1.6;   // deviation, re-centered
+    }
+    state.band = clamp(b);
+
+    // --- EMG sentinel: a good app refuses to reward muscle ---
+    const emgHot = emg > 0.25;
+    setBanner(emgHot && state.rejectEMG);
+    if (emgHot && state.rejectEMG) {
+      // freeze reward — do not let a clench drive the field
+    } else {
+      state.reward = state.band;
+    }
+
+    // Two channels cannot define a true spatial vector field. These are explicitly
+    // labeled proxies: shared band-power deviation acts like divergence, while the
+    // changing channel imbalance acts like signed curl. Known electrode coordinates
+    // and at least 4–6 channels are required for a spatial phase-gradient estimate.
+    const flowMean = (state.ch1 + state.ch2) * 0.5;
+    const flowDiff = state.ch1 - state.ch2;
+    if (state.flowBaseMean == null) state.flowBaseMean = flowMean;
+    if (state.flowBaseDiff == null) state.flowBaseDiff = flowDiff;
+    if (!emgHot) {
+      const flowGain = state.sensitivity;
+      const targetDiv = clampSym((flowMean - state.flowBaseMean) * flowGain * 2.6);
+      const targetCurl = clampSym((flowDiff - state.flowBaseDiff) * flowGain * 1.8);
+      state.divergence += (targetDiv - state.divergence) * 0.22;
+      state.curl += (targetCurl - state.curl) * 0.22;
+      state.flowBaseMean += (flowMean - state.flowBaseMean) * 0.006;
+      state.flowBaseDiff += (flowDiff - state.flowBaseDiff) * 0.006;
+    } else {
+      state.divergence *= 0.92;
+      state.curl *= 0.92;
+    }
+
+    // Session-relative motion baselines amplify small within-person changes.
+    // They adapt very slowly so the field remains sensitive without drifting away.
+    if (state.motionBaseBand == null) state.motionBaseBand = state.reward;
+    if (state.motionBasePaf == null) state.motionBasePaf = state.paf;
+    if (state.motionBaseChi == null) state.motionBaseChi = state.chi;
+    if (state.motionBaseSpeed == null && Number.isFinite(state.speed)) state.motionBaseSpeed = state.speed;
+    if (state.motionBaseEngage == null) state.motionBaseEngage = state.engage;
+    if (state.motionBaseComplexity == null) state.motionBaseComplexity = state.complexity;
+    if (!emgHot) {
+      state.motionSamples += 1;
+      // Average the first ~4 seconds, then let the personal baseline drift slowly.
+      const adapt = state.motionSamples <= 16 ? 1 / state.motionSamples : 0.001;
+      state.motionBaseBand += (state.reward - state.motionBaseBand) * adapt;
+      state.motionBasePaf += (state.paf - state.motionBasePaf) * adapt;
+      state.motionBaseChi += (state.chi - state.motionBaseChi) * adapt;
+      if (Number.isFinite(state.speed)) state.motionBaseSpeed += (state.speed - state.motionBaseSpeed) * adapt;
+      state.motionBaseEngage += (state.engage - state.motionBaseEngage) * adapt;
+      state.motionBaseComplexity += (state.complexity - state.motionBaseComplexity) * adapt;
+    }
+    const warmed = state.motionSamples > 16;
+    state.bandDelta = warmed ? state.reward - state.motionBaseBand : 0;
+    state.pafDelta = warmed ? state.paf - state.motionBasePaf : 0;
+    state.chiDelta = warmed ? state.chi - state.motionBaseChi : 0;
+    state.speedDelta = (warmed && Number.isFinite(state.speed)) ? state.speed - state.motionBaseSpeed : 0;
+    state.engageDelta = warmed ? state.engage - state.motionBaseEngage : 0;
+    state.complexityDelta = warmed ? state.complexity - state.motionBaseComplexity : 0;
+
+    if (!emgHot) {
+      const T = state.euphonyTrackers;
+      // Smaller chi means a flatter, more high-frequency-heavy spectrum. Higher
+      // engagement and centroid point in the same alert/aroused direction.
+      const highFrequency = adaptiveEuphonyScore(T.chi, state.chi, -1);
+      const engagementDrive = adaptiveEuphonyScore(T.engage, state.engage, 1);
+      const speedDrive = adaptiveEuphonyScore(T.speed, state.speed, 1);
+      const complexityDrive =
+        adaptiveEuphonyScore(T.complexity, state.complexity, 1);
+      const alertnessTarget = state.hasPz && state.posteriorClean
+        ? (
+            highFrequency * 0.28
+            + engagementDrive * 0.18
+            + speedDrive * 0.09
+            + state.posteriorVigilance * 0.27
+            + state.onTaskDrive * 0.18
+          )
+        : highFrequency * 0.50 + engagementDrive * 0.35 + speedDrive * 0.15;
+      state.alertnessDrive +=
+        (alertnessTarget - state.alertnessDrive) * 0.16;
+      state.complexityDrive +=
+        (complexityDrive - state.complexityDrive) * 0.16;
+      // Keep the broadband spectral centroid as a distinct pitch signal. Its
+      // personal normalization makes small within-session changes audible.
+      state.rhythmPitchDrive +=
+        (speedDrive - state.rhythmPitchDrive) * 0.22;
+      // Two time scales separate "where am I?" from "did I just improve?".
+      // The latter is positive-only and independent of the absolute starting point.
+      state.arousalFast +=
+        (state.alertnessDrive - state.arousalFast) * 0.34;
+      state.arousalSlow +=
+        (state.alertnessDrive - state.arousalSlow) * 0.035;
+      const recentRiseTarget = clamp(
+        (state.arousalFast - state.arousalSlow) / 0.10
+      );
+      const riseChase = recentRiseTarget > state.recentRise ? 0.38 : 0.055;
+      state.recentRise +=
+        (recentRiseTarget - state.recentRise) * riseChase;
+
+      state.arousalCurrent +=
+        (state.alertnessDrive - state.arousalCurrent) * 0.15;
+      state.arousalError = AROUSAL_TARGET - state.arousalCurrent;
+      const stimulationTarget = clamp(
+        (state.arousalError - AROUSAL_DEADBAND) / AROUSAL_ERROR_SPAN
+      );
+      state.arousalStim +=
+        (stimulationTarget - state.arousalStim) * 0.11;
+      rlObserveCleanSample();
+    } else {
+      // Never escalate or reward based on muscle-contaminated samples.
+      state.arousalStim *= 0.72;
+      state.recentRise *= 0.78;
+    }
+  }
+
+  // ---------------- LIVE EEG ----------------
+  let reconnectTimer = null;
+  function connectEEG() {
+    const tag = document.getElementById('connTag');
+    tag.textContent = 'connecting to live EEG…';
+    tag.style.color = 'var(--dim)';
+    const ws = new WebSocket('ws://localhost:8765');
+    ws.onopen = () => {
+      tag.textContent = '● LIVE · waiting for montage…';
+      tag.style.color = 'var(--good)';
+    };
+    ws.onmessage = e => {
+      const d = JSON.parse(e.data);
+      if (d.montage) {
+        const primary = Array.isArray(d.montage.primary)
+          ? d.montage.primary.join(' + ')
+          : '2 + 7';
+        const pz = Number.isFinite(d.montage.pz) ? ` + ${d.montage.pz}(Pz)` : '';
+        const posteriorRight = Number.isFinite(d.montage.posterior_right)
+          ? ` + ${d.montage.posterior_right}(≈P4/O2)`
+          : '';
+        tag.textContent =
+          `● LIVE · Cyton channels ${primary}${pz}${posteriorRight}`;
+      }
+      const prefix = state.mode === 'focus' ? 'beta' : 'alpha';
+      pushSample({
+        band: d[prefix] ?? d.band,
+        emg: d.emg,
+        ch1: d[`${prefix}_ch1`] ?? d.ch1,
+        ch2: d[`${prefix}_ch2`] ?? d.ch2,
+        paf: d.paf,
+        chi: d.chi,
+        centroid: d.centroid,
+        engagement: d.engagement,
+        spectralEntropy: d.spectral_entropy,
+        bands: d.bands,
+        posterior: d.posterior
+      });
+    };
+    ws.onerror = () => ws.close();
+    ws.onclose = () => {
+      tag.textContent = 'live EEG disconnected · retrying…';
+      tag.style.color = 'var(--warn)';
+      clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(connectEEG, 1200);
+    };
+  }
+  connectEEG();
+
+  // ---------------- AUDIO (the eyes-closed channel) ----------------
+  // Why this exists: the strongest alpha is eyes-CLOSED, which fights any visual
+  // feedback. Pitch carries the same information the field carries, through a sense
+  // that still works with your eyes shut.
+  //
+  //   pitch  = fast broadband spectral-rhythm change by default
+  //   shimmer= the band reward, added on top only when you are above your baseline
+  //
+  // PAF gets an absolute mapping because it already has a physical unit: 10 Hz always
+  // maps to A3. The optional broadband-speed and engagement sources remain relative
+  // to the session because their raw scales depend on montage and recording quality.
+  // Direction carries no valence — faster alpha is not inherently "better".
+  const PITCH_SOURCES = [
+    // Rhythm is the fast, session-relative motion of the broadband spectral centroid.
+    // PAF remains available, but is no longer the default or the main motion source.
+    { key: 'rhythm', label: 'rhythm', adaptiveRange: true, get: () => state.rhythmPitchDrive },
+    { key: 'paf',    label: 'PAF',    absolute: true, get: () => state.paf },
+    { key: 'engage', label: 'β/α',    span: 0.9, get: () => state.engageDelta },
+  ];
+  const VOLUMES = [0.05, 0.11, 0.20];
+  const TONE_ROOT = 220;          // A3 means a 10 Hz PAF
+  const PAF_CENTER_HZ = 10;
+  const PAF_HALF_RANGE_HZ = 3;    // 7–13 Hz spans the full audible mapping
+  const RANGE_SEMIS = 24;         // ±2 octaves; broad absolute PAF register
+  const PAF_MICRO_RANGE_HZ = 0.45;
+  const PAF_MICRO_SEMIS = 7;      // exaggerate subtle within-session PAF motion
+  const RHYTHM_AUDIO_MIN_HZ = 40;
+  const RHYTHM_AUDIO_MAX_HZ = 3200;
+  const ADAPTIVE_SCORE_MIN = 0.12;
+  const ADAPTIVE_SCORE_MAX = 0.88;
+  const PENTATONIC = [0, 3, 5, 7, 10];   // minor pentatonic: no sour interval, any two notes agree
+  const SOUND_SCENES = ['bath', 'forest', 'rain'];
+  const SCENE_SEMITONES = [-7, 0, 7];     // low bath, centered forest, bright rain
+  const AUTO_SCENE_MINUTES = [0, 2, 5, 10];
+
+  const audio = {
+    ctx: null, nodes: null, on: false,
+    srcIdx: 0, sceneIdx: 0, autoSceneIdx: 2, quantize: false, volIdx: 1,
+    semis: 0, snapped: 0, hz: TONE_ROOT, reward: 0.5,
+    alertness: 0.5, complexity: 0.5, euphony: 0.5,
+    chimeArmed: false, lastChime: 0, nextSceneEvent: 0, nextAutoSceneAt: 0,
+    nextBrainNote: 0, brainStep: 0, orbitPhase: 0, orbitPan: 0, orbitRate: 0.1,
+    nextOddball: 0, oddballStep: 0, riseChimeArmed: true, lastRiseChime: 0
+  };
+
+  function autoSceneMinutes() {
+    return AUTO_SCENE_MINUTES[audio.autoSceneIdx];
+  }
+
+  function resetAutoSceneTimer() {
+    const minutes = autoSceneMinutes();
+    audio.nextAutoSceneAt = audio.on && audio.ctx && minutes > 0
+      ? audio.ctx.currentTime + minutes * 60
+      : 0;
+  }
+
+  function updateAudioOffTag() {
+    const minutes = autoSceneMinutes();
+    const auto = minutes > 0 ? `auto ${minutes} min` : 'auto off';
+    el('audTag').textContent =
+      `audio off · ${SOUND_SCENES[audio.sceneIdx]} · ${auto} · press A`;
+    el('audTag').style.color = 'var(--dim)';
+  }
+
+  function setScene(index, resetTimer = true) {
+    audio.sceneIdx = (index + SOUND_SCENES.length) % SOUND_SCENES.length;
+    audio.nextSceneEvent = 0;
+    el('sceneBtn').textContent = `Scene: ${SOUND_SCENES[audio.sceneIdx]}`;
+    if (resetTimer) resetAutoSceneTimer();
+    if (!audio.on) updateAudioOffTag();
+  }
+
+  function autoSceneCountdown() {
+    if (!audio.on || !audio.ctx || autoSceneMinutes() === 0 || !audio.nextAutoSceneAt) {
+      return '';
+    }
+    const seconds = Math.max(0, Math.ceil(audio.nextAutoSceneAt - audio.ctx.currentTime));
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  }
+
+  function buildAudioGraph() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    const ctx = new AC();
+    const master = ctx.createGain(); master.gain.value = 0.0001;
+    // Protect against summation peaks when a novelty cue overlaps the harmonic bed.
+    const outputLimiter = ctx.createDynamicsCompressor();
+    outputLimiter.threshold.value = -14;
+    outputLimiter.knee.value = 8;
+    outputLimiter.ratio.value = 8;
+    outputLimiter.attack.value = 0.004;
+    outputLimiter.release.value = 0.16;
+    master.connect(outputLimiter); outputLimiter.connect(ctx.destination);
+    const sceneBus = ctx.createGain(); sceneBus.gain.value = 1;
+    sceneBus.connect(master);
+    // A gentle lowpass keeps the triangle from getting glassy at the top of the range,
+    // which matters when you are wearing this for twenty minutes with your eyes closed.
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 1600; filt.Q.value = 0.5;
+    const tonePan = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
+    filt.connect(tonePan); tonePan.connect(master);
+    const voice = (type, gain) => {
+      const o = ctx.createOscillator(); o.type = type;
+      const g = ctx.createGain(); g.gain.value = gain;
+      o.connect(g); g.connect(filt); o.start();
+      return { o, g };
+    };
+    const lead  = voice('triangle', 0.5);  // the pitch you actually track
+    const sub   = voice('sine', 0.3);      // an octave below: body, not information
+    const shim  = voice('sine', 0.0);      // a fifth above: gain = band reward
+    const third = voice('sine', 0.0);      // 5:4 harmonic layer: spectral entropy
+    const oct   = voice('sine', 0.0);      // 2:1 harmonic layer: spectral entropy
+    const upper = voice('sine', 0.0);      // 5:2 upper harmonic: highest complexity
+    const rough = voice('sine', 0.0);      // low-euphony tension, resolves toward a fifth
+
+    // One reusable stereo noise bed is filtered differently for forest wind and rain.
+    // It is generated locally, so the soundscapes need no samples or network access.
+    const noiseBuffer = ctx.createBuffer(2, ctx.sampleRate * 4, ctx.sampleRate);
+    for (let channel = 0; channel < noiseBuffer.numberOfChannels; channel++) {
+      const data = noiseBuffer.getChannelData(channel);
+      let smooth = 0;
+      for (let i = 0; i < data.length; i++) {
+        smooth = smooth * 0.985 + (Math.random() * 2 - 1) * 0.015;
+        data[i] = Math.random() * 1.55 - 0.775 + smooth * 0.45;
+      }
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer; noise.loop = true;
+    const rainHP = ctx.createBiquadFilter(); rainHP.type = 'highpass'; rainHP.frequency.value = 650;
+    const rainLP = ctx.createBiquadFilter(); rainLP.type = 'lowpass'; rainLP.frequency.value = 6500;
+    const rainGain = ctx.createGain(); rainGain.gain.value = 0;
+    noise.connect(rainHP); rainHP.connect(rainLP); rainLP.connect(rainGain); rainGain.connect(sceneBus);
+    const windLP = ctx.createBiquadFilter(); windLP.type = 'lowpass'; windLP.frequency.value = 500;
+    const windGain = ctx.createGain(); windGain.gain.value = 0;
+    noise.connect(windLP); windLP.connect(windGain); windGain.connect(sceneBus);
+    noise.start();
+
+    const cue = ctx.createGain(); cue.gain.value = 1; cue.connect(ctx.destination);
+    audio.ctx = ctx;
+    audio.nodes = {
+      master, outputLimiter, filt, tonePan, lead, sub, shim, third, oct, upper, rough, cue,
+      sceneBus, noise, rainHP, rainLP, rainGain, windLP, windGain
+    };
+    return true;
+  }
+
+  function setAudio(on) {
+    if (on && !audio.ctx && !buildAudioGraph()) {
+      el('audTag').textContent = 'audio unavailable in this browser';
+      return;
+    }
+    audio.on = on;
+    if (on) {
+      audio.ctx.resume();
+      audio.chimeArmed = false;          // don't fire a chime on the first frame
+      audio.nextBrainNote = 0;
+      audio.nextOddball = audio.ctx.currentTime + 8;
+      resetAutoSceneTimer();
+    } else if (audio.nodes) {
+      audio.nextAutoSceneAt = 0;
+      audio.nodes.master.gain.setTargetAtTime(0.0001, audio.ctx.currentTime, 0.08);
+    }
+    el('audBtn').classList.toggle('on', on);
+    el('audBtn').innerHTML = on ? 'Audio &#9834; on' : 'Audio &#9834; off';
+    el('audioRow').classList.toggle('live', on);
+  }
+
+  // Re-centre after a calibrate or a source change. A RELATIVE source reads 0 semitones
+  // at its new baseline, so parking the tone at 0 is right. An ABSOLUTE source (PAF)
+  // has a fixed meaning per pitch — zeroing it would be a lie, so we leave it alone and
+  // let the glide carry it.
+  function recentreTone() {
+    if (PITCH_SOURCES[audio.srcIdx].absolute) return;
+    audio.semis = 0; audio.snapped = 0;
+  }
+
+  // Snap to a scale, with a deadband so a value sitting on a boundary doesn't flutter
+  // between two notes. Continuous mode (a slow glissando) is the alternative.
+  function snapToScale(s) {
+    const oct = Math.floor(s / 12), rem = s - oct * 12;
+    let best = 12, bd = Math.abs(rem - 12);
+    for (const d of PENTATONIC) {
+      const dd = Math.abs(rem - d);
+      if (dd < bd) { bd = dd; best = d; }
+    }
+    return oct * 12 + best;
+  }
+
+  // Driven by its own timer, NOT by requestAnimationFrame: rAF stops dead when the
+  // tab is hidden, and a frozen tone is exactly the failure an eyes-closed user
+  // cannot see. Background timers are throttled to ~1 Hz, which the glide absorbs.
+  let audioLast = performance.now();
+  setInterval(() => {
+    const now = performance.now();
+    const dt = Math.min((now - audioLast) / 1000, 0.5);
+    audioLast = now;
+    audioUpdate(dt);
+  }, 60);
+
+  function audioUpdate(dt) {
+    if (!audio.on || !audio.ctx) return;
+    const {
+      master, filt, tonePan, lead, sub, shim, third, oct, upper, rough,
+      rainHP, rainLP, rainGain, windLP, windGain
+    } = audio.nodes;
+    const t = audio.ctx.currentTime;
+    if (autoSceneMinutes() > 0 && audio.nextAutoSceneAt > 0 && t >= audio.nextAutoSceneAt) {
+      setScene(audio.sceneIdx + 1, true);
+    }
+    // The audio keeps its own copy of the reward drive for the same reason — it must
+    // not depend on a render loop that may not be running.
+    const rewardTarget = clamp(0.5 + state.bandDelta * state.sensitivity * 2.2);
+    audio.reward += (rewardTarget - audio.reward) * Math.min(1, 2.0 * dt);
+    const I = audio.reward;
+    const src = PITCH_SOURCES[audio.srcIdx];
+    // PAF uses a stable absolute mapping so pitch communicates actual alpha speed.
+    // Session-relative alternatives still share the visual sensitivity control.
+    let target;
+    if (src.adaptiveRange) {
+      // Pitch perception is logarithmic, so equal motion in this normalized
+      // broadband EEG drive traverses equal musical distances (octaves), not equal
+      // numbers of Hertz. Typical one-deviation changes now span hundreds of Hz.
+      const normalizedPitch = clamp(
+        (src.get() - ADAPTIVE_SCORE_MIN)
+        / (ADAPTIVE_SCORE_MAX - ADAPTIVE_SCORE_MIN)
+      );
+      const pitch01 = clamp(
+        0.5 + (normalizedPitch - 0.5) * state.sensitivity / 3
+      );
+      const rangedHz = RHYTHM_AUDIO_MIN_HZ
+        * Math.pow(RHYTHM_AUDIO_MAX_HZ / RHYTHM_AUDIO_MIN_HZ, pitch01);
+      target = 12 * Math.log2(rangedHz / TONE_ROOT);
+    } else if (src.absolute) {
+      // Keep a stable absolute anchor, but add an intentionally amplified personal
+      // deviation. A typical 0.1 Hz PAF move is now roughly two semitones instead
+      // of disappearing inside a nearly static drone.
+      const absolute = clampSym((src.get() - PAF_CENTER_HZ) / PAF_HALF_RANGE_HZ) * RANGE_SEMIS;
+      const micro = clampSym(state.pafDelta / PAF_MICRO_RANGE_HZ)
+        * PAF_MICRO_SEMIS * state.sensitivity / 3;
+      target = Math.max(-RANGE_SEMIS, Math.min(RANGE_SEMIS, absolute + micro));
+    } else {
+      target = clampSym(src.get() / (src.span * 3 / state.sensitivity)) * RANGE_SEMIS;
+    }
+
+    const emgHot = state.emg > 0.25 && state.rejectEMG;
+    // Freeze the pitch on muscle, exactly as the reward freezes. A clench must never
+    // sound like a state change — that is the one thing that would teach you nonsense.
+    if (!emgHot) {
+      audio.semis += (target - audio.semis) * Math.min(1, 2.2 * dt);
+      // These targets are already normalized against rolling personal variability
+      // in pushSample. Taking their maximum implements "alert OR complex".
+      const alertnessTarget = state.alertnessDrive;
+      const complexityTarget = state.complexityDrive;
+      audio.alertness +=
+        (alertnessTarget - audio.alertness) * Math.min(1, 0.85 * dt);
+      audio.complexity +=
+        (complexityTarget - audio.complexity) * Math.min(1, 0.75 * dt);
+      const euphonyTarget = Math.max(
+        audio.alertness,
+        audio.complexity,
+        0.45 + state.recentRise * 0.48
+      );
+      audio.euphony +=
+        (euphonyTarget - audio.euphony) * Math.min(1, 0.95 * dt);
+    }
+    const A = emgHot ? 0 : state.arousalStim;
+    const RISE = emgHot ? 0 : state.recentRise;
+
+    let out = audio.semis;
+    if (audio.quantize) {
+      const cand = snapToScale(audio.semis);
+      if (Math.abs(audio.semis - audio.snapped) > 1.2) audio.snapped = cand;
+      out = audio.snapped;
+    }
+    const scene = SOUND_SCENES[audio.sceneIdx];
+    // Scene register is deliberately independent of the EEG contour. Switching
+    // scenes must create an immediate, unmistakable musical pitch change while
+    // preserving all relative brain-driven motion within that new register.
+    const sceneSemitones = SCENE_SEMITONES[audio.sceneIdx];
+    // Learned pitch shifts are largest while arousal is below target, but retain
+    // a quarter-strength melodic difference above target so outcomes stay testable.
+    const rlPitchMix = 0.25 + A * 0.75;
+    const learnedSemitones = state.rlFrequencySemitones * rlPitchMix;
+    const requestedHz =
+      TONE_ROOT * Math.pow(2, (out + sceneSemitones + learnedSemitones) / 12);
+    const hz = src.adaptiveRange
+      ? Math.max(RHYTHM_AUDIO_MIN_HZ, Math.min(RHYTHM_AUDIO_MAX_HZ, requestedHz))
+      : requestedHz;
+    audio.hz = hz;
+    // A quantized tone should STEP; a continuous one should glide. Same ramp call,
+    // different time constant.
+    const tau = audio.quantize ? 0.03 : 0.12;
+    lead.o.frequency.setTargetAtTime(hz, t, tau);
+    sub.o.frequency.setTargetAtTime(hz / 2, t, tau);
+    const E = emgHot ? Math.min(audio.euphony, 0.30) : audio.euphony;
+    const easeE = E * E * (3 - 2 * E);
+    const mixRatio = (tense, consonant) => tense + (consonant - tense) * easeE;
+    // At low euphony the partials sit at gentle tritone / major-seventh tensions.
+    // As alertness or complexity rises they continuously resolve to a pure third,
+    // fifth, octave, and twelfth. No sudden chord switch is needed.
+    shim.o.frequency.setTargetAtTime(hz * mixRatio(Math.SQRT2, 1.5), t, tau);
+    third.o.frequency.setTargetAtTime(hz * mixRatio(1.4142, 1.25), t, tau);
+    oct.o.frequency.setTargetAtTime(hz * mixRatio(1.88775, 2), t, tau);
+    upper.o.frequency.setTargetAtTime(hz * mixRatio(2.3784, 2.5), t, tau);
+    rough.o.frequency.setTargetAtTime(hz * mixRatio(1.05946, 1.5), t, tau);
+    const flowOpen = Math.max(0.55, 1 + state.divergence * 0.55);
+    const sceneColor = scene === 'bath' ? 0.72 : scene === 'forest' ? 1.18 : 1.65;
+    filt.frequency.setTargetAtTime(
+      Math.min(9500, hz * 4.5 * flowOpen * sceneColor * (1 + A * 1.8)), t, 0.15
+    );
+    // Scene identity stays audible even when artifact rejection freezes the EEG
+    // mapping: bath is round, forest is woody, and rain is brighter/noisier.
+    lead.o.type = scene === 'bath' ? 'sine' : scene === 'forest' ? 'triangle' : 'sawtooth';
+
+    // Higher normalized spectral entropy adds stable harmonic intervals rather
+    // than simply raising volume. During EMG rejection the extra harmony drops
+    // out, because broadband muscle noise can otherwise mimic high complexity.
+    const C = emgHot ? 0 : audio.complexity;
+    const DIV = emgHot ? 0 : state.divergence;
+    const toneMix = scene === 'bath' ? 0.88 : scene === 'forest' ? 0.30 : 0.38;
+    const harmonicOpen = Math.max(0.30, 1 + DIV * 0.85);
+    const subWeight = Math.max(0.65, 1 - DIV * 0.30);
+    const rhythmDrive = Number.isFinite(state.speed) ? clamp((state.speed - 2) / 18) : 0.35;
+    const variationDrive = emgHot
+      ? 0
+      : clamp(state.rhythmVariation * 0.62 + state.bandFlux * 0.78);
+
+    // The broadband rhythm literally orbits the sound around the listener.
+    // Faster spectra rotate faster; a more variable spectrum sweeps wider.
+    audio.orbitRate =
+      0.07 + rhythmDrive * 0.40 + variationDrive * 0.24 + A * 0.34;
+    if (!emgHot) audio.orbitPhase += dt * Math.PI * 2 * audio.orbitRate;
+    const orbitWidth = Math.min(0.98, 0.24 + variationDrive * 0.60 + A * 0.32);
+    audio.orbitPan = emgHot ? 0 : Math.sin(audio.orbitPhase) * orbitWidth;
+    if (tonePan.pan) {
+      const spatial = clampSym(audio.orbitPan * 0.86 + state.curl * 0.14);
+      tonePan.pan.setTargetAtTime(spatial, t, 0.10 + (1 - variationDrive) * 0.16);
+    }
+
+    const breathRate =
+      0.08 + rhythmDrive * 0.23 + variationDrive * 0.18 + A * 0.45;
+    const breath = 0.58 + 0.42 * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 * breathRate));
+    // A faster, shallow contrast pulse raises temporal salience without raising the
+    // sustained level. Difference, rather than raw loudness, is the stimulus.
+    const alertPulse =
+      (1 - A) + A * (0.72 + 0.28 * (0.5 + 0.5 * Math.sin(
+        t * Math.PI * 2 * (1.1 + A * 1.7)
+      )));
+
+    // The band reward rides on top as a quiet fifth — only above your own baseline,
+    // so silence on that voice means "at baseline", not "broken".
+    const rewardUp = Math.max(0, I - 0.5) * 2;
+    const consonantBloom = 0.22 + easeE * 0.78;
+    shim.g.gain.setTargetAtTime(
+      (0.035 * easeE + 0.19 * rewardUp * rewardUp) * toneMix * consonantBloom,
+      t, 0.25
+    );
+    lead.g.gain.setTargetAtTime(
+      (0.34 - C * 0.05) * toneMix * breath * alertPulse, t, 0.08
+    );
+    sub.g.gain.setTargetAtTime(0.20 * toneMix * subWeight * (0.78 + breath * 0.22), t, 0.20);
+    third.g.gain.setTargetAtTime(
+      (0.025 + 0.14 * C) * toneMix * consonantBloom * Math.sqrt(harmonicOpen),
+      t, 0.30
+    );
+    oct.g.gain.setTargetAtTime(
+      (0.018 + 0.105 * Math.pow(C, 1.35)) * toneMix * consonantBloom * harmonicOpen,
+      t, 0.34
+    );
+    upper.g.gain.setTargetAtTime(
+      (0.055 * C * C + 0.018 * easeE) * toneMix * consonantBloom * harmonicOpen,
+      t, 0.38
+    );
+    // This tension voice is intentionally quiet: low euphony should read as
+    // unsettled/rough, not as an alarm. It disappears as the chord resolves.
+    rough.g.gain.setTargetAtTime(
+      (
+        0.052 * Math.pow(1 - easeE, 1.35)
+        + 0.032 * A * (1 - RISE * 0.75)
+      ) * toneMix,
+      t, 0.30
+    );
+
+    // Environmental layers now follow broadband rhythm and variation. PAF is not
+    // needed for their motion: rhythm sets brightness/rate and variation adds texture.
+    // Preserve a recognizable neutral ambience during artifacts. Only the
+    // brain-reactive modulation is frozen; choosing Forest must still sound Forest.
+    const scenePresence = emgHot ? 0.68 : 1;
+    const rainLevel = scene === 'rain'
+      ? (0.035 + I * 0.055 + C * 0.04) * scenePresence * Math.max(0.72, 1 + DIV * 0.22)
+      : 0;
+    const windLevel = scene === 'forest'
+      ? (0.055 + I * 0.070 + C * 0.035) * scenePresence
+      : scene === 'rain' ? 0.012 * scenePresence : 0;
+    rainGain.gain.setTargetAtTime(rainLevel, t, 0.45);
+    windGain.gain.setTargetAtTime(windLevel, t, 0.65);
+    rainHP.frequency.setTargetAtTime(450 + rhythmDrive * 1000 + A * 850, t, 0.8);
+    rainLP.frequency.setTargetAtTime(
+      3200 + rhythmDrive * 3600 + variationDrive * 1900 + C * 900 + A * 1800,
+      t, 0.8
+    );
+    windLP.frequency.setTargetAtTime(
+      300 + rhythmDrive * 920 + variationDrive * 680 + C * 380 + A * 1100,
+      t, 0.9
+    );
+
+    if (t >= audio.nextSceneEvent) {
+      // During artifact rejection, neutral constants maintain the scene without
+      // pretending the muscle-contaminated signal is neurofeedback.
+      const sceneComplexity = emgHot ? 0.18 : C;
+      const sceneRhythm = emgHot ? 0.35 : clamp(rhythmDrive + A * 0.35);
+      const sceneVariation = emgHot ? 0 : clamp(variationDrive + A * 0.25);
+      if (scene === 'forest') {
+        forestCall(sceneComplexity, sceneRhythm, sceneVariation);
+        audio.nextSceneEvent = t + Math.max(
+          0.55, 4.0 - sceneRhythm * 1.8 - sceneVariation * 1.4 - sceneComplexity * 0.8
+        );
+      } else if (scene === 'rain') {
+        rainDrop(sceneComplexity, sceneRhythm, sceneVariation);
+        audio.nextSceneEvent = t + Math.max(
+          0.11, 0.86 - sceneRhythm * 0.28 - sceneVariation * 0.34 - sceneComplexity * 0.12
+        );
+      }
+    }
+
+    // Broadband rhythm sets pulse cadence and melodic direction. Variation changes
+    // the step size and timing looseness; entropy decides how many harmonics appear.
+    if (!emgHot && t >= audio.nextBrainNote) {
+      brainPulse(hz, C, I, rhythmDrive, variationDrive, E, A, RISE, scene);
+      const cadence =
+        1.24 - rhythmDrive * 0.64 - variationDrive * 0.48 - A * 0.58;
+      const looseness = (Math.random() - 0.5) * variationDrive * 0.28;
+      audio.nextBrainNote = t + Math.max(0.20, cadence + looseness);
+    }
+
+    // Rare, feature-rotating deviants implement auditory prediction error. Their
+    // irregular spacing and changing pitch/location resist rapid habituation.
+    if (!emgHot && A > 0.12 && t >= audio.nextOddball) {
+      arousalOddball(hz, A);
+      const meanInterval = 17 - A * 9;
+      audio.nextOddball = t + meanInterval * (0.72 + Math.random() * 0.62);
+    }
+
+    // Operant-style shaping: any recent positive change earns a consonant flourish,
+    // even if the absolute arousal level is still low.
+    if (RISE < 0.22) audio.riseChimeArmed = true;
+    if (
+      RISE > 0.58 && audio.riseChimeArmed
+      && !emgHot && t - audio.lastRiseChime > 4
+    ) {
+      audio.riseChimeArmed = false;
+      audio.lastRiseChime = t;
+      chime(Math.min(2600, hz * 2));
+    }
+
+    // Equal-ish loudness: high notes read louder, so pull them back a little.
+    const loud =
+      Math.min(1.35, Math.pow(TONE_ROOT / hz, 0.28)) * (1 - C * 0.12);
+    const vol = VOLUMES[audio.volIdx] * loud * (1 + A * 0.08) * (emgHot ? 0.18 : 1);
+    master.gain.setTargetAtTime(Math.max(0.0001, vol), t, 0.12);
+
+    // A rare bell when the reward runs well above baseline — a discrete event you can
+    // notice without opening your eyes. Hysteresis + a 4s floor keep it from nagging.
+    if (I < 0.62) audio.chimeArmed = true;
+    if (I > 0.80 && audio.chimeArmed && !emgHot && t - audio.lastChime > 4) {
+      audio.chimeArmed = false; audio.lastChime = t;
+      chime(hz * 3);
+    }
+  }
+
+  function arousalOddball(baseHz, drive) {
+    const ctx = audio.ctx, t = ctx.currentTime;
+    const variants = [
+      { ratio: Math.SQRT2, pan: -0.72, type: 'triangle', duration: 0.26 },
+      { ratio: 1.88775, pan: 0.76, type: 'sine', duration: 0.20 },
+      { ratio: 0.66742, pan: -0.18, type: 'triangle', duration: 0.31 },
+      { ratio: 2.24492, pan: 0.34, type: 'sine', duration: 0.23 }
+    ];
+    const v = variants[audio.oddballStep % variants.length];
+    audio.oddballStep += 1;
+    const startHz = Math.max(160, Math.min(2600, baseHz * v.ratio));
+    const endHz = Math.min(4200, startHz * (1.16 + drive * 0.38));
+    const o = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const g = ctx.createGain();
+    const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
+    o.type = v.type;
+    o.frequency.setValueAtTime(startHz, t);
+    o.frequency.exponentialRampToValueAtTime(endHz, t + v.duration * 0.72);
+    filter.type = 'bandpass';
+    filter.frequency.value = Math.min(5200, startHz * 1.35);
+    filter.Q.value = 0.9 + drive * 1.4;
+    if (panner.pan) panner.pan.value = v.pan;
+    // A brief looming envelope produces contrast, but remains far below the capped
+    // manual wake pulse and still obeys the selected master volume.
+    const peak = 0.075 + drive * 0.045;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak * 0.28, t + 0.025);
+    g.gain.exponentialRampToValueAtTime(peak, t + v.duration * 0.62);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + v.duration);
+    o.connect(filter); filter.connect(g); g.connect(panner); panner.connect(audio.nodes.sceneBus);
+    o.onended = () => {
+      filter.disconnect(); g.disconnect(); panner.disconnect();
+    };
+    o.start(t); o.stop(t + v.duration + 0.02);
+  }
+
+  function chime(freq) {
+    const ctx = audio.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(VOLUMES[audio.volIdx] * 0.5, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+    o.connect(g); g.connect(audio.nodes.cue);
+    o.start(t); o.stop(t + 1.2);
+  }
+
+  function wakePulseSound() {
+    if (!audio.on || !audio.ctx || !audio.nodes) return;
+    const ctx = audio.ctx, t = ctx.currentTime;
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -18;
+    limiter.knee.value = 8;
+    limiter.ratio.value = 8;
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.16;
+    limiter.connect(audio.nodes.master);  // still obeys the selected volume
+
+    // A brief synthesized zap: filtered crackle plus a fast downward electrical
+    // sweep. Both are deliberately short and feed the limiter above.
+    const zap = ctx.createOscillator();
+    const zapGain = ctx.createGain();
+    zap.type = 'sawtooth';
+    zap.frequency.setValueAtTime(1650, t);
+    zap.frequency.exponentialRampToValueAtTime(115, t + 0.27);
+    zapGain.gain.setValueAtTime(0.0001, t);
+    zapGain.gain.exponentialRampToValueAtTime(0.095, t + 0.008);
+    zapGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    zap.connect(zapGain); zapGain.connect(limiter);
+    zap.start(t); zap.stop(t + 0.30);
+
+    const crackleBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.18), ctx.sampleRate);
+    const crackle = crackleBuffer.getChannelData(0);
+    for (let i = 0; i < crackle.length; i++) {
+      const decay = 1 - i / crackle.length;
+      const gate = Math.random() > 0.72 ? 1 : 0.18;
+      crackle[i] = (Math.random() * 2 - 1) * decay * gate;
+    }
+    const crackleSource = ctx.createBufferSource();
+    const crackleFilter = ctx.createBiquadFilter();
+    const crackleGain = ctx.createGain();
+    crackleSource.buffer = crackleBuffer;
+    crackleFilter.type = 'bandpass';
+    crackleFilter.frequency.value = 2400;
+    crackleFilter.Q.value = 0.8;
+    crackleGain.gain.setValueAtTime(0.0001, t);
+    crackleGain.gain.exponentialRampToValueAtTime(0.075, t + 0.006);
+    crackleGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    crackleSource.connect(crackleFilter);
+    crackleFilter.connect(crackleGain);
+    crackleGain.connect(limiter);
+    crackleSource.start(t); crackleSource.stop(t + 0.19);
+
+    const notes = [330, 495, 660];
+    let active = notes.length;
+    notes.forEach((frequency, i) => {
+      const start = t + i * 0.14;
+      const stop = start + 0.34;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = i === 1 ? 'triangle' : 'sine';
+      o.frequency.setValueAtTime(frequency, start);
+      o.frequency.exponentialRampToValueAtTime(frequency * 1.06, stop);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(0.12, start + 0.018);
+      g.gain.exponentialRampToValueAtTime(0.0001, stop);
+      o.connect(g); g.connect(limiter);
+      o.onended = () => {
+        active -= 1;
+        if (active === 0) limiter.disconnect();
+      };
+      o.start(start); o.stop(stop + 0.02);
+    });
+  }
+
+  function brainPulse(
+    baseHz, complexity, reward, rhythmDrive, variation,
+    euphony, arousalDrive, recentRise, scene
+  ) {
+    const ctx = audio.ctx, t = ctx.currentTime;
+    const consonantDegrees = [0, 7, 4, 9, 5, 12];
+    const tenseDegrees = [0, 1, 6, 11, 2, 8];
+    const easeE = euphony * euphony * (3 - 2 * euphony);
+    const direction = state.rhythmDeltaFast >= 0 ? 1 : -1;
+    const highEnough = state.arousalCurrent >= AROUSAL_TARGET - AROUSAL_DEADBAND;
+    // Above target, preserve change as rotation through the melodic space rather
+    // than escalating the alerting stimulus or continually pushing register upward.
+    const stepSize = highEnough ? 1 : variation > 0.62 ? 2 : 1;
+    const melodicReward = Math.max(recentRise, highEnough ? 0.62 : 0);
+    audio.brainStep =
+      (audio.brainStep + direction * stepSize + consonantDegrees.length)
+      % consonantDegrees.length;
+    const tenseDegree = tenseDegrees[audio.brainStep];
+    const degree =
+      tenseDegree + (consonantDegrees[audio.brainStep] - tenseDegree) * easeE;
+    const pitch = baseHz * Math.pow(2, degree / 12);
+    const duration = 0.19 + (1 - rhythmDrive) * 0.34 + variation * 0.08;
+    const sceneMix = scene === 'bath' ? 1 : scene === 'forest' ? 0.72 : 0.58;
+    const pan = clampSym(
+      audio.orbitPan * 0.82
+      + state.curl * 0.10
+      + (audio.brainStep / (consonantDegrees.length - 1) - 0.5) * variation * 0.22
+    );
+    const destination = sceneDestination(pan);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value =
+      Math.min(
+        9000,
+        pitch * (4.2 + rhythmDrive * 5 + variation * 4 + complexity * 3 + arousalDrive * 5)
+      );
+    filter.Q.value =
+      1.0 + complexity * 1.8 + variation * 1.6 + arousalDrive * 0.9;
+    filter.connect(destination.node);
+
+    let activeVoices = 0;
+    const pluck = (ratio, level, delay = 0) => {
+      activeVoices += 1;
+      const o = ctx.createOscillator();
+      o.type = ratio === 1 ? 'triangle' : 'sine';
+      const g = ctx.createGain();
+      const start = t + delay;
+      o.frequency.setValueAtTime(pitch * ratio, start);
+      o.frequency.exponentialRampToValueAtTime(pitch * ratio * 0.992, start + duration);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(level, start + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      o.connect(g); g.connect(filter);
+      o.onended = () => {
+        activeVoices -= 1;
+        if (activeVoices === 0) {
+          filter.disconnect();
+          destination.cleanup();
+        }
+      };
+      o.start(start); o.stop(start + duration + 0.03);
+    };
+
+    const accent =
+      (0.105 + reward * 0.040 + variation * 0.045 + arousalDrive * 0.028)
+      * sceneMix;
+    pluck(1, accent);
+    const fifthRatio = Math.SQRT2 + (1.5 - Math.SQRT2) * easeE;
+    const octaveRatio = 1.88775 + (2 - 1.88775) * easeE;
+    if (
+      complexity + variation * 0.45 + euphony * 0.30 + melodicReward * 0.25 > 0.34
+    ) {
+      pluck(fifthRatio, accent * (0.20 + easeE * 0.20), 0.018);
+    }
+    if (
+      complexity + variation * 0.35 + euphony * 0.25 + melodicReward * 0.32 > 0.68
+    ) {
+      pluck(octaveRatio, accent * (0.12 + easeE * 0.13), 0.036);
+    }
+  }
+
+  function sceneDestination(pan) {
+    const ctx = audio.ctx;
+    if (!ctx.createStereoPanner) {
+      return { node: audio.nodes.sceneBus, cleanup: () => {} };
+    }
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = clampSym(pan);
+    panner.connect(audio.nodes.sceneBus);
+    return { node: panner, cleanup: () => panner.disconnect() };
+  }
+
+  function forestCall(complexity, rhythmDrive, variation) {
+    const ctx = audio.ctx, t = ctx.currentTime;
+    const duration = 0.38 + Math.random() * (0.22 + variation * 0.34) + complexity * 0.18;
+    const base = 560 + rhythmDrive * 980 + variation * 260 + Math.random() * 180;
+    const destination = sceneDestination(
+      audio.orbitPan * 0.78 + (Math.random() * 0.46 - 0.23) * (0.35 + variation)
+    );
+    let activeVoices = 0;
+    const callVoice = (ratio, level, delay = 0) => {
+      activeVoices += 1;
+      const o = ctx.createOscillator(); o.type = ratio > 1 ? 'sine' : 'triangle';
+      const g = ctx.createGain(); g.gain.value = 0.0001;
+      o.frequency.setValueAtTime(base * ratio, t + delay);
+      o.frequency.exponentialRampToValueAtTime(base * ratio * (1.30 + complexity * 0.35), t + delay + duration * 0.35);
+      o.frequency.exponentialRampToValueAtTime(base * ratio * 0.92, t + delay + duration);
+      g.gain.setValueAtTime(0.0001, t + delay);
+      g.gain.exponentialRampToValueAtTime(level, t + delay + 0.035);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + delay + duration);
+      o.connect(g); g.connect(destination.node);
+      o.onended = () => {
+        activeVoices -= 1;
+        if (activeVoices === 0) destination.cleanup();
+      };
+      o.start(t + delay); o.stop(t + delay + duration + 0.03);
+    };
+    callVoice(1, 0.055 + complexity * 0.035);
+    if (complexity > 0.34) callVoice(1.5, 0.012 + complexity * 0.020, 0.025);
+    if (complexity > 0.72) callVoice(2, 0.008 + complexity * 0.012, 0.055);
+  }
+
+  function rainDrop(complexity, rhythmDrive, variation) {
+    const ctx = audio.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = 'sine';
+    const g = ctx.createGain(); g.gain.value = 0.0001;
+    const destination = sceneDestination(
+      audio.orbitPan * 0.74 + (Math.random() * 0.62 - 0.31) * (0.35 + variation)
+    );
+    const brightness =
+      1200 + rhythmDrive * 3000 + variation * 1700 + complexity * 700 + Math.random() * 650;
+    const duration = 0.04 + Math.random() * (0.045 + variation * 0.055) + complexity * 0.020;
+    o.frequency.setValueAtTime(brightness, t);
+    o.frequency.exponentialRampToValueAtTime(brightness * 0.46, t + duration);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.026 + complexity * 0.020, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    o.connect(g); g.connect(destination.node);
+    o.onended = destination.cleanup;
+    o.start(t); o.stop(t + duration + 0.02);
+  }
+
+  // ---------------- PARTICLE FIELD (the signature) ----------------
+  const N = reduced ? 90 : 260;
+  const P = [];
+  for (let i = 0; i < N; i++) {
+    P.push({
+      x: Math.random(), y: Math.random(),
+      a: Math.random() * Math.PI * 2,
+      s: 0.4 + Math.random() * 0.8,      // per-particle speed factor
+      r: 0.6 + Math.random() * 1.8,      // base radius
+      ph: Math.random() * Math.PI * 2,   // twinkle phase
+      orbitFamily: i % 4,                // circle, ellipse, rosette, precessing shell
+      orbitBand: 0.08 + Math.random() * 0.92,
+      orbitEcc: 0.10 + Math.random() * 0.48,
+      orbitTilt: Math.random() * Math.PI,
+      orbitDirection: i % 3 === 0 ? -1 : 1,
+      orbitRank: Math.random(),
+      orbitLobes: 2 + (i % 4)
+    });
+  }
+
+  // intensity -> hue ramp: low = cool teal (~180), high = warm amber (~38)
+  function hueFor(v) { return 180 - v * 142; }
+
+  function render(dt) {
+    state.t += dt;
+    let wake = 0, wakeProgress = 0;
+    if (state.wakeRemaining > 0) {
+      state.wakeRemaining = Math.max(0, state.wakeRemaining - dt);
+      wakeProgress = 1 - state.wakeRemaining / 1.4;
+      wake = Math.sin(Math.PI * clamp(wakeProgress));
+      if (reduced) wake *= 0.35;
+    }
+    // Amplify small deviations around this session's baseline. At the default 3×,
+    // a ~0.05 normalized-band change, ~0.1 Hz PAF change, or ~0.05 chi change is visible.
+    const gain = state.sensitivity;
+    const visualReward = clamp(0.5 + state.bandDelta * gain * 2.2);
+    const chase = reduced ? 0.9 : 3.8;
+    state.intensity += (visualReward - state.intensity) * Math.min(1, chase * dt);
+    // Higher PAF controls radial emission; smaller chi controls HF turbulence.
+    const targetPafDrive = clamp(0.5 + state.pafDelta * gain * 0.62);
+    const targetHfDrive = clamp(0.5 - state.chiDelta * gain * 1.55);
+    const spectralChase = reduced ? 0.45 : 1.8;
+    state.pafDrive += (targetPafDrive - state.pafDrive) * Math.min(1, spectralChase * dt);
+    state.hfDrive += (targetHfDrive - state.hfDrive) * Math.min(1, spectralChase * dt);
+    const I = clamp(state.intensity);
+    const R = state.pafDrive;
+    const HF = state.hfDrive;
+    const DIV = state.divergence;
+    const CURL = state.curl;
+    // Once attention is already high, trade salience for representational
+    // richness. Complexity modulates the amount of structure, but cannot recruit
+    // it by itself while arousal remains low.
+    const attentionAboveTarget = clamp(
+      (state.arousalCurrent - (AROUSAL_TARGET - 0.08)) / 0.20
+    );
+    const attentionEase =
+      attentionAboveTarget * attentionAboveTarget * (3 - 2 * attentionAboveTarget);
+    const detailTarget =
+      attentionEase * (0.72 + state.complexityDrive * 0.28);
+    const detailChase = reduced ? 0.30 : 0.72;
+    state.detailDrive +=
+      (detailTarget - state.detailDrive) * Math.min(1, detailChase * dt);
+    const DETAIL = reduced ? state.detailDrive * 0.42 : state.detailDrive;
+    const lowArousalNeed = 1 - DETAIL * 0.92;
+    const learnedVisualStim = clamp(
+      state.arousalStim * state.rlVisualGain
+      + Math.max(0, state.rlVisualGain - 1) * 0.045 * lowArousalNeed
+    );
+    const visualStim = reduced ? learnedVisualStim * 0.14 : learnedVisualStim;
+    const recentRise = reduced ? state.recentRise * 0.45 : state.recentRise;
+    // One smooth luminance maximum per cycle; never a hard on/off flash.
+    const alertRate = 0.65 + visualStim * (VISUAL_ALERT_MAX_HZ - 0.65);
+    const alertWave =
+      0.5 + 0.5 * Math.sin(state.t * Math.PI * 2 * alertRate - Math.PI / 2);
+    const alertPeak = visualStim * Math.pow(alertWave, 5);
+    const risePulse =
+      recentRise * (0.72 + 0.28 * Math.sin(state.t * Math.PI * 2 * 0.65));
+    const flowDirection = DIV < -0.08 ? -1 : 1;
+    state.flowPhase += dt * (0.08 + R * 0.20 + Math.abs(DIV) * 0.48) * flowDirection;
+    state.flowRotation += dt * CURL * (0.28 + Math.abs(CURL) * 0.75);
+
+    // trailing fade — high-frequency-heavy spectra leave longer electric traces.
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = `rgba(10,14,26,${0.10 + (1 - I) * 0.14 + (1 - HF) * 0.07})`;
+    ctx.fillRect(0, 0, W, H);
+
+    // central "source" glow — the focal pulse
+    const cx = W / 2, cy = H / 2;
+    const pulse = 0.84 + 0.16 * Math.sin(state.t * (0.8 + I * 3 + R * 2));
+    const coreR =
+      (36 + I * 150 + R * 90) * pulse * (1 + DIV * 0.20)
+      * (1 + wake * 0.72 + alertPeak * 0.48 + risePulse * 0.25);
+    const h = hueFor(I) + alertPeak * 34 - risePulse * 58 - wake * 16;
+
+    // Low arousal creates a broad cool-white alerting bloom. A recent increase
+    // overlays a warmer golden reward, independent of the absolute starting level.
+    if (alertPeak > 0.002) {
+      const alertGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.72);
+      alertGlow.addColorStop(0, `rgba(204,232,255,${alertPeak * 0.24})`);
+      alertGlow.addColorStop(0.42, `rgba(116,172,255,${alertPeak * 0.10})`);
+      alertGlow.addColorStop(1, 'rgba(70,110,230,0)');
+      ctx.fillStyle = alertGlow;
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (risePulse > 0.002) {
+      const rewardGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.8);
+      rewardGlow.addColorStop(0, `rgba(255,224,132,${risePulse * 0.18})`);
+      rewardGlow.addColorStop(1, 'rgba(255,178,64,0)');
+      ctx.fillStyle = rewardGlow;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // PAF-driven concentric emissions: higher PAF means faster, brighter expansion.
+    const maxWaveR = Math.hypot(W, H) * 0.58;
+    const waveRate = 0.08 + R * 0.34 + visualStim * 0.34;
+    ctx.globalCompositeOperation = 'lighter';
+    if (wake > 0) {
+      const wakeRadius = 24 + wakeProgress * maxWaveR * 1.06;
+      ctx.strokeStyle = `hsla(46, 96%, 72%, ${wake * 0.42})`;
+      ctx.lineWidth = 1.5 + (1 - wakeProgress) * 5;
+      ctx.beginPath(); ctx.arc(cx, cy, wakeRadius, 0, Math.PI * 2); ctx.stroke();
+    }
+    for (let i = 0; i < 5; i++) {
+      const phase = ((state.flowPhase * (0.55 + waveRate) + i / 5) % 1 + 1) % 1;
+      const radius = 18 + phase * maxWaveR;
+      const alpha = (1 - phase) * (0.018 + R * 0.12);
+      ctx.strokeStyle = `hsla(${h + 18}, 90%, 68%, ${alpha})`;
+      ctx.lineWidth = 0.7 + R * 1.8;
+      ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (recentRise > 0.02) {
+      const rewardRadius =
+        coreR * (1.05 + ((state.t * 0.48) % 1) * (1.2 + recentRise));
+      ctx.strokeStyle = `rgba(255,211,112,${recentRise * 0.24})`;
+      ctx.lineWidth = 1.2 + recentRise * 2.6;
+      ctx.beginPath(); ctx.arc(cx, cy, rewardRadius, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // Chi-driven rotating filaments. Smaller chi (flatter, more high-frequency-heavy)
+    // creates more angular motion, without assigning it positive or negative valence.
+    const filamentCount = reduced ? 5 : 12 + Math.floor(DETAIL * 7);
+    for (let i = 0; i < filamentCount; i++) {
+      const direction = i % 2 ? 1 : -1;
+      const theta = i / filamentCount * Math.PI * 2
+        + direction * state.t * (0.015 + HF * 0.16)
+        + state.flowRotation;
+      const wobble =
+        Math.sin(state.t * (0.5 + HF * 2.2) + i * 1.7) * HF * 0.22
+        + Math.sin(theta * (2 + i % 4) - state.t * 0.07 * direction) * DETAIL * 0.11;
+      const inner = coreR * (0.20 + (i % 3) * 0.05);
+      const outer =
+        maxWaveR * (0.32 + HF * 0.42 + (i % 4) * 0.035 + DETAIL * (i % 3) * 0.018);
+      const filamentAlpha =
+        (0.012 + HF * 0.045) * (1 - DETAIL * 0.24);
+      ctx.strokeStyle =
+        `hsla(${h + 45 + HF * 45}, 94%, 68%, ${filamentAlpha})`;
+      ctx.lineWidth = 0.6 + HF * 0.8 - DETAIL * 0.10;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(theta) * inner, cy + Math.sin(theta) * inner);
+      ctx.quadraticCurveTo(
+        cx + Math.cos(theta + wobble) * outer * 0.55,
+        cy + Math.sin(theta + wobble) * outer * 0.55,
+        cx + Math.cos(theta + wobble * 2) * outer,
+        cy + Math.sin(theta + wobble * 2) * outer
+      );
+      ctx.stroke();
+    }
+
+    // High-attention detail layer: partial, low-opacity orbital grammars.
+    // More paths become distinguishable, but line brightness and flash rate do
+    // not increase. Counter-rotation and broken arcs prevent a uniform "spinner".
+    if (DETAIL > 0.025) {
+      const guideCount = reduced ? 2 : 2 + Math.floor(DETAIL * 7);
+      for (let i = 0; i < guideCount; i++) {
+        const family = i % 4;
+        const direction = i % 3 === 0 ? -1 : 1;
+        const orbitRadius = Math.min(
+          maxWaveR * 0.76,
+          coreR * (1.12 + i * 0.34 + family * 0.08)
+        );
+        const eccentricity = family === 0 ? 0.04 : 0.12 + family * 0.08;
+        const rotation =
+          state.flowRotation * 0.18
+          + i * 0.67
+          + direction * state.t * (0.006 + family * 0.003);
+        const start =
+          state.t * direction * (0.025 + family * 0.011) + i * 1.31;
+        const span =
+          Math.PI * (0.42 + DETAIL * 0.60 + (family === 2 ? 0.18 : 0));
+        ctx.setLineDash(
+          family === 1 ? [2, 10] : family === 3 ? [10, 16] : []
+        );
+        ctx.lineDashOffset = -state.t * direction * (2 + family);
+        ctx.strokeStyle =
+          `hsla(${h + 28 + family * 11}, 78%, 72%, ${DETAIL * (0.010 + family * 0.003)})`;
+        ctx.lineWidth = 0.42 + family * 0.08;
+        ctx.beginPath();
+        ctx.ellipse(
+          cx, cy,
+          orbitRadius * (1 + eccentricity),
+          orbitRadius * (1 - eccentricity),
+          rotation, start, start + span
+        );
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.lineDashOffset = 0;
+    }
+
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+    g.addColorStop(0, `hsla(${h}, 90%, ${45 + I*25}%, ${0.10 + I*0.35})`);
+    g.addColorStop(1, `hsla(${h}, 90%, 45%, 0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI*2); ctx.fill();
+
+    // Particles combine reward brightness, PAF radial velocity, and chi turbulence.
+    // At high attention, a growing subset is softly captured by distinct orbital
+    // attractors; the visible count and peak alpha remain unchanged.
+    const driftSpeed =
+      5 + I * 65 + HF * 38 + wake * 82 + visualStim * 76 + alertPeak * 54;
+    const radialSpeed =
+      R * 62 + DIV * 118 + wake * 170 + visualStim * 98 + alertPeak * 86;
+    const visible = clamp(
+      0.22 + I * 0.42 + R * 0.18 + HF * 0.08
+      + wake * 0.34 + visualStim * 0.25 + recentRise * 0.18
+    );
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i];
+      p.a += (0.14 + I * 0.5 + HF * 1.8) * dt * (i % 2 ? 1 : -1) * 0.45
+        + CURL * dt * 0.72;
+      const px = p.x * W, py = p.y * H;
+      const dx = Math.cos(p.a), dy = Math.sin(p.a);
+      const rx = px - cx, ry = py - cy;
+      const rlen = Math.hypot(rx, ry) || 1;
+      const ux = rx / rlen, uy = ry / rlen;
+      const tx = -uy, ty = ux;
+      const turbulence = Math.sin(state.t * (0.9 + HF * 3.5) + p.ph) * HF * 52;
+      const curlVelocity = CURL * 112;
+      const orbitEligible = p.orbitRank < 0.08 + DETAIL * 0.78;
+      const orbitWeight =
+        orbitEligible ? DETAIL * (0.64 + p.orbitBand * 0.36) : 0;
+      const particleTheta = Math.atan2(ry, rx);
+      const relativeTheta = particleTheta - p.orbitTilt;
+      const orbitBase = Math.min(
+        maxWaveR * 0.76,
+        coreR * (1.15 + p.orbitBand * 2.15)
+      );
+      let orbitTarget = orbitBase;
+      if (p.orbitFamily === 1) {
+        const major = orbitBase * (1 + p.orbitEcc);
+        const minor = orbitBase * (1 - p.orbitEcc * 0.55);
+        const cosine = Math.cos(relativeTheta);
+        const sine = Math.sin(relativeTheta);
+        orbitTarget =
+          major * minor
+          / Math.sqrt(minor * minor * cosine * cosine + major * major * sine * sine);
+      } else if (p.orbitFamily === 2) {
+        orbitTarget *=
+          1 + Math.sin(
+            relativeTheta * p.orbitLobes
+            - state.t * 0.10 * p.orbitDirection + p.ph
+          ) * 0.13;
+      } else if (p.orbitFamily === 3) {
+        orbitTarget *=
+          0.92 + Math.sin(
+            relativeTheta * 2 + state.t * 0.075 * p.orbitDirection + p.ph
+          ) * 0.10;
+      }
+      const orbitPull =
+        clampSym((orbitTarget - rlen) / Math.max(24, orbitTarget * 0.52))
+        * (34 + DETAIL * 72);
+      const orbitTangent =
+        p.orbitDirection * (12 + DETAIL * (24 + p.orbitFamily * 9));
+      const radialVelocity =
+        radialSpeed * (1 - orbitWeight * 0.86) + orbitPull * orbitWeight;
+      const tangentialVelocity =
+        turbulence + curlVelocity + orbitTangent * orbitWeight;
+      let nx = px + (
+        dx * driftSpeed * 0.42 + ux * radialVelocity + tx * tangentialVelocity
+      ) * p.s * dt;
+      let ny = py + (
+        dy * driftSpeed * 0.42 + uy * radialVelocity + ty * tangentialVelocity
+      ) * p.s * dt;
+      if (radialSpeed < 0 && Math.hypot(nx - cx, ny - cy) < Math.max(10, coreR * 0.15)) {
+        const a = Math.random() * Math.PI * 2;
+        const r = maxWaveR * (0.72 + Math.random() * 0.18);
+        nx = cx + Math.cos(a) * r; ny = cy + Math.sin(a) * r;
+      }
+      // PAF-rich fields re-emit escaped particles from the source; quieter fields wrap.
+      if (nx < 0 || nx > W || ny < 0 || ny > H) {
+        if (orbitWeight > 0.22) {
+          const a = Math.random() * Math.PI * 2;
+          const r = orbitBase * (0.88 + Math.random() * 0.24);
+          nx = cx + Math.cos(a) * r; ny = cy + Math.sin(a) * r;
+        } else if (R > 0.28) {
+          const a = Math.random() * Math.PI * 2;
+          const r = Math.random() * Math.max(12, coreR * 0.28);
+          nx = cx + Math.cos(a) * r; ny = cy + Math.sin(a) * r;
+        } else {
+          if (nx < 0) nx += W; if (nx > W) nx -= W;
+          if (ny < 0) ny += H; if (ny > H) ny -= H;
+        }
+      }
+      p.x = nx / W; p.y = ny / H;
+
+      const lit = (i / P.length) < visible;
+      if (!lit) continue;
+      const tw = 0.55 + 0.45 * Math.sin(state.t * 3 + p.ph);
+      const rad =
+        p.r * (0.55 + I * 1.35 + R * 0.50 + wake * 1.6 + alertPeak * 1.1)
+        * tw;
+      const al =
+        (0.10 + I * 0.40 + R * 0.18 + wake * 0.30 + alertPeak * 0.34)
+        * tw;
+      if (orbitWeight > 0.20 && p.orbitFamily > 0) {
+        ctx.strokeStyle =
+          `hsla(${h + p.orbitFamily * 12}, 82%, 72%, ${DETAIL * 0.045 * tw})`;
+        ctx.lineWidth = 0.45;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(nx, ny); ctx.stroke();
+      }
+      const electricSpark =
+        Math.random() < 0.015 + HF * 0.10 + visualStim * 0.08;
+      ctx.fillStyle = `hsla(${h + (electricSpark ? 65 + HF * 35 : 0)}, 94%, ${60 + I*20}%, ${al})`;
+      ctx.beginPath(); ctx.arc(nx, ny, rad, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    updateHUD(I);
+  }
+
+  // ---------------- HUD ----------------
+  const el = id => document.getElementById(id);
+  function updateHUD(I) {
+    el('rBand').textContent = state.band.toFixed(2);
+    el('rRew').textContent  = state.reward.toFixed(2);
+    el('rPaf').textContent  = state.paf.toFixed(1);
+    el('rChi').textContent  = state.chi.toFixed(2);
+    el('dBand').textContent = `Δ ${signed(state.bandDelta, 2)}`;
+    el('dPaf').textContent  = `Δ ${signed(state.pafDelta, 2)}`;
+    el('dChi').textContent  = `Δ ${signed(state.chiDelta, 2)}`;
+    el('dPaf').style.color = state.pafDelta > 0 ? '#f2c14e' : 'var(--dim)';
+    el('dChi').style.color = state.chiDelta < 0 ? '#8fa8ff' : 'var(--dim)';
+    el('rSpeed').textContent = Number.isFinite(state.speed) ? state.speed.toFixed(1) : '—';
+    const rhythmVariation = clamp(state.rhythmVariation * 0.62 + state.bandFlux * 0.78);
+    el('dSpeed').textContent =
+      `Δ ${signed(state.rhythmDeltaFast, 2)} · v${(rhythmVariation*100).toFixed(0)}%`;
+    el('dSpeed').style.color = rhythmVariation > 0.25 ? 'var(--tone)' : 'var(--dim)';
+    el('rEmg').textContent  = state.emg.toFixed(2);
+    el('rEmg').style.color  = state.emg > 0.25 ? 'var(--warn)' : 'var(--dim)';
+    el('ch1').style.width = (state.ch1 * 100).toFixed(0) + '%';
+    el('ch2').style.width = (state.ch2 * 100).toFixed(0) + '%';
+    el('flowTag').textContent =
+      `2-channel flow proxy · div ${signed(state.divergence, 2)} · curl ${signed(state.curl, 2)}`
+      + ` · detail ${(state.detailDrive * 100).toFixed(0)}%`;
+    const pzTag = el('pzTag');
+    if (state.hasPz) {
+      const siteCount =
+        `${state.posteriorSitesClean}/${state.posteriorSitesTotal} clean`;
+      pzTag.textContent = state.posteriorClean
+        ? `Posterior N5 Pz + N4 ≈P4/O2 · ${siteCount}`
+          + ` · on-task ${(state.onTaskDrive * 100).toFixed(0)}%`
+          + ` · vigilance ${(state.posteriorVigilance * 100).toFixed(0)}%`
+          + ` · drowsiness ${(state.drowsinessDrive * 100).toFixed(0)}%`
+          + ` · θ/α ${state.posteriorThetaAlpha.toFixed(2)}`
+        : `Posterior N5 Pz + N4 ≈P4/O2 · held (${state.posteriorQuality})`
+          + `${Number.isFinite(state.posteriorRms) ? ` · ${state.posteriorRms.toFixed(0)} µV` : ''}`;
+      pzTag.style.color = state.posteriorClean ? 'var(--tone)' : 'var(--warn)';
+    }
+    if (audio.on) {
+      const src = PITCH_SOURCES[audio.srcIdx];
+      const scene = SOUND_SCENES[audio.sceneIdx];
+      const sceneShift = SCENE_SEMITONES[audio.sceneIdx];
+      const register = sceneShift < 0 ? 'low' : sceneShift > 0 ? 'high' : 'center';
+      const variation = clamp(state.rhythmVariation * 0.62 + state.bandFlux * 0.78);
+      const rhythmHz = Number.isFinite(state.speed) ? state.speed.toFixed(1) : '—';
+      const countdown = autoSceneCountdown();
+      const nextScene = SOUND_SCENES[(audio.sceneIdx + 1) % SOUND_SCENES.length];
+      const auto = countdown ? ` · next ${nextScene} ${countdown}` : ' · auto off';
+      const euphony = ` · euphony ${(audio.euphony * 100).toFixed(0)}%`;
+      const arousal =
+        ` · arousal ${(state.arousalCurrent * 100).toFixed(0)}→${(AROUSAL_TARGET * 100).toFixed(0)}%`
+        + ` · drive ${(state.arousalStim * 100).toFixed(0)}%`
+        + ` · rise ${(state.recentRise * 100).toFixed(0)}%`;
+      const action = RL_ACTIONS[rlPolicy.currentAction];
+      const rl = ` · RL ${state.rlFrequencySemitones >= 0 ? '+' : ''}${state.rlFrequencySemitones}st/${Math.round(action.visualGain * 100)}%`
+        + ` r${signed(rlPolicy.lastReward, 2)} n${rlPolicy.totalChoices}`;
+      el('audTag').textContent = src.absolute
+        ? `♪ ${scene} ${register} · ${audio.hz.toFixed(0)} Hz · PAF ${state.paf.toFixed(2)} Hz · rhythm ${rhythmHz} · var ${(variation*100).toFixed(0)}%${euphony}${arousal}${rl} · orbit ${audio.orbitRate.toFixed(2)}/s${auto}`
+        : src.adaptiveRange
+          ? `♪ ${scene} ${register} · ${audio.hz.toFixed(0)} Hz of 40–3200 · ${state.rhythmBand} rhythm ${rhythmHz} Hz · Δ${signed(state.rhythmDeltaFast, 2)} · var ${(variation*100).toFixed(0)}%${euphony}${arousal}${rl} · orbit ${audio.orbitRate.toFixed(2)}/s${auto}`
+          : `♪ ${scene} ${register} · ${audio.hz.toFixed(0)} Hz · β/α Δ${signed(state.engageDelta, 2)} · var ${(variation*100).toFixed(0)}%${euphony}${arousal}${rl} · orbit ${audio.orbitRate.toFixed(2)}/s${auto}`;
+      el('audTag').style.color = 'var(--tone)';
+    }
+  }
+  let bannerOn = false;
+  function setBanner(on) {
+    if (on === bannerOn) return; bannerOn = on;
+    el('banner').classList.toggle('show', on);
+  }
+
+  // ---------------- CONTROLS ----------------
+  function setMode(m) {
+    state.mode = m; state.baseline = null;
+    el('segFocus').classList.toggle('on', m === 'focus');
+    el('segRelax').classList.toggle('on', m === 'relax');
+    el('modeTag').innerHTML = m === 'focus'
+      ? 'FOCUS · reward &beta; (12–30 Hz) up'
+      : 'RELAX · reward &alpha; (8–12 Hz) up · lower frequency, eyes-closed works best';
+  }
+  el('segFocus').onclick = () => setMode('focus');
+  el('segRelax').onclick = () => setMode('relax');
+  setMode('relax');
+
+  el('calBtn').onclick = () => {
+    state.baseline = state.raw;
+    state.motionBaseBand = state.reward;
+    state.motionBasePaf = state.paf;
+    state.motionBaseChi = state.chi;
+    if (Number.isFinite(state.speed)) state.motionBaseSpeed = state.speed;
+    state.motionBaseEngage = state.engage;
+    state.motionBaseComplexity = state.complexity;
+    state.rhythmFastBase = state.speed;
+    state.rhythmDeltaFast = state.rhythmVariation = state.bandFlux = 0;
+    state.lastBands = null;
+    state.flowBaseMean = (state.ch1 + state.ch2) * 0.5;
+    state.flowBaseDiff = state.ch1 - state.ch2;
+    state.motionSamples = 17;
+    state.bandDelta = state.pafDelta = state.chiDelta = 0;
+    state.speedDelta = state.engageDelta = state.complexityDelta = 0;
+    state.divergence = state.curl = 0;
+    resetEuphonyTrackers();
+    rlRestartEpisode();
+    audio.alertness = audio.complexity = audio.euphony = 0.5;
+    audio.riseChimeArmed = true;
+    if (audio.ctx) audio.nextOddball = audio.ctx.currentTime + 8;
+    recentreTone();
+    el('calBtn').textContent = 'Recalibrate';
+  };
+
+  const sensitivitySteps = [1, 3, 6];
+  el('sensBtn').onclick = () => {
+    const i = sensitivitySteps.indexOf(state.sensitivity);
+    state.sensitivity = sensitivitySteps[(i + 1) % sensitivitySteps.length];
+    el('sensBtn').textContent = `Sensitivity ${state.sensitivity}×`;
+  };
+
+  const emgBtn = el('emgBtn');
+  const hold = on => { state.emgHeld = on; emgBtn.classList.toggle('held', on); };
+  emgBtn.addEventListener('pointerdown', () => hold(true));
+  emgBtn.addEventListener('pointerup',   () => hold(false));
+  emgBtn.addEventListener('pointerleave',() => hold(false));
+  emgBtn.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); hold(true);} });
+  emgBtn.addEventListener('keyup',   e => { if (e.key === ' ' || e.key === 'Enter'){ hold(false);} });
+
+  const wakeBtn = el('wakeBtn');
+  function triggerWakePulse() {
+    const now = performance.now() / 1000;
+    if (now - state.lastWakeAt < 2.5) return;
+    state.lastWakeAt = now;
+    state.wakeRemaining = 1.4;
+    wakeBtn.classList.add('active');
+    setTimeout(() => wakeBtn.classList.remove('active'), 1400);
+    wakePulseSound();
+  }
+  wakeBtn.onclick = triggerWakePulse;
+
+  el('rejBtn').onclick = () => {
+    state.rejectEMG = !state.rejectEMG;
+    el('rejBtn').classList.toggle('on', state.rejectEMG);
+  };
+
+  // ---- audio controls (a browser will only let the tone start from a gesture) ----
+  el('audBtn').onclick = () => {
+    setAudio(!audio.on);
+    if (!audio.on) updateAudioOffTag();
+  };
+  el('sceneBtn').onclick = () => {
+    setScene(audio.sceneIdx + 1, true);
+  };
+  el('autoSceneBtn').onclick = () => {
+    audio.autoSceneIdx = (audio.autoSceneIdx + 1) % AUTO_SCENE_MINUTES.length;
+    const minutes = autoSceneMinutes();
+    el('autoSceneBtn').textContent = minutes > 0 ? `Auto: ${minutes}m` : 'Auto: off';
+    resetAutoSceneTimer();
+    if (!audio.on) updateAudioOffTag();
+  };
+  el('pitchSrcBtn').onclick = () => {
+    audio.srcIdx = (audio.srcIdx + 1) % PITCH_SOURCES.length;
+    if (PITCH_SOURCES[audio.srcIdx].key === 'paf') {
+      // Start the amplified micro-movement layer from "now" whenever PAF is
+      // selected, so an old session baseline cannot pin the melody at an extreme.
+      state.motionBasePaf = state.paf;
+      state.pafDelta = 0;
+    } else if (PITCH_SOURCES[audio.srcIdx].key === 'rhythm' && Number.isFinite(state.speed)) {
+      state.rhythmFastBase = state.speed;
+      state.rhythmDeltaFast = 0;
+    }
+    recentreTone();                        // the old pitch means nothing on a new metric
+    el('pitchSrcBtn').textContent = `Pitch: ${PITCH_SOURCES[audio.srcIdx].label}`;
+  };
+  el('scaleBtn').onclick = () => {
+    audio.quantize = !audio.quantize;
+    el('scaleBtn').textContent = `Tone: ${audio.quantize ? 'scale' : 'glide'}`;
+  };
+  el('rlBtn').onclick = event => {
+    if (event.shiftKey) {
+      rlResetLearning();
+      return;
+    }
+    rlPolicy.enabled = !rlPolicy.enabled;
+    if (rlPolicy.enabled) rlRestartEpisode();
+    else rlUpdateButton();
+  };
+  function setRLLogOpen(open) {
+    el('rlLogPanel').hidden = !open;
+    el('rlLogBtn').setAttribute('aria-expanded', String(open));
+    if (open) rlUpdateLogUI();
+  }
+  el('rlLogBtn').onclick = () => {
+    setRLLogOpen(el('rlLogPanel').hidden);
+  };
+  el('rlLogClose').onclick = () => setRLLogOpen(false);
+  el('volBtn').onclick = () => {
+    audio.volIdx = (audio.volIdx + 1) % VOLUMES.length;
+    el('volBtn').textContent = `Vol ${audio.volIdx + 1}`;
+  };
+  // Keyboard, because the point is that your eyes are shut.
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !el('rlLogPanel').hidden) {
+      e.preventDefault();
+      setRLLogOpen(false);
+      return;
+    }
+    if (e.target.tagName === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'a' || e.key === 'A') { e.preventDefault(); el('audBtn').click(); }
+    if (e.key === 's' || e.key === 'S') { e.preventDefault(); el('sceneBtn').click(); }
+    if (e.key === 'c' || e.key === 'C') { e.preventDefault(); el('calBtn').click(); }
+    if (e.key === 'w' || e.key === 'W') { e.preventDefault(); triggerWakePulse(); }
+  });
+
+  // ---------------- LOOP ----------------
+  function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function clampSym(v){ return v < -1 ? -1 : v > 1 ? 1 : v; }   // -1..1, for pitch offsets
+  function signed(v, digits) { return `${v >= 0 ? '+' : ''}${v.toFixed(digits)}`; }
+  let last = performance.now();
+  function frame(now) {
+    let dt = (now - last) / 1000; last = now;
+    dt = Math.min(dt, 0.05);        // guard against tab-switch jumps
+    render(dt);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
