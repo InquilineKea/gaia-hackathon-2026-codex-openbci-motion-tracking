@@ -1,0 +1,574 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twenty-minute EEG trajectory</title>
+<style>
+  :root {
+    --report-bg: #08101b;
+    --report-panel: #0d1725;
+    --report-ink: #e5edf6;
+    --report-dim: #8292a8;
+    --report-grid: #203047;
+    --report-alert: #64e6c4;
+    --report-paf: #f3c969;
+    --report-chi: #a99cff;
+    --report-theta: #7da6ff;
+    --report-alpha: #71d8b5;
+    --report-beta: #f0a95f;
+    --report-ratio: #ff89c8;
+    --report-warn: #ff766c;
+  }
+  * { box-sizing: border-box; }
+  #eeg-report {
+    width: 100%;
+    min-height: 650px;
+    padding: 22px;
+    color: var(--report-ink);
+    background:
+      radial-gradient(900px 420px at 12% -10%, rgba(100,230,196,.12), transparent 65%),
+      linear-gradient(180deg, #0b1421, var(--report-bg));
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .report-kicker {
+    color: var(--report-alert);
+    font: 500 11px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+  .report-title {
+    margin: 5px 0 4px;
+    font-size: clamp(24px, 4vw, 42px);
+    line-height: 1.05;
+    font-weight: 500;
+    letter-spacing: -.035em;
+  }
+  .report-subtitle {
+    margin: 0;
+    color: var(--report-dim);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .live-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--report-dim);
+    font: 500 12px/1.3 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--report-warn);
+    box-shadow: 0 0 0 4px rgba(255,118,108,.1);
+  }
+  .live-dot.on {
+    background: var(--report-alert);
+    box-shadow: 0 0 0 4px rgba(100,230,196,.1);
+  }
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric {
+    min-height: 92px;
+    padding: 14px 16px;
+    background: rgba(13,23,37,.76);
+    border: 1px solid rgba(130,146,168,.16);
+    border-radius: 12px;
+  }
+  .metric-label {
+    color: var(--report-dim);
+    font: 500 10px/1.3 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .metric-value {
+    margin-top: 5px;
+    font: 500 clamp(24px, 4vw, 34px)/1 ui-monospace, "SF Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .metric-context {
+    margin-top: 6px;
+    color: var(--report-dim);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .report-controls {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 4px 0 10px;
+  }
+  .control-group { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+  .control-label {
+    display: grid;
+    gap: 4px;
+    color: var(--report-dim);
+    font: 500 10px/1.2 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  select, button {
+    min-height: 34px;
+    padding: 7px 11px;
+    color: var(--report-ink);
+    background: var(--report-panel);
+    border: 1px solid var(--report-grid);
+    border-radius: 8px;
+    font: 500 12px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--report-alert); }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--report-alert); outline-offset: 2px; }
+  .chart-shell {
+    position: relative;
+    border-top: 1px solid rgba(130,146,168,.18);
+    border-bottom: 1px solid rgba(130,146,168,.18);
+  }
+  #trendChart {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 590px;
+  }
+  .chart-tooltip {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+    min-width: 188px;
+    padding: 9px 11px;
+    color: var(--report-ink);
+    background: rgba(7,14,24,.94);
+    border: 1px solid var(--report-grid);
+    border-radius: 8px;
+    font: 500 11px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+    box-shadow: 0 10px 28px rgba(0,0,0,.3);
+    white-space: pre-line;
+  }
+  .report-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    color: var(--report-dim);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .report-footer strong { color: var(--report-ink); font-weight: 500; }
+  @media (max-width: 680px) {
+    #eeg-report { padding: 14px; }
+    .metric-row { grid-template-columns: 1fr; }
+    .metric { min-height: 76px; }
+    #trendChart { min-height: 510px; }
+  }
+</style>
+
+<div id="eeg-report">
+  <header class="report-header">
+    <div>
+      <div class="report-kicker">OpenBCI · channels 2 + 7 · rolling analysis</div>
+      <h1 class="report-title">Twenty-minute EEG trajectory</h1>
+      <p class="report-subtitle">One-minute trailing averages · session-relative state · EMG-contaminated intervals excluded</p>
+    </div>
+    <div class="live-status"><span class="live-dot" id="liveDot"></span><span id="liveText">connecting…</span></div>
+  </header>
+
+  <section class="metric-row" aria-label="Current trend summary">
+    <div class="metric">
+      <div class="metric-label">Current alertness proxy</div>
+      <div class="metric-value" id="proxyValue">—</div>
+      <div class="metric-context" id="proxyContext">Collecting a personal baseline</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Ten-minute direction</div>
+      <div class="metric-value" id="trendValue">—</div>
+      <div class="metric-context" id="trendContext">Needs ten minutes for comparison</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Usable coverage</div>
+      <div class="metric-value" id="qualityValue">—</div>
+      <div class="metric-context" id="qualityContext">Waiting for clean samples</div>
+    </div>
+  </section>
+
+  <div class="report-controls">
+    <div class="control-group">
+      <label class="control-label">Trailing average
+        <select id="smoothSelect">
+          <option value="15">15 seconds</option>
+          <option value="60" selected>1 minute</option>
+          <option value="180">3 minutes</option>
+        </select>
+      </label>
+    </div>
+    <button type="button" id="exportBtn">Export chart as SVG</button>
+  </div>
+
+  <div class="chart-shell" id="chartShell">
+    <svg id="trendChart" viewBox="0 0 1200 860" role="img"
+      aria-label="Twenty-minute EEG trend with alertness proxy, peak alpha frequency, aperiodic exponent, band fractions, and theta-to-alpha ratio"></svg>
+    <div class="chart-tooltip" id="chartTooltip"></div>
+  </div>
+
+  <footer class="report-footer">
+    <div><strong>Alertness proxy:</strong> session-relative composite of β/(α+θ), PAF, delta fraction, and χ. Higher means more alert relative to this session.</div>
+    <div><strong>Interpretation:</strong> exploratory neurofeedback mirror—not a sleep-stage classifier, diagnosis, or safety monitor.</div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('eeg-report');
+  const svg = document.getElementById('trendChart');
+  const tooltip = document.getElementById('chartTooltip');
+  const shell = document.getElementById('chartShell');
+  const STORAGE_KEY = 'openbci-eeg-20min-v1';
+  const WINDOW_SEC = 20 * 60;
+  const MAX_POINTS = 1300;
+  let history = [];
+  let smoothed = [];
+  let lastStoredSecond = 0;
+  let saveCounter = 0;
+  let reconnectTimer = null;
+
+  try {
+    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (Array.isArray(cached)) history = cached;
+  } catch (_) {}
+  trimHistory(Date.now() / 1000);
+
+  function finite(v) { return Number.isFinite(v); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function mean(a) {
+    const v = a.filter(finite);
+    return v.length ? v.reduce((s, x) => s + x, 0) / v.length : NaN;
+  }
+  function median(a) {
+    const v = a.filter(finite).sort((x, y) => x - y);
+    if (!v.length) return NaN;
+    const m = Math.floor(v.length / 2);
+    return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+  }
+  function quantile(a, q) {
+    const v = a.filter(finite).sort((x, y) => x - y);
+    if (!v.length) return NaN;
+    const p = (v.length - 1) * q, lo = Math.floor(p), hi = Math.ceil(p);
+    return v[lo] + (v[hi] - v[lo]) * (p - lo);
+  }
+  function robustStats(a) {
+    const med = median(a);
+    const mad = median(a.map(v => Math.abs(v - med)));
+    return { med, spread: Math.max(1e-6, 1.4826 * mad) };
+  }
+  function trimHistory(now) {
+    history = history.filter(p => p && finite(p.t) && p.t >= now - WINDOW_SEC && p.t <= now + 5);
+    if (history.length > MAX_POINTS) history = history.slice(-MAX_POINTS);
+  }
+  function formatTime(ts) {
+    return new Date(ts * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  function connect() {
+    const dot = document.getElementById('liveDot');
+    const text = document.getElementById('liveText');
+    text.textContent = 'connecting…';
+    dot.classList.remove('on');
+    const ws = new WebSocket('ws://localhost:8765');
+    ws.onopen = () => {
+      dot.classList.add('on');
+      text.textContent = 'LIVE · building 20-minute window';
+    };
+    ws.onmessage = e => {
+      const d = JSON.parse(e.data);
+      if (!d.bands || !finite(d.paf) || !finite(d.chi)) return;
+      const t = finite(d.timestamp) ? d.timestamp : Date.now() / 1000;
+      const second = Math.floor(t);
+      if (second === lastStoredSecond) return;
+      lastStoredSecond = second;
+      history.push({
+        t,
+        paf: d.paf,
+        chi: d.chi,
+        emg: finite(d.emg) ? d.emg : 1,
+        engagement: finite(d.engagement) ? d.engagement : NaN,
+        delta: d.bands.delta,
+        theta: d.bands.theta,
+        alpha: d.bands.alpha,
+        beta: d.bands.beta,
+        gamma: d.bands.gamma
+      });
+      trimHistory(t);
+      if (++saveCounter % 10 === 0) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch (_) {}
+      }
+      update();
+    };
+    ws.onerror = () => ws.close();
+    ws.onclose = () => {
+      dot.classList.remove('on');
+      text.textContent = 'disconnected · retrying…';
+      clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(connect, 1200);
+    };
+  }
+
+  function trailingAverage(data, seconds) {
+    const keys = ['paf','chi','engagement','delta','theta','alpha','beta','gamma'];
+    const sums = Object.fromEntries(keys.map(k => [k, 0]));
+    const counts = Object.fromEntries(keys.map(k => [k, 0]));
+    const out = [];
+    let left = 0;
+    for (let right = 0; right < data.length; right++) {
+      const p = data[right];
+      const clean = p.emg < 0.25;
+      if (clean) {
+        for (const k of keys) if (finite(p[k])) { sums[k] += p[k]; counts[k]++; }
+      }
+      while (data[left] && data[left].t < p.t - seconds) {
+        const old = data[left++];
+        if (old.emg < 0.25) {
+          for (const k of keys) if (finite(old[k])) { sums[k] -= old[k]; counts[k]--; }
+        }
+      }
+      const avg = { t: p.t, emg: p.emg, valid: clean && counts.engagement > 0 };
+      for (const k of keys) avg[k] = counts[k] ? sums[k] / counts[k] : NaN;
+      avg.logEngagement = Math.log(Math.max(1e-8, avg.engagement));
+      avg.thetaAlpha = avg.alpha > 1e-8 ? avg.theta / avg.alpha : NaN;
+      out.push(avg);
+    }
+    return out;
+  }
+
+  function addProxy(data) {
+    const clean = data.filter(p => p.valid);
+    if (clean.length < 20) {
+      data.forEach(p => p.proxy = p.valid ? 50 : NaN);
+      return;
+    }
+    const sEng = robustStats(clean.map(p => p.logEngagement));
+    const sPaf = robustStats(clean.map(p => p.paf));
+    const sDelta = robustStats(clean.map(p => p.delta));
+    const sChi = robustStats(clean.map(p => p.chi));
+    for (const p of data) {
+      if (!p.valid) { p.proxy = NaN; continue; }
+      const zEng = (p.logEngagement - sEng.med) / sEng.spread;
+      const zPaf = (p.paf - sPaf.med) / sPaf.spread;
+      const zDelta = (p.delta - sDelta.med) / sDelta.spread;
+      const zChi = (p.chi - sChi.med) / sChi.spread;
+      const z = 0.55 * zEng + 0.25 * zPaf - 0.12 * zDelta - 0.08 * zChi;
+      p.proxy = 50 + 35 * Math.tanh(z / 2.2);
+    }
+  }
+
+  function update() {
+    const smoothing = Number(document.getElementById('smoothSelect').value);
+    smoothed = trailingAverage(history, smoothing);
+    addProxy(smoothed);
+    updateSummary();
+    drawChart();
+  }
+
+  function updateSummary() {
+    const clean = smoothed.filter(p => p.valid && finite(p.proxy));
+    const last = clean[clean.length - 1];
+    const proxyEl = document.getElementById('proxyValue');
+    const proxyContext = document.getElementById('proxyContext');
+    if (last && clean.length >= 20) {
+      proxyEl.textContent = Math.round(last.proxy);
+      const state = last.proxy > 57 ? 'More alert than your session baseline'
+        : last.proxy < 43 ? 'Drowsier than your session baseline'
+        : 'Near your session baseline';
+      proxyContext.textContent = `${state} · current θ/α ${last.thetaAlpha.toFixed(2)}`;
+    } else {
+      proxyEl.textContent = '—';
+      proxyContext.textContent = last && finite(last.thetaAlpha)
+        ? `Collecting a personal baseline · current θ/α ${last.thetaAlpha.toFixed(2)}`
+        : 'Collecting a personal baseline';
+    }
+
+    const end = last ? last.t : Date.now() / 1000;
+    const recent = clean.filter(p => p.t >= end - 300).map(p => p.proxy);
+    const prior = clean.filter(p => p.t >= end - 600 && p.t < end - 300).map(p => p.proxy);
+    const delta = mean(recent) - mean(prior);
+    const trendEl = document.getElementById('trendValue');
+    const trendContext = document.getElementById('trendContext');
+    if (recent.length >= 60 && prior.length >= 60 && finite(delta)) {
+      trendEl.textContent = `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}`;
+      trendEl.style.color = Math.abs(delta) < 3 ? 'var(--report-ink)'
+        : delta > 0 ? 'var(--report-alert)' : 'var(--report-paf)';
+      trendContext.textContent = delta > 3 ? 'Becoming more alert over the last 10 minutes'
+        : delta < -3 ? 'Becoming drowsier over the last 10 minutes'
+        : 'No strong ten-minute direction';
+    } else {
+      trendEl.textContent = '—';
+      trendContext.textContent = 'Needs ten minutes for comparison';
+    }
+
+    const coverage = smoothed.length ? smoothed.filter(p => p.valid).length / smoothed.length : 0;
+    const span = history.length > 1 ? history[history.length - 1].t - history[0].t : 0;
+    document.getElementById('qualityValue').textContent = `${Math.round(coverage * 100)}%`;
+    document.getElementById('qualityContext').textContent =
+      `${Math.min(20, span / 60).toFixed(1)} of 20 minutes captured`;
+  }
+
+  function pathFor(data, x, y, key) {
+    let d = '', active = false;
+    for (const p of data) {
+      const v = p[key];
+      if (!finite(v) || !p.valid) { active = false; continue; }
+      d += `${active ? 'L' : 'M'}${x(p.t).toFixed(2)},${y(v).toFixed(2)}`;
+      active = true;
+    }
+    return d;
+  }
+
+  function drawChart() {
+    const now = smoothed.length ? smoothed[smoothed.length - 1].t : Date.now() / 1000;
+    const start = now - WINDOW_SEC;
+    const left = 92, right = 1148, width = right - left;
+    const lanes = [
+      { top: 62, bottom: 218, label: 'ALERTNESS PROXY', sub: 'session-relative · 0–100' },
+      { top: 278, bottom: 434, label: 'SPECTRAL SHAPE', sub: 'PAF Hz + aperiodic χ' },
+      { top: 494, bottom: 626, label: 'BAND FRACTIONS', sub: 'share of 1–45 Hz power' },
+      { top: 686, bottom: 818, label: 'THETA / ALPHA', sub: 'higher = more theta-dominant · exploratory' }
+    ];
+    const x = t => left + (t - start) / WINDOW_SEC * width;
+    const yProxy = v => lanes[0].bottom - (v - 15) / 70 * (lanes[0].bottom - lanes[0].top);
+    const yPaf = v => lanes[1].bottom - (v - 7) / 7 * (lanes[1].bottom - lanes[1].top);
+    const yChi = v => lanes[1].bottom - (v - 0.4) / 2.8 * (lanes[1].bottom - lanes[1].top);
+    const bandMax = Math.max(0.35, quantile(smoothed.flatMap(p => [p.alpha,p.beta,p.theta]), .98) * 1.15 || .35);
+    const yBand = v => lanes[2].bottom - v / bandMax * (lanes[2].bottom - lanes[2].top);
+    const ratioMax = clamp((quantile(smoothed.map(p => p.thetaAlpha), .98) || 2) * 1.15, 1.5, 8);
+    const yRatio = v => lanes[3].bottom - clamp(v, 0, ratioMax) / ratioMax * (lanes[3].bottom - lanes[3].top);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    let markup = `
+      <style>
+        .bg{fill:#08101b}.lane{fill:#0b1522;stroke:#203047;stroke-width:1}
+        .grid{stroke:#203047;stroke-width:1}.axis{fill:#8292a8;font:11px ui-monospace,SFMono-Regular,Menlo,monospace}
+        .label{fill:#e5edf6;font:500 12px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1.4px}
+        .sub{fill:#8292a8;font:11px ui-monospace,SFMono-Regular,Menlo,monospace}
+        .alert{fill:none;stroke:#64e6c4;stroke-width:3}.paf{fill:none;stroke:#f3c969;stroke-width:2.5}
+        .chi{fill:none;stroke:#a99cff;stroke-width:2.5}.theta{fill:none;stroke:#7da6ff;stroke-width:2}
+        .alpha{fill:none;stroke:#71d8b5;stroke-width:2}.beta{fill:none;stroke:#f0a95f;stroke-width:2}
+        .ratio{fill:none;stroke:#ff89c8;stroke-width:2.5}
+        .reject{fill:#ff766c;opacity:.38}.neutral{fill:#64e6c4;opacity:.06}.now{stroke:#e5edf6;stroke-width:1;opacity:.35}
+      </style>
+      <rect class="bg" width="1200" height="860"/>
+      <rect class="neutral" x="${left}" y="${yProxy(55)}" width="${width}" height="${yProxy(45)-yProxy(55)}"/>
+    `;
+    for (const lane of lanes) {
+      markup += `<rect class="lane" x="${left}" y="${lane.top}" width="${width}" height="${lane.bottom-lane.top}" rx="8"/>
+        <text class="label" x="26" y="${lane.top+4}" transform="rotate(-90 26 ${lane.top+4})">${esc(lane.label)}</text>
+        <text class="sub" x="${left}" y="${lane.top-14}">${esc(lane.sub)}</text>`;
+    }
+    for (let m = 0; m <= 20; m += 5) {
+      const xx = left + m / 20 * width;
+      const ts = start + m * 60;
+      markup += `<line class="grid" x1="${xx}" y1="${lanes[0].top}" x2="${xx}" y2="${lanes[3].bottom}"/>
+        <text class="axis" x="${xx}" y="848" text-anchor="${m===0?'start':m===20?'end':'middle'}">${esc(formatTime(ts))}</text>`;
+    }
+    [20,35,50,65,80].forEach(v => {
+      const yy = yProxy(v);
+      markup += `<line class="grid" x1="${left}" y1="${yy}" x2="${right}" y2="${yy}"/><text class="axis" x="${left-12}" y="${yy+4}" text-anchor="end">${v}</text>`;
+    });
+    [7,9,11,13,14].forEach(v => {
+      const yy = yPaf(v);
+      markup += `<text class="axis" x="${left-12}" y="${yy+4}" text-anchor="end">${v}</text>`;
+    });
+    [0.4,1.8,3.2].forEach(v => {
+      const yy = yChi(v);
+      markup += `<text class="axis" x="${right+12}" y="${yy+4}">${v.toFixed(1)}</text>`;
+    });
+    [0, bandMax/2, bandMax].forEach(v => {
+      const yy = yBand(v);
+      markup += `<text class="axis" x="${left-12}" y="${yy+4}" text-anchor="end">${Math.round(v*100)}%</text>`;
+    });
+    [0, ratioMax/2, ratioMax].forEach(v => {
+      const yy = yRatio(v);
+      markup += `<text class="axis" x="${left-12}" y="${yy+4}" text-anchor="end">${v.toFixed(1)}</text>`;
+    });
+    for (const p of smoothed) {
+      if (p.emg >= .25) {
+        const xx = x(p.t);
+        markup += `<rect class="reject" x="${xx-1.2}" y="${lanes[0].top}" width="2.4" height="${lanes[3].bottom-lanes[0].top}"/>`;
+      }
+    }
+    markup += `
+      <path class="alert" d="${pathFor(smoothed,x,yProxy,'proxy')}"/>
+      <path class="paf" d="${pathFor(smoothed,x,yPaf,'paf')}"/>
+      <path class="chi" d="${pathFor(smoothed,x,yChi,'chi')}"/>
+      <path class="theta" d="${pathFor(smoothed,x,yBand,'theta')}"/>
+      <path class="alpha" d="${pathFor(smoothed,x,yBand,'alpha')}"/>
+      <path class="beta" d="${pathFor(smoothed,x,yBand,'beta')}"/>
+      <path class="ratio" d="${pathFor(smoothed,x,yRatio,'thetaAlpha')}"/>
+      <line class="now" x1="${right}" y1="${lanes[0].top}" x2="${right}" y2="${lanes[3].bottom}"/>
+      <text class="axis" x="${left}" y="34">DROWSIER RELATIVE TO SESSION</text>
+      <text class="axis" x="${right}" y="34" text-anchor="end">MORE ALERT RELATIVE TO SESSION</text>
+      <circle cx="${right-260}" cy="${lanes[1].top-18}" r="4" fill="#f3c969"/><text class="axis" x="${right-250}" y="${lanes[1].top-14}">PAF · left axis</text>
+      <circle cx="${right-110}" cy="${lanes[1].top-18}" r="4" fill="#a99cff"/><text class="axis" x="${right-100}" y="${lanes[1].top-14}">χ · right axis</text>
+      <circle cx="${right-150}" cy="${lanes[2].top-18}" r="4" fill="#7da6ff"/><text class="axis" x="${right-140}" y="${lanes[2].top-14}">θ</text>
+      <circle cx="${right-100}" cy="${lanes[2].top-18}" r="4" fill="#71d8b5"/><text class="axis" x="${right-90}" y="${lanes[2].top-14}">α</text>
+      <circle cx="${right-50}" cy="${lanes[2].top-18}" r="4" fill="#f0a95f"/><text class="axis" x="${right-40}" y="${lanes[2].top-14}">β</text>
+      <circle cx="${right-126}" cy="${lanes[3].top-18}" r="4" fill="#ff89c8"/><text class="axis" x="${right-116}" y="${lanes[3].top-14}">θ/α ratio</text>
+    `;
+    svg.innerHTML = markup;
+  }
+
+  function nearestPoint(clientX) {
+    if (!smoothed.length) return null;
+    const box = svg.getBoundingClientRect();
+    const localX = (clientX - box.left) / box.width * 1200;
+    const target = (localX - 92) / (1148 - 92);
+    const start = smoothed[smoothed.length - 1].t - WINDOW_SEC;
+    const targetT = start + clamp(target, 0, 1) * WINDOW_SEC;
+    let best = smoothed[0];
+    for (const p of smoothed) if (Math.abs(p.t-targetT) < Math.abs(best.t-targetT)) best = p;
+    return best;
+  }
+  svg.addEventListener('mousemove', e => {
+    const p = nearestPoint(e.clientX);
+    if (!p) return;
+    tooltip.style.display = 'block';
+    tooltip.textContent =
+      `${formatTime(p.t)}\nAlertness ${finite(p.proxy)?p.proxy.toFixed(0):'rejected'}\nPAF ${p.paf.toFixed(1)} Hz · χ ${p.chi.toFixed(2)}\nθ ${(p.theta*100).toFixed(1)}% · α ${(p.alpha*100).toFixed(1)}% · β ${(p.beta*100).toFixed(1)}%\nθ/α ${finite(p.thetaAlpha)?p.thetaAlpha.toFixed(2):'—'} · EMG ${p.emg.toFixed(2)}`;
+    const shellBox = shell.getBoundingClientRect();
+    const x = clamp(e.clientX - shellBox.left + 12, 8, shellBox.width - 205);
+    const y = clamp(e.clientY - shellBox.top - 70, 8, shellBox.height - 130);
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+  });
+  svg.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+  document.getElementById('smoothSelect').addEventListener('change', update);
+  window.addEventListener('pagehide', () => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch (_) {}
+  });
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const copy = svg.cloneNode(true);
+    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const blob = new Blob([new XMLSerializer().serializeToString(copy)], { type: 'image/svg+xml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `eeg-20-minute-trajectory-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.svg`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  update();
+  connect();
+})();
+</script>
