@@ -1,0 +1,69 @@
+{
+  "source_csv_sha256": "cd4bf992aaab3ca394aea56cf3707f47af482586cbf7805e49e6c936974dea10",
+  "accepted_replicas": 12,
+  "accepted_ps": 600.0,
+  "free_tail_ps": 360.0,
+  "group_marker_readback": {
+    "GLU_CONTROL": {
+      "replicas": 3,
+      "mean_of_replica_CA_means_A": 11.551833428924413,
+      "sample_SD_of_replica_means_A": 1.2000419625744256,
+      "replica_means_A": [
+        10.211041002912701,
+        12.525227108424135,
+        11.9192321754364
+      ],
+      "integration_precisions": [
+        "double",
+        "mixed",
+        "mixed"
+      ]
+    },
+    "GLU_LINKED": {
+      "replicas": 3,
+      "mean_of_replica_CA_means_A": 11.13443105381524,
+      "sample_SD_of_replica_means_A": 0.5356774671104008,
+      "replica_means_A": [
+        10.516227435588263,
+        11.42568451347787,
+        11.461381212379587
+      ],
+      "integration_precisions": [
+        "mixed",
+        "mixed",
+        "mixed"
+      ]
+    },
+    "DITY_CONTROL": {
+      "replicas": 3,
+      "mean_of_replica_CA_means_A": 7.159030064353948,
+      "sample_SD_of_replica_means_A": 0.0615599566038857,
+      "replica_means_A": [
+        7.159955532905116,
+        7.22012206903519,
+        7.09701259112154
+      ],
+      "integration_precisions": [
+        "mixed",
+        "mixed",
+        "mixed"
+      ]
+    },
+    "DITY_LINKED": {
+      "replicas": 3,
+      "mean_of_replica_CA_means_A": 7.047009178599389,
+      "sample_SD_of_replica_means_A": 0.07327297646652259,
+      "replica_means_A": [
+        7.087219790074853,
+        6.962434817309085,
+        7.091372928414228
+      ],
+      "integration_precisions": [
+        "mixed",
+        "mixed",
+        "mixed"
+      ]
+    }
+  },
+  "interpretation": "Descriptive only. No equilibrium, significance test or mechanical ranking; no trajectory frame is treated as an independent replica."
+}

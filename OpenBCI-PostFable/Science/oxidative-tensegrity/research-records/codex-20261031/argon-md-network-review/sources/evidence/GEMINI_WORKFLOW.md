@@ -1,0 +1,11 @@
+# Current Gemini capabilities and selected execution
+
+Official catalog https://ai.google.dev/gemini-api/docs/models and flagship page https://ai.google.dev/gemini-api/docs/models/gemini-4-argon identify gemini-4-argon as the stable flagship reasoning model, updated October 2026. Official thinking documentation https://ai.google.dev/gemini-api/docs/thinking supports low/medium/high. Live lab-key metadata on 2026-10-31 exposes generateContent with inputTokenLimit 1048576 and outputTokenLimit 32768. Docs distinguish default synchronous 65536 output and longer background decoding; the live account metadata is the conservative execution ceiling here.
+
+Selected: Argon high reasoning, maxOutputTokens 24576 including thinking, eight independent specialists then two adversarial reviewers of their outputs; up to two targeted repair requests if essential, twelve generation requests maximum, no automatic retries or model tools. Request input bytes and output ceilings are bounded, and usage is recorded. At current promotional standard prices ($2/M input and $10/M output through 2026-11-30), the recorded ceilings imply a conservative cost below $10. This is an upper-bound estimate, not a billing receipt; existing VM costs are separate.
+
+Deep Research https://ai.google.dev/gemini-api/docs/deep-research is an asynchronous Interactions-only research agent suitable for broader literature discovery. It is not a substitute for deterministic trajectory analysis. Its use is described, not invoked here.
+
+Google's ADK graph-workflow documentation https://cloud.google.com/blog/topics/developers-practitioners/graph-workflows-in-adk-everything-you-need-to-know describes fan-out/fan-in, routing, parallel workers and dynamic orchestration. A custom standard-library coordinator implements the needed bounded review pattern here; no ADK package is installed.
+
+AlphaEvolve https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/ combines Gemini-proposed code with automated evaluators and evolutionary search. It motivates verified hypothesis/code search with fixed evaluators and held-out tests; merely giving reviewers different personas does not reproduce AlphaEvolve. No AlphaEvolve service or generated code is executed here.

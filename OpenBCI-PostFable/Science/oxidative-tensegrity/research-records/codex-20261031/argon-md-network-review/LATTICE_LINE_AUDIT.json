@@ -1,0 +1,72 @@
+{
+  "scope": "Independent standard-library enumeration of the source adjacency and line-cycle algorithm, without importing or executing the repository. Expected counts are algebraic expectations, not a mechanical simulation.",
+  "rows": [
+    {
+      "W": 8,
+      "line_lengths_and_counts": {
+        "8": 8,
+        "16": 8
+      },
+      "line_count": 16,
+      "expected_mean_z_at_target_3_4": 3.561904761904762,
+      "p_used": 0.6476190476190476,
+      "expected_fraction_after_forced_cuts": 0.9166666666666666
+    },
+    {
+      "W": 12,
+      "line_lengths_and_counts": {
+        "12": 12,
+        "24": 12
+      },
+      "line_count": 24,
+      "expected_mean_z_at_target_3_4": 3.503030303030303,
+      "p_used": 0.6181818181818182,
+      "expected_fraction_after_forced_cuts": 0.9444444444444444
+    },
+    {
+      "W": 16,
+      "line_lengths_and_counts": {
+        "16": 16,
+        "32": 16
+      },
+      "line_count": 32,
+      "expected_mean_z_at_target_3_4": 3.4755555555555557,
+      "p_used": 0.6044444444444445,
+      "expected_fraction_after_forced_cuts": 0.9583333333333334
+    },
+    {
+      "W": 32,
+      "line_lengths_and_counts": {
+        "32": 32,
+        "64": 32
+      },
+      "line_count": 64,
+      "expected_mean_z_at_target_3_4": 3.436559139784946,
+      "p_used": 0.5849462365591398,
+      "expected_fraction_after_forced_cuts": 0.9791666666666666
+    },
+    {
+      "W": 48,
+      "line_lengths_and_counts": {
+        "48": 48,
+        "96": 48
+      },
+      "line_count": 96,
+      "expected_mean_z_at_target_3_4": 3.4241134751773057,
+      "p_used": 0.5787234042553192,
+      "expected_fraction_after_forced_cuts": 0.9861111111111112
+    },
+    {
+      "W": 64,
+      "line_lengths_and_counts": {
+        "64": 64,
+        "128": 64
+      },
+      "line_count": 128,
+      "expected_mean_z_at_target_3_4": 3.417989417989418,
+      "p_used": 0.5756613756613757,
+      "expected_fraction_after_forced_cuts": 0.9895833333333334
+    }
+  ],
+  "conclusion": "This rectangular periodic staggered triangular graph has W horizontal cycles of length W and W/2 cycles of length 2W in each diagonal direction: 2W total lines. Expected surviving bond fraction after one forced cut per line is p*(1-2/(3W)), not p*(1-1/W). The realized post-bridging coordination must be recorded. Additional random dilution prevents inferring that mean fibre length scales linearly with W."
+}

@@ -1,0 +1,186 @@
+{
+  "snapshot_date": "2026-10-31",
+  "scope": "adversarial network review",
+  "files": [
+    {
+      "name": "audit/ADDITIONAL_GEOMETRY_READBACK.json",
+      "transmitted_sha256": "6ef14b691d9aeb8bef9a3b5be8083c8cba7309b9af9dbe636b678f831ba8d392",
+      "bytes": 6039,
+      "lines": 193
+    },
+    {
+      "name": "audit/GRAPH_COUNTEREXAMPLES.json",
+      "transmitted_sha256": "493c9d703e6369c3acaf1ca075347f54991f8be52a64d1cfb7a132ff48a00496",
+      "bytes": 3723,
+      "lines": 220
+    },
+    {
+      "name": "audit/LATTICE_LINE_AUDIT.json",
+      "transmitted_sha256": "b7bd8c09cf87e9822c6cd81b7021595b0de56ad3613b1effab580af74ea16878",
+      "bytes": 2404,
+      "lines": 72
+    },
+    {
+      "name": "audit/NETWORK_REVIEWS.json",
+      "transmitted_sha256": "479108333587eac40677103fec33a655662aaf788dd53f05906cd9502dea323b",
+      "bytes": 54766,
+      "lines": 308
+    },
+    {
+      "name": "audit/SOURCE_CHECK_NOTES.md",
+      "transmitted_sha256": "b30cfdd1d8d4d18364c963846534e4265f2f52486c4adae8ff5d2fe4659ee071",
+      "bytes": 9814,
+      "lines": 45
+    },
+    {
+      "name": "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "transmitted_sha256": "76041a5c6e72c4d5f85f5456954631362ffcc67a8bbf4d4e0f5730573c4f9173",
+      "bytes": 12259,
+      "lines": 76
+    },
+    {
+      "name": "candidate/PARAMETER_AUDIT.json",
+      "transmitted_sha256": "f9d0366b945f1623dd78c59101d11afc04275e1b4dd555929186a32ac9674617",
+      "bytes": 4214,
+      "lines": 116
+    },
+    {
+      "name": "candidate/PROTOCOL.md",
+      "transmitted_sha256": "e0aa9b657bdbfde54f73772636752d9afcf8763e50a2840768f39e5117cb225d",
+      "bytes": 5021,
+      "lines": 28
+    },
+    {
+      "name": "candidate/RESULT_SUMMARY.json",
+      "transmitted_sha256": "4a7a5bb90f79ef6fcf31ee75cdef5da3efbf2c9d5eff999129eec5ac16ecbe1f",
+      "bytes": 28512,
+      "lines": 995
+    },
+    {
+      "name": "candidate/candidate_pilot.py",
+      "transmitted_sha256": "0dc5f6f8b5b88c4b06387ff3b140c1944cb60bbf83cc2d9bd85396cb46a5f0f2",
+      "bytes": 17734,
+      "lines": 185
+    },
+    {
+      "name": "candidate/entry.py",
+      "transmitted_sha256": "be42ffe710054108217092b8e63d975713548245ff95d7c84f490fb7e509ed2f",
+      "bytes": 3643,
+      "lines": 53
+    },
+    {
+      "name": "candidate/local_analysis.py",
+      "transmitted_sha256": "fda0220d0a791bff2d621bfac24c6ead078cdfe3c68a99a48847c34a755463ca",
+      "bytes": 6764,
+      "lines": 73
+    },
+    {
+      "name": "candidate/parameters/DITY_TRANSLATION_AUDIT.json",
+      "transmitted_sha256": "56432912a84f37d6fc97be2c5dea4404c4af57fad3f71e6f4a34b0d77c75e96e",
+      "bytes": 11884,
+      "lines": 459
+    },
+    {
+      "name": "candidate/prepared/DITY_CONTROL.json",
+      "transmitted_sha256": "e58bf0436a386500d72316a90e9649a81943f9b0d1a107dca9287737b9b88dff",
+      "bytes": 37471,
+      "lines": 1
+    },
+    {
+      "name": "candidate/prepared/DITY_LINKED.json",
+      "transmitted_sha256": "3a04c9f52df63676f276c52bebd6c27ef23d99d5afbf55f344991e3cc6a3dff7",
+      "bytes": 37239,
+      "lines": 1
+    },
+    {
+      "name": "candidate/prepared/GLU_LINKED/MODEL_PROVENANCE.json",
+      "transmitted_sha256": "f3c916d88f30fa065da9c4e72d0ae8d7274f5cbc946311946bd252d0af391d06",
+      "bytes": 846,
+      "lines": 29
+    },
+    {
+      "name": "candidate/prepared/published_glucosepane_motif/ATOM_MAPPING.json",
+      "transmitted_sha256": "e15abc92098ea97518957eeb5506055dc27a3b95aa17a22aaba1d6df4e63b817",
+      "bytes": 1280,
+      "lines": 91
+    },
+    {
+      "name": "candidate/replica_summary.csv",
+      "transmitted_sha256": "5834f67522db1caa5273dbb28c6a9fb2332134c0216986f1861480658fcb9d76",
+      "bytes": 3321,
+      "lines": 13
+    },
+    {
+      "name": "candidate/retrieved/attempt-002/run/summary.json",
+      "transmitted_sha256": "2cdc62ecf81eac956e98831d3beddf8944d480cc96fdc9b6064876991f0f464f",
+      "bytes": 10424,
+      "lines": 339
+    },
+    {
+      "name": "candidate/retrieved/performance-interruption.json",
+      "transmitted_sha256": "277a2fef73a315099edeadb1d992979275d3d0912e032a98f3b797d42cfaeb83",
+      "bytes": 2119,
+      "lines": 65
+    },
+    {
+      "name": "candidate/retrieved/resume-metadata.json",
+      "transmitted_sha256": "bd1495021ed869229bdfa84fc92bdecfb23ffe4058de9532a6012257df308977",
+      "bytes": 538,
+      "lines": 12
+    },
+    {
+      "name": "evidence/GEMINI_WORKFLOW.md",
+      "transmitted_sha256": "47e8166be482afb409098a7f6e81cd15cd453b7305d351e4f3ae6018948e08d2",
+      "bytes": 2280,
+      "lines": 11
+    },
+    {
+      "name": "evidence/NUMERIC_READBACK.json",
+      "transmitted_sha256": "eef36b1caeced416ca57078bc9916fc8055b6e40855293b283b8dedbbbc9f3b8",
+      "bytes": 1843,
+      "lines": 69
+    },
+    {
+      "name": "evidence/PRIMARY_SOURCES.md",
+      "transmitted_sha256": "164d703685b8a0bab270ba8192110b5ec3ee23be527abb85d69f3226a3afe9dc",
+      "bytes": 3130,
+      "lines": 19
+    },
+    {
+      "name": "evidence/QUESTIONS.md",
+      "transmitted_sha256": "f7d0ed0f8045314d4ee044bf982d11b873b7265bde44e1166f4cf7526a32ab04",
+      "bytes": 3478,
+      "lines": 15
+    },
+    {
+      "name": "native/MD_PILOT_RESULTS.md",
+      "transmitted_sha256": "e49a7696d5d61edc3487ed32606ca71ab87d7129e43876999bac5d742a7b8aa0",
+      "bytes": 7999,
+      "lines": 61
+    },
+    {
+      "name": "network/README.md",
+      "transmitted_sha256": "0c4d2e94aac7c84a0d2b3760f5c1e4ed49a958dcc59f19e7926d69e5d792e732",
+      "bytes": 16772,
+      "lines": 218
+    },
+    {
+      "name": "network/oxt/materials.py",
+      "transmitted_sha256": "1af29b8c72704f2117fd48068da26730832a02860c31f7e24933d92db6208615",
+      "bytes": 10506,
+      "lines": 200
+    },
+    {
+      "name": "network/oxt/network.py",
+      "transmitted_sha256": "d163c66caac206618081595d2d52d4626cc9dce07b87c275d483da27546055b2",
+      "bytes": 12795,
+      "lines": 302
+    },
+    {
+      "name": "network/run_sweep.py",
+      "transmitted_sha256": "0cf6414a9f6e947a8894693e44caad8b1839507685cf1c90e2e65c6dde5ac47b",
+      "bytes": 12283,
+      "lines": 270
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "scope": "New coordinate-only analysis of existing inputs/trajectories, not a new simulation, pKa validation, force-field fit or chemical site validation.",
+  "geometry_definition": "Out-of-plane angle is asin of the absolute projection of a third substituent bond on the normal of the plane defined by the two aromatic ring bonds. It is a diagnostic angle, not a fitted improper potential or an energetic/chemical validity threshold.",
+  "DITY_records": [
+    {
+      "model": "DITY_CONTROL",
+      "replica": 0,
+      "initial_site_CE2_distance_A": 8.630394529765255,
+      "free_tail_frames": 30,
+      "out_of_plane_angle_degrees": {
+        "Tyr4:CE2": {
+          "mean": 5.671773739955116,
+          "max": 21.274860399846535
+        },
+        "Tyr4:CZ": {
+          "mean": 5.658763104717947,
+          "max": 17.56037221488616
+        },
+        "Tyr6:CE2": {
+          "mean": 5.4878599855458345,
+          "max": 15.791922878599413
+        },
+        "Tyr6:CZ": {
+          "mean": 5.048873537307014,
+          "max": 15.439627540792095
+        }
+      },
+      "central_site_dihedral_degrees_raw_range": [
+        60.312912192210234,
+        166.94441356281314
+      ],
+      "linked_bond_mean_A": null
+    },
+    {
+      "model": "DITY_CONTROL",
+      "replica": 1,
+      "initial_site_CE2_distance_A": 8.630394529765255,
+      "free_tail_frames": 30,
+      "out_of_plane_angle_degrees": {
+        "Tyr4:CE2": {
+          "mean": 5.1244548252414095,
+          "max": 15.720182793701355
+        },
+        "Tyr4:CZ": {
+          "mean": 5.1142986945849485,
+          "max": 15.59402158869772
+        },
+        "Tyr6:CE2": {
+          "mean": 5.387164854361359,
+          "max": 21.782023989332107
+        },
+        "Tyr6:CZ": {
+          "mean": 5.48778672933084,
+          "max": 15.920341952973748
+        }
+      },
+      "central_site_dihedral_degrees_raw_range": [
+        49.29160203973327,
+        156.55784054727744
+      ],
+      "linked_bond_mean_A": null
+    },
+    {
+      "model": "DITY_CONTROL",
+      "replica": 2,
+      "initial_site_CE2_distance_A": 8.630394529765255,
+      "free_tail_frames": 30,
+      "out_of_plane_angle_degrees": {
+        "Tyr4:CE2": {
+          "mean": 6.301891993952118,
+          "max": 16.77690195808718
+        },
+        "Tyr4:CZ": {
+          "mean": 4.591650818937462,
+          "max": 14.87204628282798
+        },
+        "Tyr6:CE2": {
+          "mean": 5.890479918444916,
+          "max": 16.602591550547487
+        },
+        "Tyr6:CZ": {
+          "mean": 5.016424118456902,
+          "max": 15.484286587626533
+        }
+      },
+      "central_site_dihedral_degrees_raw_range": [
+        45.301965175162195,
+        175.37760544993998
+      ],
+      "linked_bond_mean_A": null
+    },
+    {
+      "model": "DITY_LINKED",
+      "replica": 0,
+      "initial_site_CE2_distance_A": 8.630394529765255,
+      "free_tail_frames": 30,
+      "out_of_plane_angle_degrees": {
+        "Tyr4:CE2": {
+          "mean": 6.697629823715934,
+          "max": 19.66211042659941
+        },
+        "Tyr4:CZ": {
+          "mean": 5.6799169252409785,
+          "max": 17.096872032134634
+        },
+        "Tyr6:CE2": {
+          "mean": 5.478669084552742,
+          "max": 13.623307426681958
+        },
+        "Tyr6:CZ": {
+          "mean": 5.7393305602936096,
+          "max": 22.123741001965563
+        }
+      },
+      "central_site_dihedral_degrees_raw_range": [
+        46.35170657926962,
+        117.26911074191494
+      ],
+      "linked_bond_mean_A": 1.5050510343350425
+    },
+    {
+      "model": "DITY_LINKED",
+      "replica": 1,
+      "initial_site_CE2_distance_A": 8.630394529765255,
+      "free_tail_frames": 30,
+      "out_of_plane_angle_degrees": {
+        "Tyr4:CE2": {
+          "mean": 6.794569308694839,
+          "max": 17.902045542219778
+        },
+        "Tyr4:CZ": {
+          "mean": 5.308357687591444,
+          "max": 18.59975974393946
+        },
+        "Tyr6:CE2": {
+          "mean": 5.208595200665634,
+          "max": 13.241047084271605
+        },
+        "Tyr6:CZ": {
+          "mean": 4.900772782271582,
+          "max": 17.872336190581645
+        }
+      },
+      "central_site_dihedral_degrees_raw_range": [
+        40.71091592997983,
+        89.44049736030696
+      ],
+      "linked_bond_mean_A": 1.5043143207865373
+    },
+    {
+      "model": "DITY_LINKED",
+      "replica": 2,
+      "initial_site_CE2_distance_A": 8.630394529765255,
+      "free_tail_frames": 30,
+      "out_of_plane_angle_degrees": {
+        "Tyr4:CE2": {
+          "mean": 9.063639888553752,
+          "max": 23.140133054634656
+        },
+        "Tyr4:CZ": {
+          "mean": 5.69198884889753,
+          "max": 15.671969448526994
+        },
+        "Tyr6:CE2": {
+          "mean": 6.178994447895749,
+          "max": 26.972107610321032
+        },
+        "Tyr6:CZ": {
+          "mean": 4.801106959450246,
+          "max": 17.052605198313817
+        }
+      },
+      "central_site_dihedral_degrees_raw_range": [
+        43.94583796627826,
+        126.09302597094643
+      ],
+      "linked_bond_mean_A": 1.5177351105039671
+    }
+  ],
+  "GLU_CONTROL_initial_LYS_NZ_to_ARG_guanidino_distances_A": {
+    "NE": 4.570262574513656,
+    "CZ": 3.3436506994600736,
+    "NH1": 3.504440040862496,
+    "NH2": 2.4290121448852693
+  },
+  "review_claim_disposition": [
+    "DITY starting CE2-CE2 separation of 8.6303945 A is confirmed directly. This does not prove a final artifact or biological site assignment.",
+    "The old linked AGS-LGX bond length of 1.457875 A is not the restored ARG-LYS separation in GLU_CONTROL.",
+    "No causal assignment of replica differences to precision is possible because seed and precision were changed together.",
+    "A harmonic bond term retained on a constrained pair is not by itself a confirmed double-counting defect. No force-field term should be deleted solely on this reviewer assertion.",
+    "Absolute stereochemical assignment and microstate validation require additional chemical evidence; relative sign retention does not establish them."
+  ]
+}

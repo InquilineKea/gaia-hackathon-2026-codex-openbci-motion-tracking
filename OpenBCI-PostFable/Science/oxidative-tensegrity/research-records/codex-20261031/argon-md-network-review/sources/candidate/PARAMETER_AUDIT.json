@@ -1,0 +1,116 @@
+{
+  "glucosepane": {
+    "residues": {
+      "AGS": {
+        "atoms": 38,
+        "charge_e": 0.06583999999999979,
+        "atom_types": [
+          "C",
+          "CT",
+          "H",
+          "H1",
+          "H2",
+          "HC",
+          "HO",
+          "N",
+          "N*",
+          "N2",
+          "N3",
+          "O",
+          "OH"
+        ]
+      },
+      "LGX": {
+        "atoms": 18,
+        "charge_e": -0.06584099999999993,
+        "atom_types": [
+          "C",
+          "CT",
+          "H",
+          "H1",
+          "HC",
+          "N",
+          "O"
+        ]
+      }
+    },
+    "attachment": [
+      "AGS:NZ",
+      "LGX:CE"
+    ],
+    "source_bond_length_nm": 0.147,
+    "joint_charge_e": -1.000000000139778e-06,
+    "prior_native_forcefield_hash_comparison": {
+      "aminoacids.rtp": false,
+      "ffbonded.itp": false,
+      "ffnonbonded.itp": true,
+      "forcefield.itp": true
+    }
+  },
+  "dityrosine": {
+    "patch": "DITY",
+    "force_field_family": "CHARMM36/CGenFF",
+    "bond_added": [
+      [
+        "1CE2",
+        "2CE2"
+      ]
+    ],
+    "hydrogens_deleted": [
+      "1HE2",
+      "2HE2"
+    ],
+    "paired_residue_charge_e": 0.0,
+    "atoms_after_patch": 40,
+    "covered_term_counts": {
+      "BONDS": 41,
+      "ANGLES": 66,
+      "DIHEDRALS": 98,
+      "NONBONDED": 40
+    },
+    "missing_local_terms": [],
+    "source_CGenFF_penalty_annotations": [
+      {
+        "value": 0.5,
+        "line": "CG2R67 CA     OH1      45.20    120.00 ! ***** , from CG2R61 CG2R61 OG311, penalty= 0.5 - added by JG 11/20/2025 from G_dity_G.str output of CGenFF. cgenff types CG2R67 CG2R61 OG311"
+      },
+      {
+        "value": 0.5,
+        "line": "CG2R67 CA     OG312    40.00    120.00 ! ***** , from CG2R61 CG2R61 OG312, penalty= 0.5 - added by JG 11/20/2025 from G_dopxdianion_G.str output of CGenFF. cgenff types CG2R67 CG2R61 OG312"
+      },
+      {
+        "value": 0.5,
+        "line": "CG2R67 CA     CA     CT2        3.1000  2   180.00 ! ***** , from CG2R61 CG2R61 CG2R61 CG321, penalty= 0.5 - added by JG 11/20/2025 from G_dity_G.str output of CGenFF. cgenff types CG2R67 CG2R61 CG2R61 CG321"
+      },
+      {
+        "value": 0.5,
+        "line": "CG2R67 CA     OH1    H          0.9900  2   180.00 ! ***** , from CG2R61 CG2R61 OG311 HGP1, penalty= 0.5 - added by JG 11/20/2025 from G_dity_G.str output of CGenFF. cgenff types CG2R67 CG2R61 OG311  HGP1"
+      },
+      {
+        "value": 41.1,
+        "line": "OH1    CA     CG2R67 CG2R67     1.0000  2   180.00 ! ***** , from FGR1 CG2R66 CG2R67 CG2R67, penalty= 41.1 - added by JG 11/20/2025 from G_dity_G.str output of CGenFF. cgenff types OG311  CG2R61 CG2R67 CG2R67"
+      },
+      {
+        "value": 30.0,
+        "line": "OH1    CA     CG2R67 CA         3.1000  2   180.00 ! ***** , from CG2R61 CG2R61 CG2R61 OG311, penalty= 30 - added by JG 11/20/2025 from G_dity_G.str output of CGenFF. cgenff types OG311  CG2R61 CG2R67 CG2R61"
+      },
+      {
+        "value": 51.1,
+        "line": "OG312  CA     CG2R67 CG2R67     1.0000  2   180.00 ! ***** , from FGR1 CG2R66 CG2R67 CG2R67, penalty= 51.1 - added by JG 11/20/2025 from G_dopxdianion_G.str output of CGenFF. cgenff types OG312  CG2R61 CG2R67 CG2R67"
+      },
+      {
+        "value": 30.0,
+        "line": "OG312  CA     CG2R67 CA         3.1000  2   180.00 ! ***** , from CG2R61 CG2R61 CG2R61 OG312, penalty= 30 - added by JG 11/20/2025 from G_dopxdianion_G.str output of CGenFF. cgenff types OG312  CG2R61 CG2R67 CG2R61"
+      },
+      {
+        "value": 0.5,
+        "line": "CG2R67 CA     CA     OG312      3.1000  2   180.00 ! ***** , from CG2R61 CG2R61 CG2R61 OG312, penalty= 0.5 - added by JG 11/20/2025 from G_dopxdianion_G.str output of CGenFF. cgenff types CG2R67 CG2R61 CG2R61 OG312"
+      },
+      {
+        "value": 0.5,
+        "line": "CG2R67 CA     CA     OH1        3.1000  2   180.00 ! ***** , from CG2R61 CG2R61 CG2R61 OG311, penalty= 0.5 - added by JG 11/20/2025 from G_dopx_G.str output of CGenFF. cgenff types CG2R67 CG2R61 CG2R61 OG311"
+      }
+    ],
+    "scope": "two TYR residues, excluding external peptide references and full-context impropers/CMAP; this is a local coverage check, not complete system or physical validation"
+  }
+}

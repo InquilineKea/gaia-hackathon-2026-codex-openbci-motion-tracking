@@ -1,0 +1,308 @@
+{
+  "R5_rigidity": {
+    "summary": "Audit of the discrete fiber-network implementation (network/oxt/network.py, network/oxt/materials.py, network/run_sweep.py) shows that the reported stiffness transitions and oxidative crosslinking effects conflate four physically distinct regimes: (1) topological connectivity percolation, (2) bending- and angle-constrained rigidity percolation, (3) nonzero baseline stiffness from affine background tethers (k_gag) and unbreakable elastin bonds (mu_el), and (4) finite-strain nonlinear stiffening. Furthermore, oxidative damage dose simultaneously adds graph edges, re-closes periodic fiber lines, stiffens bonds, and locks junction angles, while lattice width W is coupled to physical fiber length (W - 1), preventing clean finite-size scaling.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Nonzero affine background tethers (k_gag) and full-lattice elastin (mu_el) guarantee positive moduli at all dilutions, masking true rigidity and connectivity thresholds",
+        "source_file": "network/oxt/network.py",
+        "source_line": 155,
+        "evidence": "In Batch.energy (lines 155 and 172-173), every bond carries stiffness mu_eff = self.mu * a + self.mu_el and every node is harmonically tethered to its affine position xa = X @ F^T via k_gag (default 1e-6 in build_spec, up to 2e-3 in TISSUES), alongside collinear bending kappa (lines 162-164) and isotropic prestrain (lines 143-144).",
+        "implication": "Even at zero collagen connectivity (z = 0, no giant component), the network exhibits a strictly positive shear modulus G > 0 from k_gag and mu_el. Below the central-force isostatic point (z < 4), stiffness is governed by a hybrid of fiber bending (kappa) and affine background tethering rather than a pure central-force rigidity transition, invalidating direct comparisons to unembedded isostatic thresholds.",
+        "recommended_check": "Run a background-limit ablation sweeping k_gag in {0, 1e-9, 1e-6, 1e-4}, mu_el = 0, prestrain = 0, and kappa in {0, 1e-4, 3e-3} to isolate the bare central-force rigidity threshold (z_cf ~ 4) from the bending threshold (z_bend ~ 2.4) and the embedding floor.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Oxidative damage dose confounds topological edge addition with intrafibrillar stiffening and junction angle locking",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 112,
+        "evidence": "In build_spec (lines 112-138), increasing dmg.dose simultaneously (1) adds n_bridge new alive bonds (raising z by up to 0.36 at dose 1 and potentially re-closing periodic lines cut at line 92), (2) increases bond stretch/bending moduli (mu, kb), and (3) activates 6-spoke angular springs (rigid_node) at n_lock junctions.",
+        "implication": "The reported 9x-30x increase in G at low z under dose-1 crosslinking (network/README.md lines 96-98, 129-130) cannot be attributed solely to crosslink rigidity or to crossing a percolation threshold, because dose alters graph connectivity z, periodic fiber wrapping, bond moduli, and angular constraints at the same time.",
+        "recommended_check": "Decompose Damage into four orthogonal single-mechanism interventions at fixed z: (A) topology-only edge addition (bridging with k_rel=1, no stiff_frac or rigid_frac), (B) degree-preserving spatial edge rewiring, (C) intrafibrillar bond stiffening only (bridge_frac=0, rigid_frac=0), and (D) junction angle-locking only (bridge_frac=0, stiff_frac=0).",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Cutting exactly one bond per periodic line couples physical fiber length to box size W, invalidating finite-size scaling",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 88,
+        "evidence": "Lines 88-92 set dilution probability p = min(1.0, z / 6.0 / (1 - 1.0 / lat.W)) and cut exactly one random bond per periodic lattice line (lat.line), making the maximum fiber length W - 1 and mean fiber length scale linearly with W across profiles (W = 8, 12, 16, 48 in network/run_sweep.py lines 26-42).",
+        "implication": "Comparing local (W=12), cpu32 (W=16), and gpu (W=48) runs does not test asymptotic finite-size scaling of a fixed material; instead, increasing W increases the contour length of collagen fibers 4-fold, shifting the bending-to-stretching mechanical crossover with system size.",
+        "recommended_check": "Decouple fiber length L_f from lattice width W by cutting each line with a fixed per-bond probability p_cut = 1 / L_f (with W >> L_f) so mean fiber length and degree z remain invariant as W scales from 16 to 96.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Batch-summed L-BFGS stopping criteria and eps=2e-3 finite differences overestimate linear moduli in floppy sub-isostatic networks",
+        "source_file": "network/oxt/network.py",
+        "source_line": 199,
+        "evidence": "Batch.relax minimizes the sum of energies across B systems (line 174) and halts when batch-wide max gradient fmax < 10 * ftol (1e-6) and batch-summed relative energy change <= 1e-10 (line 199); small_strain_moduli (lines 249-265) applies an affine step eps = 2e-3 before relaxing.",
+        "implication": "When soft sub-isostatic systems (e.g., Col IV/VII with kappa = 1e-4 to 3e-4, k_gag = 1e-6) are batched with stiff systems, forces on floppy bending modes at eps = 2e-3 (~kappa * eps <= 6e-7) already sit below the 1e-6 gradient cutoff after the initial affine step (line 258), causing premature termination near the affine state and inflating G.",
+        "recommended_check": "Evaluate stopping criteria per system rather than on the batch sum, tighten ftol to <= 1e-10 for k_gag -> 0 tests, and verify linear response by comparing eps = 1e-4 vs 2e-3 against the exact Hessian Schur-complement shear modulus.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Secant modulus is reported as tangent stiffness K(gamma) while topological and rigidity order parameters are unrecorded",
+        "source_file": "network/run_sweep.py",
+        "source_line": 152,
+        "evidence": "Function secant_curves (lines 149-153) computes 3 * sig_g{g} / g (secant modulus), which network/README.md (lines 99, 131) labels as differential stiffness K(gamma)/G0; meanwhile, run_sweep.py (lines 69-70) records only mean coordination z and an Euler planar-face proxy mesh_size (network/oxt/network.py lines 295-302).",
+        "implication": "Secant ratios smooth out and underestimate the sharp strain-controlled differential stiffening crossover K(gamma) = d(sigma)/d(gamma), and the Euler proxy E - V fails on disconnected or toroidal graphs, leaving connectivity percolation and rigid-backbone formation unmeasured.",
+        "recommended_check": "Compute central-difference or auto-diff tangent modulus K(gamma) = dP_xy/dgamma along the shear curve, and record giant connected component (GCC) wrapping, 2-core/pebble-game rigid backbone fraction, and non-affinity parameter Gamma(gamma).",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "In the implemented 2D diluted triangular lattice with collinear bending and fixed finite size (W=16, 4 seeds), increasing coordination number z from 2.8 to 5.0 or applying the composite oxidative damage protocol monotonically increases small-strain shear modulus G, reduces the nonlinear secant stiffening ratio sigma(gamma)/ (gamma * G), and induces mechanical anisotropy (Cx/Cy > 1) when bond additions and stiffening are restricted to a single lattice axis.",
+    "decisive_next_experiment": "Conduct a 4-stage finite-size, constraint, and background-limit numerical experiment (holding fixed mean fiber length L_f = 8 via independent per-bond line-cut probability p_cut = 1/8, across lattice sizes W in {16, 32, 64, 96} with >= 32 independent Newman-Ziff bond-insertion permutations per W): Priority 1 (Background & Constraint Limit): Sweep z in [1.5, 5.5] under four constraint tiers at dose = 0: (T1) pure central-force springs (kappa = 0, kx = 0, k_gag = 0, mu_el = 0), (T2) central-force + bending (kappa = 3e-3, kx = 0, k_gag = 0), (T3) central-force + bending + locked junctions (kx = 2e-3, k_gag = 0), and (T4) embedded tissue baseline (k_gag in {1e-8, 1e-6, 1e-4}). Priority 2 (Orthogonal Damage Decomposition): At sub-isostatic z = 3.0 and super-isostatic z = 4.4, apply matched controls separating (A) bridging bond addition (delta_z = 0.36, no stiffening/locking), (B) degree- and z-preserving spatial bond rewiring, (C) intrafibrillar bond stiffening only, and (D) junction angle locking only. Priority 3 (Strain-Driven Crossover & Hysteresis): For T1-T4 at z in {2.6, 3.2, 3.8, 4.4}, run quasi-static shear loading-unloading cycles (gamma from 1e-4 to 0.5 and back, rupture disabled vs enabled). Recorded Observables: (1) Topological giant component fraction P_inf and periodic torus wrapping probability R_wrap(z, W); (2) Dynamical matrix (Hessian) rank, zero-mode fraction f_0(z, W), and pebble-game rigid backbone fraction; (3) Linear shear modulus G0 from both exact Hessian linear response and per-system L-BFGS at eps = 1e-4; (4) Tangent stiffness K(gamma) = d(sigma)/d(gamma) and non-affinity parameter Gamma(gamma). Convergence/Stop Criteria: Per-system L-BFGS max force fmax < 1e-10 and relative energy change < 1e-13; finite-size crossing localization of R_wrap(z, W) and f_0(z, W) within +/- 0.05 in z across W = 32..96. Falsifier: If setting k_gag -> 0 and decomposing damage shows that (i) G0 at z < 3.8 vanishes when kappa = kx = 0 despite a wrapping giant component (R_wrap -> 1), or (ii) junction angle locking (D) alone reproduces >= 80% of the low-z stiffening attributed to oxidative bridging without changing z or R_wrap, then the hypothesis that oxidative crosslinking acts primarily by shifting topological connectivity percolation is falsified in favor of bending/angular constraint stabilization.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz MacKintosh 2011 Criticality and isostaticity in fibre networks Nature Physics",
+        "reason": "Verify the exact scaling of the bending-to-stretching crossover and the shift of the rigidity threshold with finite fiber length L_f on a 2D diluted triangular lattice.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Sharma Licup Jansen 2016 Strain-controlled criticality governs the nonlinear mechanics of fibre networks Nature Physics",
+        "reason": "Verify the definition of differential tangent modulus K = d(sigma)/d(gamma) versus secant modulus and non-affine fluctuations near the strain-controlled critical point.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Newman Ziff 2001 fast Monte Carlo algorithm for site or bond percolation Physical Review E",
+        "reason": "Verify periodic boundary wrapping probabilities R_wrap and finite-size scaling estimators for bond percolation on a 2D triangular lattice.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Jacobs Thorpe 1995 Generic rigidity percolation the pebble game Physical Review Letters",
+        "reason": "Verify exact combinatorial rigidity / pebble-game counting for 2D central-force and bond-bending networks to compare against Hessian rank diagnostics.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "R6_topology": {
+    "summary": "Audit of network/oxt/materials.py and network/oxt/network.py shows that oxidative damage dose (dmg.dose) does mutate graph adjacency by activating n_bridge missing lattice bonds, but it simultaneously confounds this edge-count increase with collinear fibre-bending activation, a double-hit sampling artifact on newly added bridges during intrafibrillar stiffening/embrittlement, and degree-blind node angular locking. Neither the isotropic nor the anisotropic damage generator varies spatial clustering (triangles) or degree heterogeneity independently of mean coordination z, and the sole topological cycle metric (mesh_size) uses an Euler E - V approximation that is algebraically invariant to degree-preserving rewiring. Furthermore, the fixed 6-regular periodic triangular candidate lattice strictly bounds node degree (k <= 6), ruling out Barabasi-Albert scale-free degree distributions, coupling triangle formation to directional edge balance, and coupling bond rewiring to 3-body collinear bending pairs.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Oxidative dose alters graph adjacency while confounding edge addition, collinear bending, double-hit embrittlement, and node locking",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 112,
+        "evidence": "In build_spec (lines 112-137), dmg.dose > 0 flips n_bridge missing bonds to alive[new] = True (raising z by up to +0.36 at dose=1), assigns mu[new] and eps_r[new], then defines present = np.flatnonzero(alive) (line 121) AFTER adding new bridges so newly added bridges can be picked again in chosen and multiplied by dmg.brittle a second time (line 133), and locks n_lock random nodes across all lat.N nodes regardless of degree (line 137). Because Batch.energy (network/oxt/network.py lines 162-163) activates bending on any collinear alive bond pair (a[:, bend_in] * a[:, bend_out]) and kb[new] defaults to 1.0 (line 95), adding bridge bonds also creates continuous bending fibres and can re-close periodic spanning lines cut at lines 90-92.",
+        "implication": "Observed mechanical shifts across dmg.dose cannot be attributed uniquely to crosslink topology, stiffness, or percolation because graph edge count (z), collinear fibre continuity/bending, double-embrittled bridge weights, and locked junction angles covary deterministically with dose.",
+        "recommended_check": "Compute present = np.flatnonzero(alive) before setting alive[new] = True to eliminate double-hit stiffening/embrittlement on bridge bonds, set kb[new] = 0.0 (or track a separate crosslink edge mask excluded from bend_in/bend_out) so inter-fibre bridges do not act as continuous collinear collagen segments, restrict rigid_node selection to nodes with alive degree >= 2, and run single-factor controls holding z fixed.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Isotropic and anisotropic bridge sampling cannot isolate clustering or hub bias, and anisotropic bridging saturates at high coordination",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 114,
+        "evidence": "Base network bonds are drawn via uniform i.i.d. Bernoulli dilution plus one random cut per line (lines 89-92), and bridging crosslinks are sampled uniformly without replacement from missing (iso) or missing[on_axis[missing]] (aniso, lines 113-115). In aniso mode, all bridges are restricted to one lattice direction (bdir == dmg.axis), which contains only Nb/3 = N candidate bonds; when target z >= 4.92 (such as z = 5.0 and 5.4 in network/run_sweep.py lines 34 and 39), fewer than n_bridge = 0.06 * Nb = 0.18 * N missing on-axis bonds exist at dose=1.0, silently clamping pick(pool, n_bridge) (line 108).",
+        "implication": "In iso mode, triangle clustering and degree variance remain strictly slaved to mean degree z under a uniform random bond process; in aniso mode, added edges lie on disjoint 1D parallel lines that cannot form triangles with one another and fail to match the edge count of iso mode at high z.",
+        "recommended_check": "Record directional edge counts (E_0, E_1, E_2) to flag pool saturation when missing[on_axis[missing]].size < n_bridge, and replace uniform random bond addition with explicit constrained Markov-chain rewiring ensembles when testing clustering or hub-attachment hypotheses.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Fixed 6-regular triangular candidate lattice forbids Barabasi-Albert scale-free growth and couples triangles to anisotropy and bending",
+        "source_file": "network/oxt/network.py",
+        "source_line": 51,
+        "evidence": "Lattice.__init__ (lines 51-66) fixes a periodic 2D triangular candidate graph with N = W^2 nodes, Nb = 3N nearest-neighbor candidate edges, and hard maximum node degree k_max = 6. Every lattice triangle requires one edge from each direction bdir in {0, 1, 2}, bounding total triangles by T <= 2 * min(E_0, E_1, E_2). Moreover, standard 2-edge degree-preserving swaps (i,j),(u,v) -> (i,u),(j,v) are inadmissible unless (i,u) and (j,v) are also unit lattice bonds, and any edge swap changes active collinear bending pairs (bend_in, bend_out, lines 71-72).",
+        "implication": "Growing Barabasi-Albert preferential attachment and power-law degree distributions are mathematically impossible on this candidate graph (evidence/PRIMARY_SOURCES.md lines 13-15). High triangle clustering and strong directional anisotropy cannot be varied independently, and spatial edge rewiring confounds graph topology with fibre bending unless collinear pair counts are controlled.",
+        "recommended_check": "Define hub bias on the fixed lattice explicitly as bounded degree-variance control Var(k) within 0 <= k_i <= 6 at fixed E, use alternating 6-cycle (elementary hexagon) plaquette flips to vary triangles T while preserving exact node degrees {k_i} and directional edge counts (E_0, E_1, E_2), and constrain or zero out collinear bending changes during topological sweeps.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Recorded mesh_size metric relies on an Euler E - V approximation that is blind to triangles, clustering, and degree-preserving rewiring",
+        "source_file": "network/oxt/network.py",
+        "source_line": 298,
+        "evidence": "mesh_size (lines 295-302) computes E = spec.alive.sum(), V = (deg > 0).sum(), and faces = max(E - V, 1), which network/run_sweep.py (line 69) logs alongside z and bonds as the only network topology metrics.",
+        "implication": "Because E - V omits the connected component count C and depends solely on total alive edges and non-isolated vertices, any degree-preserving rewiring that alters triangle clustering, k-core percolation, or hub assortativity at fixed E and V leaves z, bonds, and mesh_size identically unchanged.",
+        "recommended_check": "Add exact topological observables to network/oxt/network.py and network/run_sweep.py: triangle count T, global clustering coefficient 3T / sum_i(k_i*(k_i-1)/2), degree variance Var(k), degree assortativity r_deg, collinear bending-pair count N_bend, largest component fraction S_1/N, and torus-wrapping indicators.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Permanent elastin bonds and GAG node tethers create a full-lattice mechanical background that masks topological percolation thresholds",
+        "source_file": "network/oxt/network.py",
+        "source_line": 155,
+        "evidence": "Batch.energy adds self.mu_el to every candidate lattice bond via mu_eff = self.mu * a + self.mu_el (line 155) regardless of whether alive is True, and adds a harmonic tether self.k_gag * (x - xa)^2 to every node (line 173). In network/oxt/materials.py, k_gag defaults to 1e-6 (line 83) and TISSUES (lines 166-179) assigns k_gag >= 1e-5 for all tissues and mu_el > 0 for five of seven tissues.",
+        "implication": "Even when the collagen adjacency graph (spec.alive) is fragmented or sub-isostatic, the mechanical energy graph has full coordination z_mech = 6 plus ground tethers, yielding a strictly positive shear modulus floor that shifts and smooths out connectivity and rigidity transitions (evidence/PRIMARY_SOURCES.md line 7).",
+        "recommended_check": "Run topological phase-boundary sweeps with mu_el = 0.0 and k_gag = 0.0 (removing trivial translational zero modes via periodic pinning) in parallel with physiological background sweeps, and test candidate regime boundaries against a smooth spline/polynomial null model across multiple lattice sizes W.",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "The batched periodic triangular-lattice mechanics solver in network/oxt/network.py cleanly parameterizes stretching, collinear fibre bending, 6-spoke angular junction locking, background elastin, and affine GAG tethers via SystemSpec arrays, making it directly usable for deconfounded spatial topology experiments once SystemSpec generation in network/oxt/materials.py is separated from the bundled dmg.dose heuristic and augmented with exact cycle, component, and degree-distribution observables.",
+    "decisive_next_experiment": "Execute a four-stage deconfounded simulation protocol without modifying solver physics: (1) Priority 1 - Dose Deconfounding Controls: At fixed base seeds and matched mean coordination z in [2.6, 5.0], run a factorial ablation of build_spec separating (C0) uniform diluted baseline, (C1) pure bridge addition (alive[new]=True with kb[new]=0 so bridges do not create collinear bending fibres, and present sampled before adding new to prevent double-brittle hits), (C2) pure intrafibrillar stiffening/embrittlement at fixed alive, and (C3) pure junction locking (rigid_node on nodes with k_i >= 2) at fixed alive, each evaluated at (mu_el=0, k_gag=0) and physiological background. (2) Priority 2 - Orthogonal Spatial Topology Ensembles on the Fixed Lattice: At fixed node count N=W^2 and fixed edge count E=zN/2, compare (N0) uniform random bond dilution with matched directional counts (E_0, E_1, E_2); (I1 - Pure Triangle/Clustering Knob) degree- and direction-preserving Metropolis rewiring using alternating 6-cycle (elementary hexagon) plaquette flips targeting exp(beta_T * T - beta_b * |N_bend - N_bend,0|), which varies triangle count T across its feasible polytope [T_min, T_max] while holding every node's exact degree k_i (hence Var(k)), E, and (E_0, E_1, E_2) strictly invariant and keeping collinear bending pairs N_bend within +/-1%; (I2 - Fixed-Node Hub-Bias Knob) canonical bond swaps targeting exp(beta_hub * sum_i k_i^2 - beta_T * |T - T_0| - beta_b * |N_bend - N_bend,0|) to vary degree variance Var(k) within 0 <= k_i <= 6 at matched E, T, and N_bend; and (I3 - Sequential vs Equilibrium Hub Attachment) Newman-Ziff sequential edge insertion with probability proportional to (k_i + c)^alpha * (k_j + c)^alpha using independent insertion permutations as replicate units, evaluated against I2 at matched final (z, Var(k), T). (3) Priority 3 - Recorded Observables and Convergence/Stop Criteria: Log (z, E_0, E_1, E_2, T, global transitivity, Var(k), degree assortativity r_deg, N_bend, largest component S_1/N, susceptibility chi_perc, torus wrapping, MCMC acceptance rate, integrated autocorrelation time tau_int) and mechanical readouts (G, Cx, Cy, nonaffine displacement ratio, strength, strain_at_peak, toughness). Require MCMC burn-in/thinning >= 50 * tau_int swaps and L-BFGS convergence fmax < 1e-6 with relative energy change <= 1e-10 across lattice sizes W in {16, 32, 48, 64} and >= 32 independent seeds per condition. Choose adaptive follow-up points in (z, beta_T, beta_hub) by maximizing expected reduction in posterior variance of partial derivatives dG/dT and dG/dVar(k) while keeping 30% space-filling points and evaluating regime boundaries strictly on held-out seeds and W=64. (4) Falsifier: The hypothesis that spatial clustering (T) or fixed-node hub bias (Var(k)) drives an independent mechanical regime change is falsified if, across W in {32, 48, 64} at fixed (z, E_0, E_1, E_2, N_bend) and fixed bond stiffness distributions, varying T via hexagon flips (I1) or varying Var(k) at matched T (I2) yields 95% confidence intervals for dG/dT and dG/dVar(k) (and d(strength)/dT, d(strength)/dVar(k)) that include zero or fail to beat a smooth spline null model of (z, N_bend) alone on held-out seeds (Delta AIC < 2).",
+    "literature_to_verify": [
+      {
+        "query": "lattice gas hexagon plaquette flip degree-preserving rewiring triangular lattice Eulerian cycle Markov chain mixing",
+        "reason": "Verify ergodicity and mixing-time bounds of alternating 6-cycle (hexagon) plaquette flips for degree-sequence-preserving subgraph sampling on the 2D periodic triangular lattice.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Broedersz MacKintosh 2011 diluted triangular lattice crosslink bending vs inter-fibre bridging bond mechanics",
+        "reason": "Check standard conventions in Broedersz-MacKintosh lattice models for distinguishing intrafibrillar collinear bending segments from inter-fibre crosslink bridges.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "R7_active_design": {
+    "summary": "To detect and distinguish topological, rigidity, and failure regime changes without confounding or circular evaluation, the experimental design must correct five structural issues in the current sweep pipeline: (1) seed reuse (`seed=1000+s`) across parameter grids and pre-cell seed averaging (`groupby.mean()`), which destroy replicate independence and uncertainty propagation; (2) confounding of bond addition (`bridge_frac`), segment stiffening/embrittlement (`stiff_frac`, `brittle`), and junction angle-locking (`rigid_frac`) inside a single `dose` knob on a degree-bounded (k <= 6) triangular lattice; (3) batch-summed L-BFGS convergence (`e.sum()`), which couples floppy near-critical networks to stiff networks in the same batch, alongside nonzero background springs (`k_gag`, `mu_el`) that replace sharp rigidity thresholds with smooth crossovers; (4) missing percolation/wrapping, clustering, nonaffinity, and tangent-modulus observables (`mesh_size` relies on a connected-graph Euler approximation); and (5) single-W static grid profiles that confound lattice size W with strain-step discretization and lack held-out validation or adaptive acquisition. We specify six decoupled candidate mechanism models (M0-M5), define the independent replicate unit as a uniquely seeded graph realization (plus independent bond-insertion permutation or Markov-chain rewiring trajectory), establish a multi-size Stage-1 run matrix (W in {16, 32, 64}) with per-system convergence and hysteresis controls, replace universal hard thresholds with smooth-null model selection (AICc/BIC and held-out log-predictive density), and formulate a compute-aware active-learning acquisition rule with explicit stopping and falsification criteria.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Seed reuse across parameter sweeps and pre-stage averaging violate replicate independence and erase uncertainty",
+        "source_file": "network/run_sweep.py",
+        "source_line": 133,
+        "evidence": "In stage_network (lines 133, 136) and stage_tissues (line 145), every configuration (col, z, mode, dose, age) reuses the exact same RNG seeds (1000+s, 2000+s, 3000+s for s in range(P['seeds'])). Subsequently, stage_cell (lines 160-162) and stage_organ (line 190) collapse replicates via groupby(...).mean(numeric_only=True) before computing cell mechanotransduction or organ readouts.",
+        "implication": "Reusing identical uniform random draws rng.random(Nb) across z and dose couples all grid points into nested/common-random-number trajectories rather than independent graph realizations, violating standard error and change-point independence assumptions. Averaging before running nonlinear CellModel dynamics biases bistability and tearing classifications via Jensen's inequality and eliminates replicate variance at downstream scales.",
+        "recommended_check": "Define the independent replicate unit as a unique (graph_seed, permutation_or_rewire_seed) tuple generated via numpy.random.SeedSequence((W, model_id, config_id, replicate_id)) so no two grid points share random draws unless explicitly paired for common-random-number variance reduction. Propagate each replicate separately through stage_cell and stage_organ, and compute bootstrap 95% confidence intervals over independent graph replicates.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Damage.dose confounds graph connectivity, segment stiffening, embrittlement, and junction locking on a bounded-degree lattice",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 112,
+        "evidence": "In build_spec (lines 100-138), increasing dmg.dose > 0 simultaneously adds n_bridge = round(dose * bridge_frac * Nb) new edges (raising actual coordination z by up to +0.36 at dose=1 and re-bridging cut fibre lines from lines 90-92), stiffens and embrittles n_st segments (lines 122-133), and locks n_lock node angles (lines 136-137) on a fixed 2D triangular lattice where max degree is bounded at 6.",
+        "implication": "Any regime shift observed versus dose or age cannot be attributed specifically to percolation/connectivity, fiber bending/stretching stiffness, or angular crosslink rigidity. Furthermore, because candidate edges are restricted to the 3N triangular lattice bonds (k_max = 6), hub formation (preferential attachment) and triangle clustering cannot be varied independently of mean degree z without degree-preserving spatial rewiring or off-lattice candidate edges.",
+        "recommended_check": "Split build_spec into orthogonal candidate mechanism models at matched actual coordination z_actual: M0 (Baseline dilution, dose=0), M1 (Pure topological bridging: bridge_frac > 0, stiff_frac = 0, rigid_frac = 0, new bonds given native mu and eps_r), M2 (Pure intrafibrillar stiffening/embrittlement at fixed graph alive: bridge_frac = 0, stiff_frac > 0, rigid_frac = 0), M3 (Pure junction angle-locking at fixed graph alive: bridge_frac = 0, stiff_frac = 0, rigid_frac > 0), M4 (Fixed-z triangle-clustering vs degree-preserving rewired null), and M5 (Fixed-node spatial hub-biased attachment within radius r_c with expand-and-dilute degree matching).",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Batch-summed L-BFGS stopping criteria couple floppy and stiff systems, while background springs smooth out rigidity transitions",
+        "source_file": "network/oxt/network.py",
+        "source_line": 174,
+        "evidence": "Batch.energy (line 174) returns the batch sum e.sum(), which Batch.relax (lines 180-201) minimizes via a single shared L-BFGS instance with stopping criterion abs(e_prev - e_now) <= 1e-10 * abs(e_now) + 1e-18 (line 199). In addition, lines 155 and 173 include unbreakable elastin (mu_el) and affine GAG tethers (k_gag >= 1e-6) on all nodes.",
+        "implication": "When a batch mixes stiff high-z networks and floppy sub-isostatic networks (as in run_tasks, run_sweep.py line 98), the stiff networks dominate abs(e_now) and control the strong-Wolfe line search, causing premature termination or step-size starvation for soft networks near the rigidity crossover. Meanwhile, nonzero k_gag and mu_el eliminate true zero-frequency modes, replacing a singular rigidity percolation threshold with a background-controlled crossover floor.",
+        "recommended_check": "Enforce per-system convergence in Batch.relax by evaluating e_sys = self.energy(x, F, per_system=True) and requiring max_i(|e_sys,prev[i] - e_sys,now[i]| / (|e_sys,now[i]| + 1e-18)) <= 1e-10 and per-system max force fmax_i < 10 * ftol, or batch only homogeneous (z, dose) replicates together. Include an explicit zero-background control (mu_el = 0, k_gag = 0) and a kappa -> 0 control to separate central-force rigidity percolation from bending- and tether-stabilized crossover regimes.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Missing percolation, clustering, nonaffinity, and tangent-modulus observables alongside arbitrary classification thresholds",
+        "source_file": "network/oxt/network.py",
+        "source_line": 295,
+        "evidence": "mesh_size (lines 295-302) estimates pore size from Euler's formula faces = max(E - V, 1) assuming a single connected planar graph. run_sweep.py computes secant modulus E_sec = 3*sigma/gamma (line 152), discrete argmax peak strain (line 87), and hard-coded cell regime cutoffs (|hi['Y'] - lo['Y']| > 0.15 at line 180; prestress_ratio >= 0.5 at line 182).",
+        "implication": "Below or near connectivity percolation, E - V misestimates cycle count because disconnected components c > 1 violate faces = E - V + c. Secant modulus obscures strain-stiffening onset (where tangent modulus d(sigma)/d(gamma) diverges from linear G), coarse strain grids quantize failure thresholds, and arbitrary universal thresholds (0.15, 0.5) can manufacture spurious phase boundaries from smooth response curves.",
+        "recommended_check": "Implement exact graph and mechanical regime observables: (1) periodic wrapping probability R_wrap(x, y) via lattice shift winding numbers, largest component fraction S_1, and finite-cluster susceptibility chi; (2) local clustering coefficient C, degree varianceVar(k), and degree assortativity r_k; (3) central-difference tangent shear modulus G_tan(gamma) = dP_xy/dgamma, nonaffinity ratio Gamma(gamma), and participation ratio of nonaffine displacements; and (4) replace fixed cutoffs with formal model comparison between a smooth monotone null (logistic/spline) and a piecewise/scaling crossover model using held-out log-likelihood.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Single-W static grid profiles confound lattice size with protocol resolution and lack held-out validation or active acquisition",
+        "source_file": "network/run_sweep.py",
+        "source_line": 25,
+        "evidence": "PROFILES (lines 25-43) assign a single lattice width W per profile (W=8, 12, 16, 48) while simultaneously changing seeds (1 to 8), shear gammas (3 to 11 points), failure strain grids (3 to 40 points), and clutch_T (8 to 120).",
+        "implication": "Comparing results across profiles confounds finite-size effects (W) with quasistatic strain-step size (which directly alters rupture avalanche cascades in failure_curve, network.py line 279) and cell integration time. Moreover, static Cartesian grids expend most compute far from transition boundaries and provide no held-out sizes, seeds, or topologies to guard against overfitting adaptively acquired phase boundaries.",
+        "recommended_check": "Fix protocol resolution (identical gamma and fail strain grids, loading/unloading hysteresis check, and clutch_T) across multiple lattice sizes W in {16, 32, 64} within the same experiment. Partition seeds and sizes into an exploration/acquisition set and a strict held-out validation set (held-out seeds at W=16, 32, held-out intermediate grid points, and out-of-sample size W=64) before running sequential acquisition.",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "The 2D periodic diluted triangular-lattice solver in network/oxt/network.py and parameterized builder in network/oxt/materials.py provide a well-defined, differentiable mechanical testbed combining bond stretching, colinear fiber bending, node-angle locking, background elastin/GAG elasticity, and quasistatic shear/rupture protocols; once seed schedules are de-correlated, convergence is enforced per system, and damage sub-mechanisms are factorially decoupled across multiple lattice sizes W, the code can quantitatively test whether mechanical regime shifts arise from connectivity percolation, bending/angular constraints, or parameter stiffening.",
+    "decisive_next_experiment": "Execute a two-stage, compute-aware adaptive phase-boundary experiment (recommendations only; no code executed here):\n\n1. PRIORITY ORDER & CANDIDATE MECHANISM MODELS (held at matched node count N = W^2, periodicLees-Edwards boundaries, and matched actual mean coordination z_actual):\n   - M0 (Topological Dilution Baseline): dose = 0, vary z_actual in [2.2, 5.4] via Newman-Ziff bond insertion permutations (with and without line-cuts) under both zero-background (mu_el = 0, k_gag = 0) and physiological-background (k_gag = 1e-4) conditions.\n   - M1 (Pure Bridging Occupancy): start from z_0 in {2.8, 3.4}, add bridging bonds (bridge_frac > 0, stiff_frac = 0, rigid_frac = 0, new bonds assigned native mu and eps_r) in isotropic vs anisotropic (axis=0) modes; compare directly against M0 at identical z_actual = z_0 + 2*n_bridge/N.\n   - M2 (Pure Intrafibrillar Stiffening/Embrittlement): fix graph topology (bridge_frac = 0, rigid_frac = 0) and vary stiff_frac, stiff_gain, and brittle.\n   - M3 (Pure Junction Angle-Locking): fix graph topology (bridge_frac = 0, stiff_frac = 0) and vary rigid_frac and kx0.\n   - M4 (Clustering Intervention vs Rewired Null): at fixed degree sequence {k_i} and bond-length distribution (restricted to lattice distance 1), apply spatially constrained Maslov-Sneppen edge swaps with a Metropolis target on global clustering C (high-C vs degree-matched random null); log acceptance rate and swap autocorrelation time.\n   - M5 (Fixed-Node Spatial Hub-Biased Attachment): on fixed N nodes (distinct from growing Barabasi-Albert networks), add candidate edges within spatial cutoff r_c <= 2 lattice units with probability proportional to (k_i + a)*(k_j + a) to vary degree variance Var(k) at matched mean z_actual and edge-length distribution.\n\n2. INDEPENDENT REPLICATE UNIT & SEED DESIGN:\n   - Replicate unit: one independent base graph realization (or independent Newman-Ziff insertion permutation / independent MCMC rewiring chain after burn-in >= 10*E swaps), indexed by SeedSequence((W, model_id, point_id, rep_id)).\n   - Nested occupancy snapshots along a single Newman-Ziff permutation are treated as a single correlated functional trajectory for curve-level bootstrap, never as independent point replicates.\n\n3. STAGE-1 SPACE-FILLING RUN MATRIX:\n   - Lattice sizes: W in {16, 32} for initial exploration and adaptive refinement; W = 64 reserved for Stage-2 finite-size scaling verification and out-of-sample testing.\n   - Control grid: 12 space-filling Latin-hypercube / Sobol points across (z_actual in [2.2, 5.2], dose in [0.0, 1.0]) per model M0-M5, with n_rep = 16 independent seed replicates at W = 16 and n_rep = 8 at W = 32.\n   - Protocol controls: per-system L-BFGS relaxation (fmax_i < 1e-6, relative per-system energy change < 1e-10), identical 15-point logarithmic shear grid gamma in [1e-3, 0.5] with forward-and-reverse unloading steps to quantify hysteresis, and 30-point failure strain grid.\n\n4. RECORDED OBSERVABLES & UNCERTAINTY:\n   - Connectivity regime: periodic wrapping probability R_wrap(W), largest cluster fraction S_1, finite-cluster susceptibility chi.\n   - Rigidity regime: linear shear modulus G, tangent modulus G_tan(gamma) = dP_xy/dgamma, nonaffinity parameter Gamma(gamma), and fraction of load-bearing bonds (bonds carrying > 1% of mean tension).\n   - Relaxation/Failure regime: L-BFGS iteration count and per-system force residual, peak stress (strength), strain at peak stress, toughness, max avalanche size max_e(brk_e / Nb), and hysteresis loop area.\n   - Uncertainty & Smooth Null: compute non-parametric bootstrap 95% CIs over independent replicate units. Test every putative regime boundary against a smooth monotone null model (4-parameter logistic or monotone P-spline in log-modulus) using AICc/BIC and held-out log-predictive density; if finite-size curves do not sharpen with W (via wrapping crossing or susceptibility peak scaling), report only an operational finite-size crossover interval [z_low(W), z_high(W)] where G / G_affine crosses 0.1 to 0.5.\n\n5. HELD-OUT VALIDATION & COMPUTE-AWARE ACQUISITION:\n   - Held-out split: lock 20% of space-filling parameter points, 8 independent seeds per point at W in {16, 32}, and all W = 64 runs in a vault never used for acquisition or classifier training.\n   - Acquisition function: train a heteroscedastic Gaussian Process (or bootstrap ensemble) over replicate means and variances; select next batch of points x to maximize Expected Information Gain per wall-clock second: Score(x, W) = [H(y|x, D) - E_theta H(y|x, theta, D)] / E[t_wall(x, W)], blended with epsilon = 0.20 random space-filling exploration to prevent mode collapse.\n   - Stopping rule: halt adaptive refinement when (a) the 95% bootstrap CI width on the operational crossover location z_c(W) or gamma_c(W) is <= 0.05 in z (or <= 0.01 in gamma), OR (b) the held-out log-predictive density between the smooth null and piecewise/critical scaling model stabilizes within +/- 5% over two consecutive acquisition rounds, OR (c) the compute budget cap is reached.\n   - Falsifier: if M1 (pure bridging) and M0 (baseline dilution) yield statistically indistinguishable G(z_actual) and G_tan(gamma; z_actual) curves on the held-out set when matched at actual coordination z_actual, the hypothesis that oxidative bridging alters linear/nonlinear network mechanics beyond simple bond-density addition is falsified; conversely, if M2/M3 shift G and strength at fixed alive graph topology as strongly as combined dose, the connectivity-percolation explanation of the oxidative aging sweep is falsified.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz et al. 2011 Nature Physics Criticality and isostaticity in fibre networks finite-size scaling bending kappa crossover",
+        "reason": "Verify exact scaling forms and crossover exponents connecting central-force rigidity percolation (z_c ~ 2d = 4 in 2D) to bending-dominated (kappa > 0) regimes on diluted triangular lattices.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Sharma et al. 2016 Nature Physics Strain-controlled criticality governs the nonlinear mechanics of fibre networks tangent modulus nonaffinity scaling",
+        "reason": "Verify definitions of strain-controlled critical exponents, tangent vs secant modulus scaling, and nonaffine displacement fluctuations near the stiffening transition.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Newman and Ziff 2001 Physical Review E fast Monte Carlo algorithm site or bond percolation periodic wrapping probability finite-size crossing",
+        "reason": "Verify exact topological winding-number rules for periodic boundary wrapping probabilities on 2D triangular lattices and replicate variance estimation across independent insertion permutations.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Maslov and Sneppen 2002 Science Specificity and stability in topology of protein networks degree-preserving rewiring clustering constraints",
+        "reason": "Verify mixing diagnostics and spatial acceptance constraints when using degree-preserving edge swaps to decouple clustering coefficient from degree distribution.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "R8_multiscale": {
+    "summary": "The completed MD pilots (600 ps candidate GLU/DITY and 120 ps native PYD/DPD) legitimately establish only numerical integration stability, local topological/stereochemical integrity, and short-window (20-30 ps) descriptive bond and C-alpha distances in solvated peptide excerpts. They provide zero valid parameterization for the coarse-grained network model (`network/oxt/`), which currently maps a single placeholder scalar (`k_rel`) simultaneously into inter-fibre bridging bond stiffness, intrafibrillar axial stretching, fibre bending, and junction angular locking while confounding oxidative dose with graph connectivity (`z`) and periodic fibre-line percolation. By expected information value per unit compute, simulation priority should be: (1) decoupled finite-size topology and sensitivity sweeps in the 2D network model to isolate connectivity, bending, junction locking, and background scaffold effects before requesting atomistic numbers; (2) quantum-chemical torsion benchmarking of high-penalty CGenFF DITY terms (penalties 30.0 to 51.1) and reconciliation of mismatched Amber bonded tables; and (3) matched-context triple-helical/fibril PMF and force-extension sampling once parameters and target coarse-grained observables are defined.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Single scalar k_rel conflates four distinct mechanical modes and unweighted multi-chemistry averages",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 102,
+        "evidence": "In build_spec (lines 101-138), k_rel is computed as the unweighted mean across a collagen's oxidative_xl tuple (line 102) and simultaneously scales new bridging bond stretch mu (line 117), intrafibrillar stretch mu (line 131), bending kb (line 132), and node angular lock stiffness rigid (line 137), while brittle (0.45) is chemistry-invariant (lines 118, 133).",
+        "implication": "Even if MD produced an exact local crosslink spring constant, a single scalar cannot represent axial stretching, fibril bending, and inter-fibre crossing-angle constraints, nor can an unweighted average of glucosepane, pentosidine, and dityrosine reflect a tissue dominated by glucosepane.",
+        "recommended_check": "Decouple k_rel into separate axial (k_stretch), bending (k_bend), angular-junction (k_angle), and rupture-strain parameters in SystemSpec; falsify the single-parameter reduction if orthogonal sweeps of these parameters at fixed topology produce distinct G, Cx/Cy anisotropy, or failure regimes.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "high",
+        "title": "Intramolecular/intrafibrillar MD models are mapped to inter-fibre bridging and periodic line reconnection",
+        "source_file": "network/oxt/materials.py",
+        "source_line": 116,
+        "evidence": "Candidate MD models an intramolecular Tyr4-Tyr6 loop in a single N-telopeptide and a two-chain intrafibrillar glucosepane excerpt (candidate/CANDIDATE_COMPARISON_RESULTS.md line 9), whereas build_spec uses dmg.dose to activate n_bridge previously missing lattice edges (alive[new] = True, line 116) after cutting one bond per fibre line (lines 90-92).",
+        "implication": "Adding n_bridge bonds both raises network coordination z with dose and re-bridges the single cut made per collinear fibre line, creating system-spanning periodic fibres and confounding local crosslink chemistry with a global topological connectivity and fibre-length intervention.",
+        "recommended_check": "Enforce the one-cut-per-line finite-fibre invariant during bridging or hold alive bonds strictly fixed across dose (bridge_frac = 0) as a matched-topology control; falsify the chemistry-stiffening claim if holding the alive graph fixed eliminates the apparent dose-dependent stiffness jump.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Cross-chemistry force-field/charge differences and unbenchmarked CGenFF penalties up to 51.1 block MD-to-network calibration",
+        "source_file": "candidate/PARAMETER_AUDIT.json",
+        "source_line": 98,
+        "evidence": "PARAMETER_AUDIT.json records CGenFF torsion penalties of 41.1, 30.0, and 51.1 (lines 90-103) for the DITY patch and shows false hash matches for aminoacids.rtp and ffbonded.itp against the native PYD/DPD Amber force field (lines 44-45), while GLU_LINKED changes net solute charge by ~2 e relative to GLU_CONTROL (candidate/CANDIDATE_COMPARISON_RESULTS.md line 20).",
+        "implication": "C-alpha distance fluctuations across 30 ps unrestrained tails cannot rank crosslink rigidity or parameterize k_rel because force fields, water models, net electrostatic charges, peptide sequences, and unvalidated biphenyl torsion barriers differ across models.",
+        "recommended_check": "Perform QM dihedral scans on the biphenyl CE2-CE2 and adjacent ring torsions to refit the penalty >= 30 terms and unify the Amber bonded table before running umbrella-sampling PMFs; falsify the current DITY parameterization if QM-refitted torsion barriers shift the equilibrium dihedral distribution or bending compliance.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Batched L-BFGS stopping criterion and background tethers couple heterogeneous systems and mask rigidity transitions",
+        "source_file": "network/oxt/network.py",
+        "source_line": 199,
+        "evidence": "Batch.relax minimizes the summed energy of all B systems in a single L-BFGS instance (lines 174, 180-188) and terminates when batch-wide max gradient fmax < 10*ftol and relative batch-summed energy change <= 1e-10 (line 199), while mu_el (line 155) and k_gag (line 173) add positive-definite springs to every bond and node.",
+        "implication": "Grouping stiff high-z/high-dose networks with floppy sub-isostatic networks in run_sweep.py (line 98) couples their line searches and allows high-energy stiff systems to dominate the relative energy-change denominator, while nonzero k_gag and mu_el create a smooth affine floor that masks true rigidity percolation.",
+        "recommended_check": "Evaluate per-system energy convergence and Hessian smallest eigenvalues at mu_el = 0 and k_gag = 0 versus per-system independent relaxation; falsify current regime boundaries if unbatching or zeroing background springs shifts the apparent onset of shear modulus G.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Fixed-W triangular lattice and Euler mesh_size cannot test percolation wrapping, clustering, or hub attachment",
+        "source_file": "network/oxt/network.py",
+        "source_line": 300,
+        "evidence": "mesh_size estimates pore size via faces = max(E - V, 1) assuming a connected planar graph (lines 295-301), and each sweep profile in network/run_sweep.py (lines 25-42) uses a single lattice width W with degree bounded by 6 and no component, wrapping, clustering, or rewiring metrics.",
+        "implication": "The formula E - V counts disconnected cycles and ignores dangling ends and periodic wrapping, producing invalid pore sizes near percolation, while single-W regular triangular dilution cannot isolate clustering from degree distribution or test finite-size scaling.",
+        "recommended_check": "Implement periodic-image breadth-first search for wrapping cluster probability, giant-component fraction, finite-cluster susceptibility, and spatially constrained degree-preserving rewiring across multiple lattice sizes (e.g., W = 16, 32, 64, 96); falsify critical transition claims if curves fail finite-size crossover scaling against a smooth-response null.",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "The native (PYD/DPD) and candidate (glucosepane/dityrosine) solvated collagen-fragment setups are numerically stable, reproducible across OpenMM Reference and CUDA platforms, and preserve local covalent connectivity and tetrahedral stereochemistry over 20-50 ps pilot trajectories, providing validated starting structures for parameter benchmarking.",
+    "decisive_next_experiment": "Priority 1 (Network topology/mechanics decoupling and finite-size sweep): In `network/oxt/`, fix the alive bond graph (set `bridge_frac = 0` or apply degree-preserving/clustering-controlled rewiring at strictly constant coordination `z`, edge-length distribution, and preserved one-cut-per-line finite fibres) across held-out lattice sizes `W in {16, 32, 64, 96}` with >= 32 independent graph seeds per point. Relax each system independently (`mu_el = 0`, `k_gag in {0, 1e-6}`) until per-system `fmax < 1e-8` and per-system relative energy change `< 1e-12`. Record periodic-wrapping probability, giant-component fraction, cluster susceptibility, nonaffine displacement ratio, and tangent shear modulus `G`. Falsifier: if holding `z` and fibre-line cuts fixed removes >80% of the `dose` effect on `G`, or if `G(z)` shows no finite-size crossover sharpening across `W` compared to a smooth polynomial/spline null (`Delta_BIC < 10`), reject the hypothesis that crosslink chemistry `k_rel` drives a sharp network rigidity transition. Priority 2 (Parameter benchmarking): Run QM torsion scans on the DITY biphenyl link to refit CGenFF terms with penalty >= 30 and align the glucosepane Amber bonded table (`ffbonded.itp`) with the native PYD/DPD force field. Priority 3 (Matched-context MD PMFs): Only for coarse-grained parameters shown in Priority 1 to control network mechanics, run multi-seed umbrella-sampling PMFs on matched triple-helical models with unified protonation and ionic strength until block-averaged PMF uncertainty is < 1 kJ/mol.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz MacKintosh 2011 Criticality and isostaticity in fibre networks Nature Physics",
+        "reason": "Verify exact scaling of stretching-to-bending crossover and how background tethers or junction angular springs modify isostatic coordination thresholds on diluted triangular lattices.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Giannetti et al. PMC13348703 AGEs-ColBuilder glucosepane Amber99 force field parameters",
+        "reason": "Check how the primary authors validated AGS/LGX bonded and charge parameters and whether intrafibrillar force-extension moduli were benchmarked against experiment.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Graham et al. 10.1016/j.xcrp.2026.103319 Zenodo 16865891 CGenFF dityrosine DITY patch torsion penalty",
+        "reason": "Verify whether the high-penalty CGenFF torsion terms (penalties 30.0, 41.1, 51.1) in the published DITY patch were ever fitted to quantum-chemical rotational profiles.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Newman Ziff 2001 fast Monte Carlo algorithm site bond percolation periodic wrapping",
+        "reason": "Verify exact periodic boundary wrapping detection rules for 2D triangular lattices to replace the Euler E - V heuristic in mesh_size.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "checked_date": "2026-10-31",
+  "selected_model": "gemini-4-argon",
+  "observed_live_model_metadata": {
+    "inputTokenLimit": 1048576,
+    "outputTokenLimit": 32768,
+    "supportedGenerationMethods": [
+      "generateContent",
+      "countTokens",
+      "batchGenerateContent"
+    ]
+  },
+  "selected_thinking_level": "high",
+  "selected_generation_ceiling": 24576,
+  "catalog": "https://ai.google.dev/gemini-api/docs/models",
+  "model_documentation": "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon",
+  "thinking_documentation": "https://ai.google.dev/gemini-api/docs/thinking",
+  "metadata_vs_documentation_note": "Live account metadata advertises 32768 output tokens; general documentation describes a 65536 default synchronous cap and longer background decoding. The lower observed limit governed this run.",
+  "optional_workflows_not_executed": [
+    "Gemini Deep Research",
+    "Google ADK",
+    "AlphaEvolve"
+  ]
+}

@@ -1,0 +1,125 @@
+[
+  {
+    "id": "A1_md",
+    "name": "Adversarial MD evidence referee",
+    "task": "Adjudicate the four MD reviews against the source and independent audit. Explicitly reject unsupported mechanisms, false contact distances, blanket PBC edits, unproven RNG reset and harmful charge/constraint edits. Preserve source microstate uncertainty, initial DITY geometry concerns and useful controls without arbitrary physical thresholds. Recommend the smallest defensible next study, emphasizing geometry/chemical/source validation before longer runs. Do not reassert a reviewer claim just because several same-model reviewers agree.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "candidate/candidate_pilot.py",
+      "candidate/local_analysis.py",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/PRIMARY_SOURCES.md",
+      "evidence/QUESTIONS.md",
+      "audit/SOURCE_CHECK_NOTES.md",
+      "audit/ADDITIONAL_GEOMETRY_READBACK.json",
+      "audit/MD_REVIEWS.json"
+    ]
+  },
+  {
+    "id": "R2_dityrosine",
+    "name": "Dityrosine parameter and local-context referee",
+    "task": "Audit DITY translation coverage, charge/atom graph and full-context construction; distinguish penalty annotations from actual errors. Prioritize a torsion/geometry validation with explicit reference and stop criteria.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/parameters/DITY_TRANSLATION_AUDIT.json",
+      "candidate/prepared/DITY_LINKED.json",
+      "candidate/prepared/DITY_CONTROL.json",
+      "candidate/candidate_pilot.py"
+    ]
+  },
+  {
+    "id": "R3_sampling",
+    "name": "MD sampling and statistical inference referee",
+    "task": "Audit replica independence, precision adjustment, marker analysis and interpretation. Seek additional implementation concerns, not only acknowledged sampling limits. Rank minimally informative additional simulations and convergence diagnostics.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/replica_summary.csv",
+      "candidate/RESULT_SUMMARY.json",
+      "candidate/local_analysis.py",
+      "candidate/retrieved/performance-interruption.json",
+      "candidate/retrieved/resume-metadata.json"
+    ]
+  },
+  {
+    "id": "R4_numerics",
+    "name": "Dynamics protocol and numerical validation referee",
+    "task": "Audit physical-system/constraint/platform checks, periodic imaging, restart state, controls, precision and acceptance gates. State precisely what numerical checks do and do not establish.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/candidate_pilot.py",
+      "candidate/entry.py",
+      "candidate/PROTOCOL.md",
+      "candidate/RESULT_SUMMARY.json",
+      "candidate/local_analysis.py"
+    ]
+  },
+  {
+    "id": "R5_rigidity",
+    "name": "Connectivity versus rigidity transition referee",
+    "task": "Audit actual network mechanisms and define a decisive finite-size/constraint/background-limit experiment. Distinguish a connected giant component, rigid backbone, nonzero modulus from embedding, and strain-driven crossover.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "network/README.md"
+    ]
+  },
+  {
+    "id": "R6_topology",
+    "name": "Spatial clustering and preferential-attachment referee",
+    "task": "Design identifiable spatial topology interventions separating edge count, triangles, degree heterogeneity and hub-biased growth. State feasibility constraints and null models. Audit whether current dose actually changes adjacency.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md"
+    ]
+  },
+  {
+    "id": "R7_active_design",
+    "name": "Adaptive phase-boundary experiment designer",
+    "task": "Specify candidate mechanism models, independent graph replicate unit, finite-size and seed design, metrics, uncertainty, held-out validation and compute-aware acquisition. Give a concrete first-stage run matrix and stopping rule; avoid arbitrary universal thresholds.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "evidence/GEMINI_WORKFLOW.md"
+    ]
+  },
+  {
+    "id": "A2_network",
+    "name": "Adversarial network regime and workflow referee",
+    "task": "Adjudicate the four topology/design reviews and the independent line-cycle audit. Check the exact line-count/expected-z algebra, the zero-bond tether counterexample and dose confounding. Correct false universal thresholds, claims that mean fibre length necessarily scales with W, and generic graph-rigidity shortcuts. Give a practical staged experimental matrix, expected-information-gain controller and independent held-out validation; distinguish the completed review from a future closed-loop simulator/AlphaEvolve service. Quantify what can and cannot be learned from connectivity, clustering and hub bias.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "network/README.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "evidence/QUESTIONS.md",
+      "evidence/GEMINI_WORKFLOW.md",
+      "audit/SOURCE_CHECK_NOTES.md",
+      "audit/GRAPH_COUNTEREXAMPLES.json",
+      "audit/LATTICE_LINE_AUDIT.json",
+      "audit/NETWORK_REVIEWS.json"
+    ]
+  }
+]

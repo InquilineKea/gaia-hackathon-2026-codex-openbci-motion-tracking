@@ -1,0 +1,995 @@
+{
+  "all_complete": true,
+  "completed_replicas": 12,
+  "total_ps": 600,
+  "total_steps": 600000,
+  "rows": [
+    {
+      "model": "GLU_CONTROL",
+      "replica": 0,
+      "seed": 20261101,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 12431,
+      "n_solute_atoms": 471,
+      "final_temperature_K": 303.84828993658755,
+      "final_density_g_ml": 0.9888195215616721,
+      "max_constraint_error_nm": 5.615158818472743e-08,
+      "monitored_centers": 28,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.0980245496914911,
+      "final_heavy_solute_displacement_A": 3.0967271096378477,
+      "free_tail_CA_marker_mean_A": 10.211041002912701,
+      "free_tail_CA_marker_SD_A": 0.5405178362273921,
+      "free_tail_link_bond_mean_A": null,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 476
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 859
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 1289
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 118
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 471,
+            "Exceptions": 2555
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.166942409268104e-06,
+        "force_rms": 0.002563666942968112,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "double",
+      "origin_attempt": "attempt-001"
+    },
+    {
+      "model": "GLU_CONTROL",
+      "replica": 1,
+      "seed": 20261102,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 12431,
+      "n_solute_atoms": 471,
+      "final_temperature_K": 307.81749558804063,
+      "final_density_g_ml": 0.9955424396536963,
+      "max_constraint_error_nm": 5.614311818225026e-08,
+      "monitored_centers": 28,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.08575539816945199,
+      "final_heavy_solute_displacement_A": 3.0263290642918506,
+      "free_tail_CA_marker_mean_A": 12.525227108424135,
+      "free_tail_CA_marker_SD_A": 0.7048396814557908,
+      "free_tail_link_bond_mean_A": null,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 476
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 859
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 1289
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 118
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 471,
+            "Exceptions": 2555
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.24282512539302e-06,
+        "force_rms": 0.002561965096497795,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "GLU_CONTROL",
+      "replica": 2,
+      "seed": 20261103,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 12431,
+      "n_solute_atoms": 471,
+      "final_temperature_K": 308.58226259184676,
+      "final_density_g_ml": 1.001880781506451,
+      "max_constraint_error_nm": 5.613585260522136e-08,
+      "monitored_centers": 28,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.0975232265821932,
+      "final_heavy_solute_displacement_A": 2.667131895912016,
+      "free_tail_CA_marker_mean_A": 11.9192321754364,
+      "free_tail_CA_marker_SD_A": 0.5827697195078775,
+      "free_tail_link_bond_mean_A": null,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 476
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 859
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 1289
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 118
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 471,
+            "Exceptions": 2555
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.370106580406553e-06,
+        "force_rms": 0.0025699164889948847,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "GLU_LINKED",
+      "replica": 0,
+      "seed": 20261201,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 12702,
+      "n_solute_atoms": 481,
+      "final_temperature_K": 308.6064167034836,
+      "final_density_g_ml": 0.99672105843759,
+      "max_constraint_error_nm": 5.614935873199389e-08,
+      "monitored_centers": 31,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.09425856368551977,
+      "final_heavy_solute_displacement_A": 3.469697114252867,
+      "free_tail_CA_marker_mean_A": 10.516227435588263,
+      "free_tail_CA_marker_SD_A": 0.418218106357888,
+      "free_tail_link_bond_mean_A": 1.4952914700482935,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 489
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 887
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 1336
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 115
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 481,
+            "Exceptions": 2646
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.993429357168509e-06,
+        "force_rms": 0.0025120805473309053,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "GLU_LINKED",
+      "replica": 1,
+      "seed": 20261202,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 12702,
+      "n_solute_atoms": 481,
+      "final_temperature_K": 316.6424453916483,
+      "final_density_g_ml": 0.9966737795249465,
+      "max_constraint_error_nm": 5.615920856127943e-08,
+      "monitored_centers": 31,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.094862224614784,
+      "final_heavy_solute_displacement_A": 2.814531158379012,
+      "free_tail_CA_marker_mean_A": 11.42568451347787,
+      "free_tail_CA_marker_SD_A": 0.4141436776406865,
+      "free_tail_link_bond_mean_A": 1.491401896698904,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 489
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 887
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 1336
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 115
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 481,
+            "Exceptions": 2646
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.224050134626573e-06,
+        "force_rms": 0.0025403459097119692,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "GLU_LINKED",
+      "replica": 2,
+      "seed": 20261203,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 12702,
+      "n_solute_atoms": 481,
+      "final_temperature_K": 308.16370134650424,
+      "final_density_g_ml": 0.9947824778606643,
+      "max_constraint_error_nm": 5.615880788178984e-08,
+      "monitored_centers": 31,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.10067951632473482,
+      "final_heavy_solute_displacement_A": 2.8809279976016877,
+      "free_tail_CA_marker_mean_A": 11.461381212379587,
+      "free_tail_CA_marker_SD_A": 0.7255880406545495,
+      "free_tail_link_bond_mean_A": 1.4925305642422655,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 489
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 887
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 1336
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 115
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 481,
+            "Exceptions": 2646
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.177979018471735e-06,
+        "force_rms": 0.002506925038249355,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "DITY_CONTROL",
+      "replica": 0,
+      "seed": 20261301,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 11596,
+      "n_solute_atoms": 298,
+      "final_temperature_K": 310.7207613800248,
+      "final_density_g_ml": 1.019357666833148,
+      "max_constraint_error_nm": 5.625173842005449e-08,
+      "monitored_centers": 20,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.11823475558770946,
+      "final_heavy_solute_displacement_A": 2.846521742588994,
+      "free_tail_CA_marker_mean_A": 7.159955532905116,
+      "free_tail_CA_marker_SD_A": 0.20666065434807926,
+      "free_tail_link_bond_mean_A": null,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 528
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 758
+          }
+        },
+        {
+          "type": "CustomTorsionForce",
+          "child_counts": {
+            "PerTorsionParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Torsions": 46
+          }
+        },
+        {
+          "type": "CMAPTorsionForce",
+          "child_counts": {
+            "Maps": 8,
+            "Torsions": 22
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 298,
+            "Exceptions": 1625
+          }
+        },
+        {
+          "type": "CustomNonbondedForce",
+          "child_counts": {
+            "PerParticleParameters": 1,
+            "GlobalParameters": 0,
+            "ComputedValues": 0,
+            "EnergyParameterDerivatives": 0,
+            "Particles": 298,
+            "Exclusions": 1625,
+            "Functions": 2,
+            "InteractionGroups": 0
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 547
+          }
+        },
+        {
+          "type": "CustomBondForce",
+          "child_counts": {
+            "PerBondParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Bonds": 776
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 4.904664039507248e-06,
+        "force_rms": 0.0027961692695298883,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "DITY_CONTROL",
+      "replica": 1,
+      "seed": 20261302,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 11596,
+      "n_solute_atoms": 298,
+      "final_temperature_K": 311.5255129405487,
+      "final_density_g_ml": 1.013962349335873,
+      "max_constraint_error_nm": 5.620787379978509e-08,
+      "monitored_centers": 20,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.09761380582124779,
+      "final_heavy_solute_displacement_A": 2.4676025207236747,
+      "free_tail_CA_marker_mean_A": 7.22012206903519,
+      "free_tail_CA_marker_SD_A": 0.1548659387544059,
+      "free_tail_link_bond_mean_A": null,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 528
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 758
+          }
+        },
+        {
+          "type": "CustomTorsionForce",
+          "child_counts": {
+            "PerTorsionParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Torsions": 46
+          }
+        },
+        {
+          "type": "CMAPTorsionForce",
+          "child_counts": {
+            "Maps": 8,
+            "Torsions": 22
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 298,
+            "Exceptions": 1625
+          }
+        },
+        {
+          "type": "CustomNonbondedForce",
+          "child_counts": {
+            "PerParticleParameters": 1,
+            "GlobalParameters": 0,
+            "ComputedValues": 0,
+            "EnergyParameterDerivatives": 0,
+            "Particles": 298,
+            "Exclusions": 1625,
+            "Functions": 2,
+            "InteractionGroups": 0
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 547
+          }
+        },
+        {
+          "type": "CustomBondForce",
+          "child_counts": {
+            "PerBondParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Bonds": 776
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 6.084401141725244e-06,
+        "force_rms": 0.0028774335384401167,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "DITY_CONTROL",
+      "replica": 2,
+      "seed": 20261303,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 11596,
+      "n_solute_atoms": 298,
+      "final_temperature_K": 307.9346414064255,
+      "final_density_g_ml": 1.0115257977049186,
+      "max_constraint_error_nm": 7.875404700874444e-07,
+      "monitored_centers": 20,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.09787207400684395,
+      "final_heavy_solute_displacement_A": 3.060294130851788,
+      "free_tail_CA_marker_mean_A": 7.09701259112154,
+      "free_tail_CA_marker_SD_A": 0.21390464656260297,
+      "free_tail_link_bond_mean_A": null,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 528
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 758
+          }
+        },
+        {
+          "type": "CustomTorsionForce",
+          "child_counts": {
+            "PerTorsionParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Torsions": 46
+          }
+        },
+        {
+          "type": "CMAPTorsionForce",
+          "child_counts": {
+            "Maps": 8,
+            "Torsions": 22
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 298,
+            "Exceptions": 1625
+          }
+        },
+        {
+          "type": "CustomNonbondedForce",
+          "child_counts": {
+            "PerParticleParameters": 1,
+            "GlobalParameters": 0,
+            "ComputedValues": 0,
+            "EnergyParameterDerivatives": 0,
+            "Particles": 298,
+            "Exclusions": 1625,
+            "Functions": 2,
+            "InteractionGroups": 0
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 547
+          }
+        },
+        {
+          "type": "CustomBondForce",
+          "child_counts": {
+            "PerBondParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Bonds": 776
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 4.450527562862779e-06,
+        "force_rms": 0.0028396588202064146,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "DITY_LINKED",
+      "replica": 0,
+      "seed": 20261401,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 11384,
+      "n_solute_atoms": 296,
+      "final_temperature_K": 309.70248271080595,
+      "final_density_g_ml": 1.0117093534782202,
+      "max_constraint_error_nm": 5.619341679474754e-08,
+      "monitored_centers": 20,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.11450572384961027,
+      "final_heavy_solute_displacement_A": 2.778595777730766,
+      "free_tail_CA_marker_mean_A": 7.087219790074853,
+      "free_tail_CA_marker_SD_A": 0.12381248475207442,
+      "free_tail_link_bond_mean_A": 1.5050510343350425,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 515
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 762
+          }
+        },
+        {
+          "type": "CustomTorsionForce",
+          "child_counts": {
+            "PerTorsionParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Torsions": 46
+          }
+        },
+        {
+          "type": "CMAPTorsionForce",
+          "child_counts": {
+            "Maps": 8,
+            "Torsions": 22
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 296,
+            "Exceptions": 1628
+          }
+        },
+        {
+          "type": "CustomNonbondedForce",
+          "child_counts": {
+            "PerParticleParameters": 1,
+            "GlobalParameters": 0,
+            "ComputedValues": 0,
+            "EnergyParameterDerivatives": 0,
+            "Particles": 296,
+            "Exclusions": 1628,
+            "Functions": 2,
+            "InteractionGroups": 0
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 547
+          }
+        },
+        {
+          "type": "CustomBondForce",
+          "child_counts": {
+            "PerBondParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Bonds": 780
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 5.8431604151297895e-06,
+        "force_rms": 0.002824720607612378,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "DITY_LINKED",
+      "replica": 1,
+      "seed": 20261402,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 11384,
+      "n_solute_atoms": 296,
+      "final_temperature_K": 309.8564482189999,
+      "final_density_g_ml": 1.0160635423664082,
+      "max_constraint_error_nm": 6.764837063438778e-07,
+      "monitored_centers": 20,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.12843687517990088,
+      "final_heavy_solute_displacement_A": 3.104979088219986,
+      "free_tail_CA_marker_mean_A": 6.962434817309085,
+      "free_tail_CA_marker_SD_A": 0.11869329212896841,
+      "free_tail_link_bond_mean_A": 1.5043143207865373,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 515
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 762
+          }
+        },
+        {
+          "type": "CustomTorsionForce",
+          "child_counts": {
+            "PerTorsionParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Torsions": 46
+          }
+        },
+        {
+          "type": "CMAPTorsionForce",
+          "child_counts": {
+            "Maps": 8,
+            "Torsions": 22
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 296,
+            "Exceptions": 1628
+          }
+        },
+        {
+          "type": "CustomNonbondedForce",
+          "child_counts": {
+            "PerParticleParameters": 1,
+            "GlobalParameters": 0,
+            "ComputedValues": 0,
+            "EnergyParameterDerivatives": 0,
+            "Particles": 296,
+            "Exclusions": 1628,
+            "Functions": 2,
+            "InteractionGroups": 0
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 547
+          }
+        },
+        {
+          "type": "CustomBondForce",
+          "child_counts": {
+            "PerBondParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Bonds": 780
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 1.0492888130815352e-06,
+        "force_rms": 0.0028511713734078546,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    },
+    {
+      "model": "DITY_LINKED",
+      "replica": 2,
+      "seed": 20261403,
+      "time_ps": 50,
+      "free_tail_ps": 30,
+      "n_atoms": 11384,
+      "n_solute_atoms": 296,
+      "final_temperature_K": 311.1920540165907,
+      "final_density_g_ml": 1.0140941018292247,
+      "max_constraint_error_nm": 5.6200761128222254e-08,
+      "monitored_centers": 20,
+      "final_stereocenter_inversions": 0,
+      "final_max_chemical_bond_deviation_A": 0.11418712762812921,
+      "final_heavy_solute_displacement_A": 3.8471116532734166,
+      "free_tail_CA_marker_mean_A": 7.091372928414228,
+      "free_tail_CA_marker_SD_A": 0.15498843418367295,
+      "free_tail_link_bond_mean_A": 1.5177351105039671,
+      "force_inventory": [
+        {
+          "type": "HarmonicBondForce",
+          "child_counts": {
+            "Bonds": 515
+          }
+        },
+        {
+          "type": "PeriodicTorsionForce",
+          "child_counts": {
+            "Torsions": 762
+          }
+        },
+        {
+          "type": "CustomTorsionForce",
+          "child_counts": {
+            "PerTorsionParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Torsions": 46
+          }
+        },
+        {
+          "type": "CMAPTorsionForce",
+          "child_counts": {
+            "Maps": 8,
+            "Torsions": 22
+          }
+        },
+        {
+          "type": "NonbondedForce",
+          "child_counts": {
+            "GlobalParameters": 0,
+            "ParticleOffsets": 0,
+            "ExceptionOffsets": 0,
+            "Particles": 296,
+            "Exceptions": 1628
+          }
+        },
+        {
+          "type": "CustomNonbondedForce",
+          "child_counts": {
+            "PerParticleParameters": 1,
+            "GlobalParameters": 0,
+            "ComputedValues": 0,
+            "EnergyParameterDerivatives": 0,
+            "Particles": 296,
+            "Exclusions": 1628,
+            "Functions": 2,
+            "InteractionGroups": 0
+          }
+        },
+        {
+          "type": "HarmonicAngleForce",
+          "child_counts": {
+            "Angles": 547
+          }
+        },
+        {
+          "type": "CustomBondForce",
+          "child_counts": {
+            "PerBondParameters": 2,
+            "GlobalParameters": 0,
+            "EnergyParameterDerivatives": 0,
+            "Bonds": 780
+          }
+        }
+      ],
+      "final_state_step": 50000,
+      "final_state_time_ps": 49.99999999997417,
+      "final_solute_restraint_k": 0.0,
+      "wet_platform_check": {
+        "energy_difference_per_atom": 4.189450693256546e-06,
+        "force_rms": 0.0028952062555648718,
+        "pass": true
+      },
+      "all_runtime_checks_pass": true,
+      "integration_precision": "mixed",
+      "origin_attempt": "attempt-002"
+    }
+  ],
+  "cross_chemistry_mechanical_ranking_established": false,
+  "reaction_dynamics_run": false,
+  "physical_parameter_accuracy_established": false
+}

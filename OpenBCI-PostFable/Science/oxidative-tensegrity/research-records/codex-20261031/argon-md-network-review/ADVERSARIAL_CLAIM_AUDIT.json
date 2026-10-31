@@ -1,0 +1,88 @@
+{
+  "findings": [
+    {
+      "id": "A1_md:1",
+      "title": "R1 misstates the GLU_CONTROL Arg-Lys contact distance and proposes harmful charge and constraint edits, though microstate and stereochemical uncertainty remain valid",
+      "source_file": "adversarial-md/sources/audit/MD_REVIEWS.json",
+      "source_line": 10,
+      "disposition": "accepted",
+      "source_check": "Retain the bounded source corrections and chemical microstate uncertainty. Do not describe a microelectron rounding adjustment as a demonstrated substantial physical error."
+    },
+    {
+      "id": "A1_md:2",
+      "title": "DITY_LINKED closes an 8.630 A initial gap under backbone restraints, but reviewer claims of active 51.1 penalties, required n=1/n=3 terms, and hard angle gates are unsupported",
+      "source_file": "adversarial-md/sources/audit/ADDITIONAL_GEOMETRY_READBACK.json",
+      "source_line": 96,
+      "disposition": "accepted",
+      "source_check": "The preparation route and source-rule distinctions are verified. No final physical defect is inferred solely from a large starting gap or diagnostic angle."
+    },
+    {
+      "id": "A1_md:3",
+      "title": "R3/R4's blanket PBC-wrapping and PRNG-reset claims are unfounded, whereas dry force-inventory reporting, wet-minimization sign skipping, and CPU precision labels are real audit defects",
+      "source_file": "adversarial-md/sources/candidate/local_analysis.py",
+      "source_line": 33,
+      "disposition": "qualified",
+      "source_check": "Checkpoint-preservation and coordinate-convention corrections survive. Dry force inventory needs an explicit scope label, not an assertion that the wet System lacks solvent forces. Stage-to-stage checks are recommended; no inversion was demonstrated."
+    },
+    {
+      "id": "A1_md:4",
+      "title": "Confounded precision and velocity seeds in GLU_CONTROL, zero post-restraint burn-in, and single-build pseudo-replication preclude causal variance claims",
+      "source_file": "adversarial-md/sources/evidence/NUMERIC_READBACK.json",
+      "source_line": 16,
+      "disposition": "qualified",
+      "source_check": "Sampling/precision limitations survive, but a 30-frame autocorrelation estimate or one same-seed rerun is not decisive evidence of equilibrium or precision causation."
+    },
+    {
+      "id": "A1_md:5",
+      "title": "Network regime extensions must account for oxidative bond restoration, zero-modulus tether limits, and exact finite-size line-cut normalization",
+      "source_file": "adversarial-md/sources/audit/SOURCE_CHECK_NOTES.md",
+      "source_line": 17,
+      "disposition": "qualified",
+      "source_check": "Network source corrections survive; this role did not execute a mechanical or phase sweep."
+    },
+    {
+      "id": "A2_network:1",
+      "title": "Periodic line-cycle algebra (`2W` vs `3W` lines) shifts expected coordination `z`, whereas R5's claim that mean fiber length scales linearly with `W` is false",
+      "source_file": "adversarial-network/sources/network/oxt/materials.py",
+      "source_line": 88,
+      "disposition": "accepted",
+      "source_check": "Cycle enumeration and expected-coordination algebra are independently checked. Existing realized-z columns should remain intact."
+    },
+    {
+      "id": "A2_network:2",
+      "title": "Adjudication of background springs (`k_gag` zero-bond counterexample vs `mu_el`), batch-summed L-BFGS coupling, and invalid generic rigidity shortcuts",
+      "source_file": "adversarial-network/sources/network/oxt/network.py",
+      "source_line": 173,
+      "disposition": "qualified",
+      "source_check": "Background and solver tests survive; no generic graph shortcut, fixed threshold or numerical bias is established for the full model."
+    },
+    {
+      "id": "A2_network:3",
+      "title": "Oxidative `dose` confounds five structural/constitutive changes, double-embrittles bridge bonds (`brittle^2`), and clamps anisotropic bridges at high `z`",
+      "source_file": "adversarial-network/sources/network/oxt/materials.py",
+      "source_line": 112,
+      "disposition": "qualified",
+      "source_check": "Compounded brittleness and coupled interventions are implementation choices to document and ablate. Proposed alternative physics is not automatically a repair."
+    },
+    {
+      "id": "A2_network:4",
+      "title": "Identifiability limits of connectivity, clustering, and hub bias on a bounded (`k <= 6`) triangular lattice and blindness of Euler `mesh_size`",
+      "source_file": "adversarial-network/sources/network/oxt/network.py",
+      "source_line": 51,
+      "disposition": "accepted",
+      "source_check": "Topology identifiability and metric limitations survive. Feasible rewiring ranges and mixing need verification before claiming isolated clustering effects."
+    },
+    {
+      "id": "A2_network:5",
+      "title": "Sequential RNG stream coupling in `build_spec`, pre-cell replicate averaging (`groupby.mean`), and unvalidated reviewer threshold shortcuts",
+      "source_file": "adversarial-network/sources/network/run_sweep.py",
+      "source_line": 60,
+      "disposition": "qualified",
+      "source_check": "Paired seed reuse is valid when blocked; split random streams help controlled ablations. Suggested effect sizes, precision targets and exploration fractions are proposed policy choices, not validated constants. Nonlinear averaging can lose uncertainty; its numerical bias is not quantified here."
+    }
+  ],
+  "counts": {
+    "accepted": 4,
+    "qualified": 6
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "scope": "Exact combinatorial counterexamples on simple undirected graphs, without geometry, edge-length matching, mechanics or a phase-transition claim.",
+  "cases": [
+    {
+      "cycle_lengths": [
+        12
+      ],
+      "nodes": 12,
+      "edges": 12,
+      "degree_histogram": {
+        "2": 12
+      },
+      "mean_degree": 2.0,
+      "average_local_clustering": 0.0,
+      "transitivity": 0.0,
+      "component_sizes": [
+        12
+      ],
+      "largest_component_fraction": 1.0,
+      "adjacency": {
+        "0": [
+          1,
+          11
+        ],
+        "1": [
+          0,
+          2
+        ],
+        "2": [
+          1,
+          3
+        ],
+        "3": [
+          2,
+          4
+        ],
+        "4": [
+          3,
+          5
+        ],
+        "5": [
+          4,
+          6
+        ],
+        "6": [
+          5,
+          7
+        ],
+        "7": [
+          6,
+          8
+        ],
+        "8": [
+          7,
+          9
+        ],
+        "9": [
+          8,
+          10
+        ],
+        "10": [
+          9,
+          11
+        ],
+        "11": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "cycle_lengths": [
+        6,
+        6
+      ],
+      "nodes": 12,
+      "edges": 12,
+      "degree_histogram": {
+        "2": 12
+      },
+      "mean_degree": 2.0,
+      "average_local_clustering": 0.0,
+      "transitivity": 0.0,
+      "component_sizes": [
+        6,
+        6
+      ],
+      "largest_component_fraction": 0.5,
+      "adjacency": {
+        "0": [
+          1,
+          5
+        ],
+        "1": [
+          0,
+          2
+        ],
+        "2": [
+          1,
+          3
+        ],
+        "3": [
+          2,
+          4
+        ],
+        "4": [
+          3,
+          5
+        ],
+        "5": [
+          0,
+          4
+        ],
+        "6": [
+          7,
+          11
+        ],
+        "7": [
+          6,
+          8
+        ],
+        "8": [
+          7,
+          9
+        ],
+        "9": [
+          8,
+          10
+        ],
+        "10": [
+          9,
+          11
+        ],
+        "11": [
+          6,
+          10
+        ]
+      }
+    },
+    {
+      "cycle_lengths": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "nodes": 12,
+      "edges": 12,
+      "degree_histogram": {
+        "2": 12
+      },
+      "mean_degree": 2.0,
+      "average_local_clustering": 1.0,
+      "transitivity": 1.0,
+      "component_sizes": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "largest_component_fraction": 0.25,
+      "adjacency": {
+        "0": [
+          1,
+          2
+        ],
+        "1": [
+          0,
+          2
+        ],
+        "2": [
+          0,
+          1
+        ],
+        "3": [
+          4,
+          5
+        ],
+        "4": [
+          3,
+          5
+        ],
+        "5": [
+          3,
+          4
+        ],
+        "6": [
+          7,
+          8
+        ],
+        "7": [
+          6,
+          8
+        ],
+        "8": [
+          6,
+          7
+        ],
+        "9": [
+          10,
+          11
+        ],
+        "10": [
+          9,
+          11
+        ],
+        "11": [
+          9,
+          10
+        ]
+      }
+    }
+  ],
+  "conclusions": [
+    "All three cases have N=12, M=12, mean degree 2 and the same degree sequence.",
+    "One 12-cycle and two 6-cycles have identical mean degree and clustering but different component sizes.",
+    "Four triangles have clustering 1 and largest component fraction 0.25; the 12-cycle has clustering 0 and fraction 1. This is not a universal causal effect of clustering.",
+    "Any spatial collagen comparison must additionally control admissible edges, geometry, length, orientation and constitutive parameters."
+  ]
+}

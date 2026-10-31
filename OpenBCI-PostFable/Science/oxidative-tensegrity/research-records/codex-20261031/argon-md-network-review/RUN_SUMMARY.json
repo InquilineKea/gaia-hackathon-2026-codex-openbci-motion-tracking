@@ -1,0 +1,258 @@
+{
+  "status": "ten_reviews_complete",
+  "specialists": 8,
+  "adversarial_reviewers": 2,
+  "generation_requests": 10,
+  "automatic_retries": 0,
+  "thinking_level": "high",
+  "model": "gemini-4-argon",
+  "usage": {
+    "promptTokenCount": 324486,
+    "candidatesTokenCount": 40128,
+    "thoughtsTokenCount": 82846,
+    "totalTokenCount": 447460
+  },
+  "estimated_token_cost_USD": 1.878712,
+  "cost_basis": "2026-10-31 standard promotional prices: $2/M input, $10/M output including thinking; conservative no caching discount, not billing receipt; existing VM costs separate",
+  "remote_output_hashes_verified": 26,
+  "new_MD_QM_or_network_simulations_run": false,
+  "local_analyses": [
+    "source/CSV readback",
+    "six saved DITY trajectory geometry readbacks",
+    "exact graph counterexamples",
+    "independent lattice cycle enumeration"
+  ],
+  "model_agreement_is_independent_scientific_validation": false,
+  "requests": [
+    {
+      "role": "R1_glucosepane",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 17306,
+        "candidatesTokenCount": 2765,
+        "totalTokenCount": 30290,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 17306
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2765
+          }
+        ],
+        "thoughtsTokenCount": 10219
+      }
+    },
+    {
+      "role": "R2_dityrosine",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 72146,
+        "candidatesTokenCount": 4091,
+        "totalTokenCount": 93483,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 72146
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 4091
+          }
+        ],
+        "thoughtsTokenCount": 17246
+      }
+    },
+    {
+      "role": "R3_sampling",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 30801,
+        "candidatesTokenCount": 3706,
+        "totalTokenCount": 44566,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 30801
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3706
+          }
+        ],
+        "thoughtsTokenCount": 10059
+      }
+    },
+    {
+      "role": "R5_rigidity",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 22935,
+        "candidatesTokenCount": 3176,
+        "totalTokenCount": 31196,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 22935
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3176
+          }
+        ],
+        "thoughtsTokenCount": 5085
+      }
+    },
+    {
+      "role": "R4_numerics",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 35990,
+        "candidatesTokenCount": 3700,
+        "totalTokenCount": 51788,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 35990
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3700
+          }
+        ],
+        "thoughtsTokenCount": 12098
+      }
+    },
+    {
+      "role": "R7_active_design",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 17688,
+        "candidatesTokenCount": 4601,
+        "totalTokenCount": 26628,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 17688
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 4601
+          }
+        ],
+        "thoughtsTokenCount": 4339
+      }
+    },
+    {
+      "role": "R6_topology",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 17112,
+        "candidatesTokenCount": 3476,
+        "totalTokenCount": 28200,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 17112
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3476
+          }
+        ],
+        "thoughtsTokenCount": 7612
+      }
+    },
+    {
+      "role": "R8_multiscale",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 26866,
+        "candidatesTokenCount": 2776,
+        "totalTokenCount": 35625,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 26866
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2776
+          }
+        ],
+        "thoughtsTokenCount": 5983
+      }
+    },
+    {
+      "role": "A1_md",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 39313,
+        "candidatesTokenCount": 4714,
+        "totalTokenCount": 49131,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 39313
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 4714
+          }
+        ],
+        "thoughtsTokenCount": 5104
+      }
+    },
+    {
+      "role": "A2_network",
+      "model": "gemini-4-argon",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 44329,
+        "candidatesTokenCount": 7123,
+        "totalTokenCount": 56553,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 44329
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 7123
+          }
+        ],
+        "thoughtsTokenCount": 5101
+      }
+    }
+  ]
+}

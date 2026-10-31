@@ -1,0 +1,330 @@
+{
+  "scope": "Semantic source-check of all forty first-round findings. Accepted means the bounded observation/recommendation survives with this note, not that every sentence in its raw review is scientifically validated.",
+  "findings": [
+    {
+      "id": "R1_glucosepane:1",
+      "title": "Unlinked control (GLU_CONTROL) introduces direct ARG(+1)/LYS(+1) interface repulsion between two untethered single strands",
+      "source_file": "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "source_line": 20,
+      "disposition": "qualified",
+      "source_check": "Charge, untethered-fragment and starting-ensemble confounding are real and disclosed. The restored ARG/LYS contact is not the former 1.458-A crosslink bond: direct distances are in ADDITIONAL_GEOMETRY_READBACK.json."
+    },
+    {
+      "id": "R1_glucosepane:2",
+      "title": "Source neutral glucosepane parameterization omits the physiological protonated (+1 e) cyclic guanidinium state and leaves a -1e-6 e charge residual",
+      "source_file": "candidate/PARAMETER_AUDIT.json",
+      "source_line": 42,
+      "disposition": "qualified",
+      "source_check": "Source joint charge is neutral. Independent inventor-patent pKa evidence makes a microstate audit important, but the exact protein-bound state/protonation mapping is unresolved. Do not silently protonate or invent physiological neutral-ARG controls."
+    },
+    {
+      "id": "R1_glucosepane:3",
+      "title": "Vacuum (NoCutoff) side-chain minimization precedes solvation and box construction",
+      "source_file": "candidate/candidate_pilot.py",
+      "source_line": 73,
+      "disposition": "accepted",
+      "source_check": "Dry backbone-restrained NoCutoff minimization is in the source. A solvent-first/preparation sensitivity comparison is useful; an induced artifact is not yet demonstrated."
+    },
+    {
+      "id": "R1_glucosepane:4",
+      "title": "2D graph-isomorphism mapping and relative determinant signs do not verify absolute (R/S) stereochemistry of the three glucosepane ring stereocenters",
+      "source_file": "candidate/prepared/published_glucosepane_motif/ATOM_MAPPING.json",
+      "source_line": 2,
+      "disposition": "accepted",
+      "source_check": "Graph mapping plus sign retention does not assign absolute chemical stereochemistry. Verify against an authoritative source structure without assuming that a source stereoisomer is wrong."
+    },
+    {
+      "id": "R1_glucosepane:5",
+      "title": "Integration precision asymmetry in GLU_CONTROL and duplicate harmonic X-H bonds on constrained solute pairs",
+      "source_file": "evidence/NUMERIC_READBACK.json",
+      "source_line": 16,
+      "disposition": "qualified",
+      "source_check": "Precision and seed are confounded. Constrained harmonic terms are not automatically double counted and must not be removed on this assertion."
+    },
+    {
+      "id": "R2_dityrosine:1",
+      "title": "DITY_LINKED starts with an 8.630 A crosslink bond closed by backbone-restrained Cartesian minimization",
+      "source_file": "candidate/prepared/DITY_LINKED.json",
+      "source_line": 1,
+      "disposition": "accepted",
+      "source_check": "The initial site distance is independently confirmed as 8.630394529765255 A. Compare a chemically prebuilt/rotamer-relaxed start with the existing route; this is not proof that final structures are defective."
+    },
+    {
+      "id": "R2_dityrosine:2",
+      "title": "CGenFF penalties 41.1 and 30.0 govern intra-ring planarity, while the central inter-ring rotor uses generic biphenyl terms",
+      "source_file": "candidate/PARAMETER_AUDIT.json",
+      "source_line": 90,
+      "disposition": "qualified",
+      "source_check": "Benchmark the active torsion surfaces and geometry. Specific missing Fourier harmonics and arbitrary thermal-angle/bond thresholds are not established. The 51.1 source annotation belongs to another chemical rule."
+    },
+    {
+      "id": "R2_dityrosine:3",
+      "title": "No independent CHARMM parser cross-check was executed for the patched charmm36_dity.xml topology",
+      "source_file": "candidate/candidate_pilot.py",
+      "source_line": 65,
+      "disposition": "accepted",
+      "source_check": "DITY has no separate native-CHARMM/independent-engine benchmark in this pilot. Platform agreement using one System is weaker than independent construction or physical validation."
+    },
+    {
+      "id": "R2_dityrosine:4",
+      "title": "Intramolecular i, i+2 (Tyr4-Gly5-Tyr6) link and anisotropic box geometry confound the C-alpha marker and longer unrestrained runs",
+      "source_file": "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "source_line": 40,
+      "disposition": "qualified",
+      "source_check": "The i,i+2 local marker and model hypothesis limit inference. Check periodic self-image clearance when extending sampling; certain future self-interaction is not demonstrated."
+    },
+    {
+      "id": "R2_dityrosine:5",
+      "title": "Runtime geometry checks omit sp2 bridgehead planarity, inter-ring torsion distributions, and heavy-atom bond strain",
+      "source_file": "candidate/candidate_pilot.py",
+      "source_line": 47,
+      "disposition": "accepted",
+      "source_check": "Additional aromatic planarity/torsion diagnostics are useful. New readback reports control and linked values; no universal physical failure angle is inferred."
+    },
+    {
+      "id": "R3_sampling:1",
+      "title": "Unbalanced double-vs-mixed precision and driver switch confounds GLU_CONTROL inter-seed variance",
+      "source_file": "evidence/NUMERIC_READBACK.json",
+      "source_line": 16,
+      "disposition": "qualified",
+      "source_check": "One double and eleven mixed integrations are disclosed. Seed/precision are not separately identified; a matched precision sensitivity run cannot establish causality from one stochastic outcome."
+    },
+    {
+      "id": "R3_sampling:2",
+      "title": "Zero post-restraint burn-in and unquantified autocorrelation in the 30-ps NPT_free window",
+      "source_file": "candidate/local_analysis.py",
+      "source_line": 54,
+      "disposition": "qualified",
+      "source_check": "The 30-frame post-release window does not support equilibrium inference. Burn-in/autocorrelation diagnostics need longer data to be reliable; no deterministic artifact is proved."
+    },
+    {
+      "id": "R3_sampling:3",
+      "title": "Shared solvent/minimized build and unrelaxed control pose create pseudo-replication across seeds",
+      "source_file": "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "source_line": 32,
+      "disposition": "qualified",
+      "source_check": "Velocity-seed replicas sample dynamics conditional on one conformer/solvent start. This is explicitly acknowledged, and not misrepresented as independent solvent/conformer ensembles."
+    },
+    {
+      "id": "R3_sampling:4",
+      "title": "Inconsistent PBC wrapping, unaligned displacement metric, and density-scaled box reconstruction in local_analysis.py",
+      "source_file": "candidate/local_analysis.py",
+      "source_line": 55,
+      "disposition": "qualified",
+      "source_check": "The source reports unaligned displacement intentionally. Stored coordinates are not forcibly wrapped, and isotropic density scaling can reconstruct boxes. Exact saved boxes and aligned internal metrics are useful future additions, not blanket fixes."
+    },
+    {
+      "id": "R3_sampling:5",
+      "title": "Unreported 51.1 CGenFF dihedral penalty in audit JSON and kinetic trapping of DITY biaryl torsions",
+      "source_file": "candidate/PARAMETER_AUDIT.json",
+      "source_line": 98,
+      "disposition": "rejected",
+      "source_check": "Penalty 51.1 is not established as active DITY, and small marker variance does not prove torsional trapping. Inspect actual atom-type paths and trajectory torsions."
+    },
+    {
+      "id": "R4_numerics:1",
+      "title": "Post-hoc audit parses dry_system.xml instead of wet final_system.xml and omits periodic wrapping on link-bond and displacement metrics",
+      "source_file": "candidate/local_analysis.py",
+      "source_line": 33,
+      "disposition": "qualified",
+      "source_check": "The inventory is from the dry solute System. Label it explicitly; do not infer missing solvent force terms in actual wet trajectories. Blanket wrapping edits are not justified."
+    },
+    {
+      "id": "R4_numerics:2",
+      "title": "Stereocenter inversion gate skips the wet-minimization transition (m['signs'] is unused) and omits hydrogen coordinates",
+      "source_file": "candidate/candidate_pilot.py",
+      "source_line": 149,
+      "disposition": "qualified",
+      "source_check": "Add explicit stage-to-stage stereochemical checks across dry preparation, solvation and wet minimization. The existing runtime sign baseline does not by itself validate those prior transitions or absolute chirality."
+    },
+    {
+      "id": "R4_numerics:3",
+      "title": "Barostat activation at 10 ps calls c.reinitialize(preserveState=True), resetting the Langevin PRNG sequence mid-trajectory",
+      "source_file": "candidate/candidate_pilot.py",
+      "source_line": 152,
+      "disposition": "rejected",
+      "source_check": "Official Context documentation describes checkpoint restoration for reinitialize(preserveState=True). An automatic PRNG reset is not established; no reseeding change is justified by this assertion."
+    },
+    {
+      "id": "R4_numerics:4",
+      "title": "Wet CPU/CUDA platform check is mischaracterized as a double-precision comparison and evaluates an unrestrained system on GPU-minimized coordinates",
+      "source_file": "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "source_line": 50,
+      "disposition": "qualified",
+      "source_check": "Clarify CUDA double precision versus CPU-platform arithmetic in the wording. Comparing an unrestrained physical Hamiltonian at restrained-minimized coordinates is legitimate as a platform consistency check."
+    },
+    {
+      "id": "R4_numerics:5",
+      "title": "Precision heterogeneity in GLU_CONTROL, unisolated +2e charge shift, two-chain drift, and wide runtime gates restrict physical inference",
+      "source_file": "evidence/NUMERIC_READBACK.json",
+      "source_line": 16,
+      "disposition": "qualified",
+      "source_check": "The broad gates were numerical stability gates, not equilibration criteria. Precision, charge and initial-ensemble limits remain correctly disclosed."
+    },
+    {
+      "id": "R5_rigidity:1",
+      "title": "Nonzero affine background tethers (k_gag) and full-lattice elastin (mu_el) guarantee positive moduli at all dilutions, masking true rigidity and connectivity thresholds",
+      "source_file": "network/oxt/network.py",
+      "source_line": 155,
+      "disposition": "qualified",
+      "source_check": "Full-lattice elastin is a mechanical background; tethers alter constrained-fragment response. Tethers alone do not guarantee positive G at zero bonds: x=FX gives zero minimized tether energy."
+    },
+    {
+      "id": "R5_rigidity:2",
+      "title": "Oxidative damage dose confounds topological edge addition with intrafibrillar stiffening and junction angle locking",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 112,
+      "disposition": "accepted",
+      "source_check": "Dose simultaneously changes adjacency, segment constitutive terms, brittleness and angular constraints. Separate these interventions."
+    },
+    {
+      "id": "R5_rigidity:3",
+      "title": "Cutting exactly one bond per periodic line couples physical fiber length to box size W, invalidating finite-size scaling",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 88,
+      "disposition": "qualified",
+      "source_check": "Forced-cut rules affect finite-size interpretation, but random dilution prevents the claimed automatic linear growth of mean fibre length. Independent enumeration also finds a concrete normalization mismatch, recorded separately."
+    },
+    {
+      "id": "R5_rigidity:4",
+      "title": "Batch-summed L-BFGS stopping criteria and eps=2e-3 finite differences overestimate linear moduli in floppy sub-isostatic networks",
+      "source_file": "network/oxt/network.py",
+      "source_line": 199,
+      "disposition": "qualified",
+      "source_check": "Per-system residual, strain-step and Hessian checks are appropriate. A demonstrated stiffness bias or universal optimizer tolerance does not follow from the code alone."
+    },
+    {
+      "id": "R5_rigidity:5",
+      "title": "Secant modulus is reported as tangent stiffness K(gamma) while topological and rigidity order parameters are unrecorded",
+      "source_file": "network/run_sweep.py",
+      "source_line": 152,
+      "disposition": "qualified",
+      "source_check": "Stress/strain is a secant quantity and the README mentions secant response. A phase study still needs a separately computed relaxed tangent response and explicit graph observables."
+    },
+    {
+      "id": "R6_topology:1",
+      "title": "Oxidative dose alters graph adjacency while confounding edge addition, collinear bending, double-hit embrittlement, and node locking",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 112,
+      "disposition": "accepted",
+      "source_check": "New bridges can subsequently receive the stiffening/brittleness treatment, compounding parameters. Document and ablate this model choice rather than calling it a proven coding defect."
+    },
+    {
+      "id": "R6_topology:2",
+      "title": "Isotropic and anisotropic bridge sampling cannot isolate clustering or hub bias, and anisotropic bridging saturates at high coordination",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 114,
+      "disposition": "qualified",
+      "source_check": "Anisotropic available-edge pools can cap realized bridge additions. Report requested and realized counts; the exact saturation point varies by realization and cut geometry."
+    },
+    {
+      "id": "R6_topology:3",
+      "title": "Fixed 6-regular triangular candidate lattice forbids Barabasi-Albert scale-free growth and couples triangles to anisotropy and bending",
+      "source_file": "network/oxt/network.py",
+      "source_line": 51,
+      "disposition": "accepted",
+      "source_check": "The existing nearest-neighbor candidate graph has maximum degree six, and has neither growing Barabasi-Albert attachment nor arbitrary spatial rewiring. Feasible topology interventions must preserve actual constraints."
+    },
+    {
+      "id": "R6_topology:4",
+      "title": "Recorded mesh_size metric relies on an Euler E - V approximation that is blind to triangles, clustering, and degree-preserving rewiring",
+      "source_file": "network/oxt/network.py",
+      "source_line": 298,
+      "disposition": "accepted",
+      "source_check": "An E-minus-active-V proxy is not a clustering, component, pore-shape or wrapping measurement. It is invariant at fixed E and degree sequence."
+    },
+    {
+      "id": "R6_topology:5",
+      "title": "Permanent elastin bonds and GAG node tethers create a full-lattice mechanical background that masks topological percolation thresholds",
+      "source_file": "network/oxt/network.py",
+      "source_line": 155,
+      "disposition": "qualified",
+      "source_check": "Mechanical backgrounds must be separated from collagen graph connectivity. Preserve the zero-bond tether counterexample and do not conflate all backgrounds."
+    },
+    {
+      "id": "R7_active_design:1",
+      "title": "Seed reuse across parameter sweeps and pre-stage averaging violate replicate independence and erase uncertainty",
+      "source_file": "network/run_sweep.py",
+      "source_line": 133,
+      "disposition": "qualified",
+      "source_check": "Common graph seeds across treatments can be valid paired/block designs. Bootstrap graph identities/whole insertion paths; do not count correlated treatment snapshots as independent replicates. Retain uncertainty before nonlinear downstream transforms."
+    },
+    {
+      "id": "R7_active_design:2",
+      "title": "Damage.dose confounds graph connectivity, segment stiffening, embrittlement, and junction locking on a bounded-degree lattice",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 112,
+      "disposition": "accepted",
+      "source_check": "The combined dose is confounded for mechanism identification. Use independent random streams for base graph, bridge placement, stiffening and angle locking."
+    },
+    {
+      "id": "R7_active_design:3",
+      "title": "Batch-summed L-BFGS stopping criteria couple floppy and stiff systems, while background springs smooth out rigidity transitions",
+      "source_file": "network/oxt/network.py",
+      "source_line": 174,
+      "disposition": "qualified",
+      "source_check": "Check solver and background sensitivity per system; optimizer iterations are not physical relaxation time and a specific bias is unproved."
+    },
+    {
+      "id": "R7_active_design:4",
+      "title": "Missing percolation, clustering, nonaffinity, and tangent-modulus observables alongside arbitrary classification thresholds",
+      "source_file": "network/oxt/network.py",
+      "source_line": 295,
+      "disposition": "accepted",
+      "source_check": "Add explicitly defined graph, rigidity and tangent-response observables. Avoid a force-cutoff-defined backbone without sensitivity validation."
+    },
+    {
+      "id": "R7_active_design:5",
+      "title": "Single-W static grid profiles confound lattice size with protocol resolution and lack held-out validation or active acquisition",
+      "source_file": "network/run_sweep.py",
+      "source_line": 25,
+      "disposition": "accepted",
+      "source_check": "Use a deliberately matched multi-size protocol and a frozen held-out set. An adaptive sampler has not been implemented or validated by this review."
+    },
+    {
+      "id": "R8_multiscale:1",
+      "title": "Single scalar k_rel conflates four distinct mechanical modes and unweighted multi-chemistry averages",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 102,
+      "disposition": "accepted",
+      "source_check": "One assumed scalar affects several mechanical modes and chemistry averages. The MD marker summaries do not calibrate these coefficients."
+    },
+    {
+      "id": "R8_multiscale:2",
+      "title": "Intramolecular/intrafibrillar MD models are mapped to inter-fibre bridging and periodic line reconnection",
+      "source_file": "network/oxt/materials.py",
+      "source_line": 116,
+      "disposition": "qualified",
+      "source_check": "Local atomistic contexts do not automatically map to coarse inter-fibre edges/angular constraints. Audit the physical mapping without inferring unverified intra/interfibrillar taxonomy."
+    },
+    {
+      "id": "R8_multiscale:3",
+      "title": "Cross-chemistry force-field/charge differences and unbenchmarked CGenFF penalties up to 51.1 block MD-to-network calibration",
+      "source_file": "candidate/PARAMETER_AUDIT.json",
+      "source_line": 98,
+      "disposition": "qualified",
+      "source_check": "Different force fields/charge choices constrain comparisons. Whole-file hash differences after adding new residues are expected; penalty 51.1 is not established as active DITY. Verify shared terms rather than forcing files to match."
+    },
+    {
+      "id": "R8_multiscale:4",
+      "title": "Batched L-BFGS stopping criterion and background tethers couple heterogeneous systems and mask rigidity transitions",
+      "source_file": "network/oxt/network.py",
+      "source_line": 199,
+      "disposition": "qualified",
+      "source_check": "Per-system convergence and background-limit ablations are useful, but the reviewer does not demonstrate a numerical stiffness error."
+    },
+    {
+      "id": "R8_multiscale:5",
+      "title": "Fixed-W triangular lattice and Euler mesh_size cannot test percolation wrapping, clustering, or hub attachment",
+      "source_file": "network/oxt/network.py",
+      "source_line": 300,
+      "disposition": "accepted",
+      "source_check": "Existing single-size profiles and mesh proxy do not establish percolation, arbitrary clustering effects or preferential-attachment regimes."
+    }
+  ],
+  "counts": {
+    "qualified": 24,
+    "accepted": 14,
+    "rejected": 2
+  }
+}

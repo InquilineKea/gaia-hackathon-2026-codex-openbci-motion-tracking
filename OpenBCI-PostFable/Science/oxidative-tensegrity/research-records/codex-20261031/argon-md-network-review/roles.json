@@ -1,0 +1,122 @@
+[
+  {
+    "id": "R1_glucosepane",
+    "name": "Glucosepane chemistry and charge referee",
+    "task": "Check full-link identity, source mapping, protonation/charge change and matched-control preparation. Identify the highest-value validation before longer MD.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/prepared/GLU_LINKED/MODEL_PROVENANCE.json",
+      "candidate/prepared/published_glucosepane_motif/ATOM_MAPPING.json",
+      "candidate/candidate_pilot.py"
+    ]
+  },
+  {
+    "id": "R2_dityrosine",
+    "name": "Dityrosine parameter and local-context referee",
+    "task": "Audit DITY translation coverage, charge/atom graph and full-context construction; distinguish penalty annotations from actual errors. Prioritize a torsion/geometry validation with explicit reference and stop criteria.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/parameters/DITY_TRANSLATION_AUDIT.json",
+      "candidate/prepared/DITY_LINKED.json",
+      "candidate/prepared/DITY_CONTROL.json",
+      "candidate/candidate_pilot.py"
+    ]
+  },
+  {
+    "id": "R3_sampling",
+    "name": "MD sampling and statistical inference referee",
+    "task": "Audit replica independence, precision adjustment, marker analysis and interpretation. Seek additional implementation concerns, not only acknowledged sampling limits. Rank minimally informative additional simulations and convergence diagnostics.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/replica_summary.csv",
+      "candidate/RESULT_SUMMARY.json",
+      "candidate/local_analysis.py",
+      "candidate/retrieved/performance-interruption.json",
+      "candidate/retrieved/resume-metadata.json"
+    ]
+  },
+  {
+    "id": "R4_numerics",
+    "name": "Dynamics protocol and numerical validation referee",
+    "task": "Audit physical-system/constraint/platform checks, periodic imaging, restart state, controls, precision and acceptance gates. State precisely what numerical checks do and do not establish.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "candidate/candidate_pilot.py",
+      "candidate/entry.py",
+      "candidate/PROTOCOL.md",
+      "candidate/RESULT_SUMMARY.json",
+      "candidate/local_analysis.py"
+    ]
+  },
+  {
+    "id": "R5_rigidity",
+    "name": "Connectivity versus rigidity transition referee",
+    "task": "Audit actual network mechanisms and define a decisive finite-size/constraint/background-limit experiment. Distinguish a connected giant component, rigid backbone, nonzero modulus from embedding, and strain-driven crossover.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "network/README.md"
+    ]
+  },
+  {
+    "id": "R6_topology",
+    "name": "Spatial clustering and preferential-attachment referee",
+    "task": "Design identifiable spatial topology interventions separating edge count, triangles, degree heterogeneity and hub-biased growth. State feasibility constraints and null models. Audit whether current dose actually changes adjacency.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md"
+    ]
+  },
+  {
+    "id": "R7_active_design",
+    "name": "Adaptive phase-boundary experiment designer",
+    "task": "Specify candidate mechanism models, independent graph replicate unit, finite-size and seed design, metrics, uncertainty, held-out validation and compute-aware acquisition. Give a concrete first-stage run matrix and stopping rule; avoid arbitrary universal thresholds.",
+    "files": [
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "evidence/GEMINI_WORKFLOW.md"
+    ]
+  },
+  {
+    "id": "R8_multiscale",
+    "name": "Adversarial multiscale bridge and simulation-priority referee",
+    "task": "Determine what these MD results can legitimately inform at network scale. Rank parameter benchmarking, matched-context sampling and finite-size topology tests by information value; identify unsupported MD-to-network mappings and propose falsifiers.",
+    "files": [
+      "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+      "candidate/PARAMETER_AUDIT.json",
+      "evidence/NUMERIC_READBACK.json",
+      "evidence/QUESTIONS.md",
+      "evidence/PRIMARY_SOURCES.md",
+      "network/oxt/network.py",
+      "network/oxt/materials.py",
+      "network/run_sweep.py",
+      "native/MD_PILOT_RESULTS.md",
+      "evidence/GEMINI_WORKFLOW.md"
+    ]
+  }
+]

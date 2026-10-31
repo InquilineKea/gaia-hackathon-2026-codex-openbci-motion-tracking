@@ -1,0 +1,459 @@
+{
+  "source_OpenMM_xml_sha256": "c5eeb1f030bc7e7bb1e88e7432f762ec1b909858691ffd36dbb81731874931ea",
+  "derived_xml_sha256": "4ff134b22bd6d5ed45cfe5784bb3410c0ca04bb6650e39752b96438cc42824b4",
+  "patch": "PRES DITY            0 ! patch to crosslink tyrosine. Charges after crosslinking are estimated by CGenFF\nGROUP      \nATOM 1CB   CT2    -0.182 ! charge updated based on CGenFF output.          1HD1 1HE1                    2HE1   2HD1       \nATOM 1HB1  HA2     0.09  !                                                  |     |                       |     |      \nATOM 1HB2  HA2     0.09  !                                            1HB1 1CD1--1CE1    1HH    2HH     2CE1--2CD1   2HB1  \nATOM 1CG   CA     -0.001 ! charge updated based on CGenFF output.     |    //      \\\\   /        \\      //      \\\\    |  \nATOM 1CD1  CA     -0.117 ! charge updated based on CGenFF output.    -1CB--1CG     1CZ--1OH       2OH--2CZ       2CG--2CB-\nATOM 1HD1  HP      0.115 !                                            |    \\   __  /                    \\   __   /    |                \nATOM 1CE1  CA     -0.105 ! charge updated based on CGenFF output.     1HB2 1CD2--1CE2-------------------2CE2--2CD2    2HB2  \nATOM 1HE1  HP      0.115 !                                                  |                                   |         \nATOM 1CZ   CA      0.099 ! charge updated based on CGenFF output.          1HD2                                 2HD2        \nATOM 1OH   OH1    -0.534 ! charge updated based on CGenFF output. -0.003 added to CGenFF output charge to bring net charge of side chain to 0.\nATOM 1HH   H       0.42  ! charge updated based on CGenFF output.\nATOM 1CD2  CA     -0.121 ! charge updated based on CGenFF output.\nATOM 1HD2  HP      0.115\nATOM 1CE2  CG2R67  0.016 ! charge updated based on CGenFF output.\nGROUP      \nATOM 2CB   CT2    -0.182 ! charge updated based on CGenFF output.\nATOM 2HB1  HA2     0.09  !                                 \nATOM 2HB2  HA2     0.09  !                                             \nATOM 2CG   CA     -0.001 ! charge updated based on CGenFF output.  \nATOM 2CD1  CA     -0.117 ! charge updated based on CGenFF output.   \nATOM 2HD1  HP      0.115 !                                                         \nATOM 2CE1  CA     -0.105 ! charge updated based on CGenFF output.    \nATOM 2HE1  HP      0.115 !                                        \nATOM 2CZ   CA      0.099 ! charge updated based on CGenFF output.     \nATOM 2OH   OH1    -0.534 ! charge updated based on CGenFF output. -0.003 added to CGenFF output charge to bring net charge of side chain to 0. \nATOM 2HH   H       0.42  ! charge updated based on CGenFF output.\nATOM 2CD2  CA     -0.121 ! charge updated based on CGenFF output.\nATOM 2HD2  HP      0.115\nATOM 2CE2  CG2R67  0.016 ! charge updated based on CGenFF output.\nBOND 1CE2 2CE2\n!BOND 1CG  1CB   1CD2 1CG   1CE1 1CD1   \n!BOND 1CZ  1CE2  1OH  1CZ    \n!BOND 1CB  1HB1  1CB  1HB2  1CD1 1HD1  1CD2 1HD2   \n!BOND 1CE1 1HE1  1OH  1HH\n!DOUBLE   1CD1 1CG  1CE1  1CZ  1CE2 1CD2      \n!DONOR 1HH 1OH   \n!ACCEPTOR 1OH   \n!BOND 2CG  2CB   2CD2 2CG   2CE1 2CD1   \n!BOND 2CZ  2CE2  2OH  2CZ    \n!BOND 2CB  2HB1  2CB  2HB2  2CD1 2HD1  2CD2 2HD2   \n!BOND 2CE1 2HE1  2OH  2HH\n!DOUBLE   2CD1 2CG  2CE1  2CZ  2CE2 2CD2      \n!DONOR 2HH 2OH   \n!ACCEPTOR 2OH   \nDELETE ATOM 1HE2\nDELETE ATOM 2HE2\n!\n\n",
+  "bonded_changes": [
+    {
+      "section": "BONDS",
+      "types": [
+        "CG2R67",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          300.0,
+          1.49
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CG2R67",
+        "length": "0.149",
+        "k": "251040.0"
+      }
+    },
+    {
+      "section": "BONDS",
+      "types": [
+        "CA",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          305.0,
+          1.375
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CG2R67",
+        "length": "0.1375",
+        "k": "255224.00000000003"
+      }
+    },
+    {
+      "section": "ANGLES",
+      "types": [
+        "CA",
+        "CA",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          40.0,
+          120.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "angle": "2.0943951023931953",
+        "k": "334.72"
+      }
+    },
+    {
+      "section": "ANGLES",
+      "types": [
+        "CG2R67",
+        "CA",
+        "OH1"
+      ],
+      "source_values": [
+        [
+          45.2,
+          120.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CA",
+        "type3": "OH1",
+        "angle": "2.0943951023931953",
+        "k": "378.2336"
+      }
+    },
+    {
+      "section": "ANGLES",
+      "types": [
+        "CA",
+        "CG2R67",
+        "CA"
+      ],
+      "source_values": [
+        [
+          40.0,
+          120.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CG2R67",
+        "type3": "CA",
+        "angle": "2.0943951023931953",
+        "k": "334.72"
+      }
+    },
+    {
+      "section": "ANGLES",
+      "types": [
+        "CG2R67",
+        "CA",
+        "HP"
+      ],
+      "source_values": [
+        [
+          30.0,
+          120.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CA",
+        "type3": "HP",
+        "angle": "2.0943951023931953",
+        "k": "251.04000000000002"
+      }
+    },
+    {
+      "section": "ANGLES",
+      "types": [
+        "CA",
+        "CG2R67",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          40.0,
+          120.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CG2R67",
+        "type3": "CG2R67",
+        "angle": "2.0943951023931953",
+        "k": "334.72"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CG2R67",
+        "CA",
+        "CA",
+        "CT2"
+      ],
+      "source_values": [
+        [
+          3.1,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CA",
+        "type3": "CA",
+        "type4": "CT2",
+        "k1": "12.970400000000001",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CA",
+        "CA",
+        "CA",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          3.1,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CA",
+        "type3": "CA",
+        "type4": "CG2R67",
+        "k1": "12.970400000000001",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CG2R67",
+        "CA",
+        "CA",
+        "HP"
+      ],
+      "source_values": [
+        [
+          4.2,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CA",
+        "type3": "CA",
+        "type4": "HP",
+        "k1": "17.5728",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CG2R67",
+        "CA",
+        "OH1",
+        "H"
+      ],
+      "source_values": [
+        [
+          0.99,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CA",
+        "type3": "OH1",
+        "type4": "H",
+        "k1": "4.1421600000000005",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "HP",
+        "CA",
+        "CG2R67",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          4.2,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "HP",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "type4": "CG2R67",
+        "k1": "17.5728",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CA",
+        "CA",
+        "CG2R67",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          3.1,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "type4": "CG2R67",
+        "k1": "12.970400000000001",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "OH1",
+        "CA",
+        "CG2R67",
+        "CG2R67"
+      ],
+      "source_values": [
+        [
+          1.0,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "OH1",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "type4": "CG2R67",
+        "k1": "4.184",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CA",
+        "CG2R67",
+        "CG2R67",
+        "CA"
+      ],
+      "source_values": [
+        [
+          0.89,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CG2R67",
+        "type3": "CG2R67",
+        "type4": "CA",
+        "k1": "3.7237600000000004",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "OH1",
+        "CA",
+        "CG2R67",
+        "CA"
+      ],
+      "source_values": [
+        [
+          3.1,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "OH1",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "type4": "CA",
+        "k1": "12.970400000000001",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "HP",
+        "CA",
+        "CG2R67",
+        "CA"
+      ],
+      "source_values": [
+        [
+          4.2,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "HP",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "type4": "CA",
+        "k1": "17.5728",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CA",
+        "CA",
+        "CG2R67",
+        "CA"
+      ],
+      "source_values": [
+        [
+          3.1,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CA",
+        "type2": "CA",
+        "type3": "CG2R67",
+        "type4": "CA",
+        "k1": "12.970400000000001",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    },
+    {
+      "section": "DIHEDRALS",
+      "types": [
+        "CG2R67",
+        "CA",
+        "CA",
+        "OH1"
+      ],
+      "source_values": [
+        [
+          3.1,
+          2.0,
+          180.0
+        ]
+      ],
+      "openmm_values": {
+        "type1": "CG2R67",
+        "type2": "CA",
+        "type3": "CA",
+        "type4": "OH1",
+        "k1": "12.970400000000001",
+        "periodicity1": "2",
+        "phase1": "3.141592653589793"
+      }
+    }
+  ],
+  "CG2R67_LJ": {
+    "epsilon": "0.29288000000000003",
+    "sigma": "0.3550053212045624",
+    "type": "CG2R67"
+  },
+  "new_InitializationScript_or_Script": false,
+  "retained_wheel_initializer_sha256": "dc31474e2889cbe2d5d92be64cf4492d2139a98607f57b9e9f2dfd83a372d115",
+  "retained_initializer_scope": "only checks the CHARMM version string; reviewed in full",
+  "coverage_scope": "full-context force-field construction and numerical checks remain to run"
+}

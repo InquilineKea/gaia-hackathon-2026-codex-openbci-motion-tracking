@@ -1,0 +1,106 @@
+{
+  "role": "R4_numerics",
+  "model": "gemini-4-argon",
+  "started_at": "2026-10-31T15:23:17.114893+00:00",
+  "packet_sha256": "095adb1f74347b4be4306909e09660228b39318849fff3774ec39cb0f707adf3",
+  "status": "ok",
+  "usage": {
+    "promptTokenCount": 35990,
+    "candidatesTokenCount": 3700,
+    "totalTokenCount": 51788,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 35990
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3700
+      }
+    ],
+    "thoughtsTokenCount": 12098
+  },
+  "finish_reason": "STOP",
+  "review": {
+    "summary": "Audit of the dynamics protocol and numerical validation scripts (candidate/candidate_pilot.py and candidate/local_analysis.py) confirms that the 12x50-ps trajectories executed inside an isolated, hash-verified environment and passed basic numerical stability checks (finite coordinates/forces/energies, constraint errors < 7.9e-7 nm, and stable bath temperatures/densities). However, five concrete implementation and validation issues were identified: (1) local_analysis.py reads dry_system.xml instead of final_system.xml (or wet_system.xml) when building RESULT_SUMMARY.json, misreporting dry solute force inventories as wet trajectory inventories, and omits minimum-image periodic wrapping for link-bond and RMSD calculations while reconstructing box lengths from rounded density; (2) stereocenter inversion checks ignore the solvation and wet-minimization step (m['signs'] is computed but never checked against wet-minimized coordinates xm) and evaluate only the determinant of three heavy neighbors without the fourth (hydrogen) substituent or periodic wrapping; (3) enabling the barostat at 10 ps calls Context.reinitialize(preserveState=True), which resets the LangevinMiddleIntegrator random number generator to its initial seed mid-trajectory; (4) CANDIDATE_COMPARISON_RESULTS.md mischaracterizes the wet CPU/CUDA platform check as a double-precision comparison, whereas OpenMM's CPU platform executes in single/mixed precision; and (5) GLU_CONTROL pools one double-precision replica from attempt-001 with two mixed-precision replicas from attempt-002 across an unlinked two-chain excerpt whose net charge shifts by +2 e relative to GLU_LINKED. Consequently, the numerical checks establish only short-timescale integration stability and parser self-consistency within OpenMM; they do not establish parameter accuracy, thermodynamic equilibrium, or any mechanical effect of crosslinking.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Post-hoc audit parses dry_system.xml instead of wet final_system.xml and omits periodic wrapping on link-bond and displacement metrics",
+        "source_file": "candidate/local_analysis.py",
+        "source_line": 33,
+        "evidence": "Line 33 of candidate/local_analysis.py parses RAW/case/'dry_system.xml' instead of p/'final_system.xml', causing every solvated trajectory row in candidate/RESULT_SUMMARY.json (e.g., lines 56 and 456) to report only vacuum solute particles (471, 481, 298, 296) in force_inventory with no solvent, barostat, or restraints. In addition, lines 42, 43, and 57 call dist() with box=None for bond deviations, heavy-atom RMSD, and link-bond lengths, while line 55 reconstructs current_box indirectly from density_g_ml ratios because candidate/candidate_pilot.py line 156 did not save per-frame box vectors bv.",
+        "implication": "The force_inventory in RESULT_SUMMARY.json does not audit the actual solvated System that was simulated, and the post-hoc distance checks (except the C-alpha marker on line 56) rely on OpenMM keeping solute chains in the same periodic image rather than enforcing minimum-image periodic boundaries with exact per-frame box vectors.",
+        "recommended_check": "Change candidate/local_analysis.py line 33 to parse p/'final_system.xml' (and verify particle/constraint counts against n_atoms), save periodic box vectors bv per frame in candidate/candidate_pilot.py line 156, and pass current_box to dist() on lines 42 and 57 of candidate/local_analysis.py.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Stereocenter inversion gate skips the wet-minimization transition (m['signs'] is unused) and omits hydrogen coordinates",
+        "source_file": "candidate/candidate_pilot.py",
+        "source_line": 149,
+        "evidence": "Although prepare() (line 91) and resume (line 170) store dry-minimized determinant signs in m['signs'], run() never reads m['signs']; instead, line 149 defines initial_signs = signs(xm, cs) after wet LocalEnergyMinimizer.minimize (line 146), and candidate/local_analysis.py line 32 also compares final positions x against xm. Furthermore, centers(d) and signs(x, cs) (lines 47-48) compute det(x[js] - x[i]) using only three heavy-atom neighbors (js), excluding the attached hydrogen atom and omitting minimum-image wrapping.",
+        "implication": "If a stereocenter inverts during solvation or wet energy minimization (line 146), initial_signs adopts the inverted configuration as the reference and both runtime and post-hoc checks report zero inversions. Additionally, a local hydrogen-atom inversion across the heavy-atom pyramid without the central carbon crossing the heavy-neighbor plane cannot be detected.",
+        "recommended_check": "Compare wet-minimized signs(xm, cs) directly against the dry reference m['signs'] immediately after line 146 of candidate/candidate_pilot.py, and compute signed tetrahedral volumes using all four bonded substituents (including the hydrogen atom) with minimum-image displacement vectors.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Barostat activation at 10 ps calls c.reinitialize(preserveState=True), resetting the Langevin PRNG sequence mid-trajectory",
+        "source_file": "candidate/candidate_pilot.py",
+        "source_line": 152,
+        "evidence": "At the transition from NVT to NPT (10 ps, step 10,000), line 152 calls baro.setFrequency(25); c.reinitialize(preserveState=True) without updating the integrator seed set at line 37 (it.setRandomNumberSeed(seed)). In OpenMM, reinitialize(preserveState=True) preserves positions, velocities, box vectors, and parameters, but rebuilds the platform Context and re-seeds the LangevinMiddleIntegrator random number generator from its static seed property.",
+        "implication": "The random thermal noise sequence applied during the first 10,000 steps (heat + NVT) is replayed identically starting at step 10,001 (NPT), introducing an artificial correlation between the equilibration and production stochastic bath sequences. Similarly, final_state.xml (line 159) does not preserve internal PRNG states for exact continuation.",
+        "recommended_check": "Assign a stage-specific deterministic seed (e.g., it.setRandomNumberSeed(seed + 1000)) immediately before calling c.reinitialize(preserveState=True) on line 152 of candidate/candidate_pilot.py.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Wet CPU/CUDA platform check is mischaracterized as a double-precision comparison and evaluates an unrestrained system on GPU-minimized coordinates",
+        "source_file": "candidate/CANDIDATE_COMPARISON_RESULTS.md",
+        "source_line": 50,
+        "evidence": "Line 50 of candidate/CANDIDATE_COMPARISON_RESULTS.md states that 'Energy/force comparisons remained in double precision.' However, in candidate/candidate_pilot.py lines 38-41 and 147, energy_forces(m['wet'], xm, 'CPU') passes {'Threads': '2'} to OpenMM's CPU platform, which executes PME and nonbonded forces in single/mixed precision (32-bit float SIMD), unlike the double-precision Reference platform used in the dry check (line 75). Moreover, xm is produced by CUDA minimization on the restrained system s (which ran in double precision in attempt-001 and mixed precision in attempt-002), while energy_forces evaluates the unrestrained system m['wet'].",
+        "implication": "The wet platform check (~6e-6 kJ/mol/atom and ~0.0025 kJ/mol/nm force RMS in RESULT_SUMMARY.json) measures single/mixed-precision CPU agreement against double-precision CUDA rather than double-precision agreement across platforms, and varies across replicas because xm depends on the prior CUDA minimization precision and seed.",
+        "recommended_check": "Correct the text in candidate/CANDIDATE_COMPARISON_RESULTS.md line 50 to specify that only the dry Reference/CUDA check is double-precision on both platforms while the wet check compares CPU (single/mixed precision) against CUDA (double precision), and evaluate wet platform agreement on the identical system s prior to GPU minimization.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Precision heterogeneity in GLU_CONTROL, unisolated +2e charge shift, two-chain drift, and wide runtime gates restrict physical inference",
+        "source_file": "evidence/NUMERIC_READBACK.json",
+        "source_line": 16,
+        "evidence": "In evidence/NUMERIC_READBACK.json lines 7-20, GLU_CONTROL pools one double-precision replica from attempt-001 (mean C-alpha distance 10.2110 A) with two mixed-precision replicas from attempt-002 (12.5252 A and 11.9192 A), yielding a sample SD of 1.2000 A across replica means. Simultaneously, restoring Arg/Lys in GLU_CONTROL removes the inter-chain covalent link between the two 15-residue peptides while shifting net solute charge from -1 e to +1 e (candidate/CANDIDATE_COMPARISON_RESULTS.md line 20), and runtime gates in candidate/candidate_pilot.py line 157 only reject gross blow-ups (20 < T < 650 K, 0.5 < density < 1.5 g/mL).",
+        "implication": "The C-alpha distance difference and variance between GLU_CONTROL and GLU_LINKED confound precision mode, unrestrained two-chain translational/rotational drift from a crosslinked starting pose, and a 2-unit electrostatic/counterion change. Passing the loose runtime gates confirms only absence of numerical explosion, not conformational convergence or mechanical stiffness.",
+        "recommended_check": "Re-run GLU_CONTROL replica 0 in mixed precision for uniform precision across all 12 trajectories, apply terminal C-alpha positional/distance restraints to mimic fibril embedding in both linked and unlinked two-chain controls, and tighten NPT_free acceptance bounds around target equilibrium (e.g., 290 < T < 330 K and 0.96 < density < 1.04 g/mL).",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "All four solvated atomistic setups (GLU_CONTROL, GLU_LINKED, DITY_CONTROL, DITY_LINKED) have complete force-field parameter assignments within their respective OpenMM Amber99-compatible and CHARMM36/CGenFF representations, agree between OpenMM parsers/platforms within single/mixed-precision tolerances, and integrate stably for 3 x 50 ps per model at 310 K and 1 bar without NaNs, constraint violations above 7.9e-7 nm, or heavy-atom pyramid inversions during the post-minimization trajectory.",
+    "decisive_next_experiment": "Priority 1 (Validation & Protocol Fix): Patch candidate/local_analysis.py (line 33 to parse final_system.xml; lines 42 and 57 to pass per-frame box vectors for minimum-image wrapping) and candidate/candidate_pilot.py (verify m['signs'] after wet minimization on line 149; re-seed the integrator before c.reinitialize on line 152; replace GLU_CONTROL replica 0 with a mixed-precision run so all 12 replicas share uniform precision). Priority 2 (Parameter Benchmark): Perform 1D/2D dihedral potential energy surface scans on the capped dityrosine motif to benchmark the high-penalty CGenFF torsion terms (penalties 30, 41.1, and 51.1 in candidate/PARAMETER_AUDIT.json lines 90-104) before any mechanical inference. Priority 3 (Controlled Atomistic PMF): In matched triple-helical collagen segments with terminal C-alpha end-restraints (preventing unlinked inter-chain drift) and matched ionic/protonation controls, run umbrella sampling along the inter-chain C-alpha separation reaction coordinate across >= 5 independent solvent/conformer seeds. Priority 4 (Spatial Network Regime Separation): In the coarse-grained fiber network, test whether oxidative crosslink dose alters graph connectivity at all or only modifies edge stiffness on fixed candidate edges; compare degree-preserving spatially constrained rewirings against growing vs fixed-node hub-biased attachment across system sizes L in {32, 64, 128}. Recorded observables: unwrapped/minimum-image C-alpha PMF W(r), dihedral distributions, periodic-wrapping largest component fraction S_1, finite-cluster susceptibility chi, relaxed tangent shear modulus G_T (as a function of solver tolerance and background spring stiffness k_bg), and nonaffine displacement parameter Gamma. Convergence/stop criteria: umbrella histogram overlap > 0.15 between adjacent windows and block-averaged PMF standard error < 0.5 kJ/mol; for network sweeps, bootstrap CI width on percolation/rigidity thresholds < 0.02 in occupancy/edge fraction across >= 30 independent graph seeds per L. Falsifier: If C-alpha PMF curvature or network tangent modulus G_T shows no statistically significant difference from the unlinked/smooth-response null ensemble (Delta AIC < 10 against a smooth polynomial or zerofinite-size scaling collapse across L), reject the hypothesis of a crosslink-induced stiffness ranking or sharp mechanical phase transition.",
+    "literature_to_verify": [
+      {
+        "query": "Giannetti et al. PMC13348703 AGEs-ColBuilder glucosepane AGS LGX Amber99sb-star-ildnp parameterization and net charge",
+        "reason": "Verify the primary source's exact equilibrium bond length, partial charges, and neutral protonation assumptions for the split AGS-LGX glucosepane crosslink representation referenced in candidate/CANDIDATE_COMPARISON_RESULTS.md lines 20, 24, and 73.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Graham et al. 10.1016/j.xcrp.2026.103319 Zenodo 16865891 CGenFF DITY patch torsion penalty 41.1 51.1",
+        "reason": "Verify whether the elevated CGenFF penalty annotations (30, 41.1, 51.1) in the published DITY stream file were quantum-mechanically refitted or left as raw analogy estimates in the source archive referenced in candidate/PARAMETER_AUDIT.json lines 72-113.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "OpenMM Context reinitialize preserveState LangevinMiddleIntegrator random number seed and CPU platform precision",
+        "reason": "Confirm OpenMM 8.x platform implementation semantics regarding single/mixed-precision execution on the CPU platform and PRNG re-seeding upon Context.reinitialize(preserveState=True) in candidate/candidate_pilot.py lines 38 and 152.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Broedersz et al. 2011 Nature Physics Criticality and isostaticity in fibre networks Sharma et al. 2016 strain-controlled criticality",
+        "reason": "Verify theoretical conditions separating connectivity percolation, Maxwell isostatic counting, bending/tether stabilization, and strain-controlled rigidity transitions in spatial fiber networks cited in evidence/PRIMARY_SOURCES.md lines 7-9.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "finished_at": "2026-10-31T15:26:22.159088+00:00"
+}
