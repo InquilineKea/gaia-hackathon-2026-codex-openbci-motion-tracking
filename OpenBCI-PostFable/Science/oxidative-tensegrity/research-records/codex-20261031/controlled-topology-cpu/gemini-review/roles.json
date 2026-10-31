@@ -1,0 +1,81 @@
+[
+  {
+    "id": "R1_connectivity",
+    "name": "Connectivity and finite-size referee",
+    "task": "Audit components/winding/susceptibility and evidence for boundaries across sizes.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "REVIEW_QUESTIONS.md",
+      "analysis/SUMMARY.json",
+      "analysis/graph-summary.csv",
+      "source/cpu-sweep.py"
+    ]
+  },
+  {
+    "id": "R2_clustering",
+    "name": "Clustering intervention referee",
+    "task": "Audit invariants, achieved contrast, proposal/mixing limitations and bending confounding.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "REVIEW_QUESTIONS.md",
+      "analysis/SUMMARY.json",
+      "analysis/graph-summary.csv",
+      "analysis/paired-summary.csv",
+      "source/cpu-sweep.py"
+    ]
+  },
+  {
+    "id": "R3_hubs",
+    "name": "Hub-bias and spatial graph referee",
+    "task": "Audit degree bias, fragmentation, co-changing clustering, fixed-node interpretation.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "REVIEW_QUESTIONS.md",
+      "analysis/SUMMARY.json",
+      "analysis/graph-summary.csv",
+      "analysis/paired-summary.csv",
+      "source/cpu-sweep.py"
+    ]
+  },
+  {
+    "id": "R4_mechanics",
+    "name": "Linear mechanics and null-control referee",
+    "task": "Audit energy/force linearization, CG equilibrium, normalization and selective versus homogeneous relaxation.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "REVIEW_QUESTIONS.md",
+      "analysis/SUMMARY.json",
+      "source/cpu-sweep.py",
+      "source/central.py",
+      "raw/cpu-selftest.json"
+    ]
+  },
+  {
+    "id": "R5_statistics",
+    "name": "Replication and uncertainty referee",
+    "task": "Audit matched-pair eligibility, seed reuse, complete-case selection, four-replica bootstrap and multiple comparisons.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "REVIEW_QUESTIONS.md",
+      "analysis/SUMMARY.json",
+      "analysis/paired-summary.csv",
+      "analysis/graph-summary.csv"
+    ]
+  },
+  {
+    "id": "R6_numerics",
+    "name": "Convergence and simulation-priority referee",
+    "task": "Audit benchmark, central-force and dt refinement scope, numerical versus physical conclusions; prioritize next simulation.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "REVIEW_QUESTIONS.md",
+      "analysis/SUMMARY.json",
+      "source/cpu-sweep.py",
+      "source/refinement.py",
+      "raw/benchmark-complete.json",
+      "raw/production-complete.json",
+      "raw/central-complete.json",
+      "raw/refinement-complete.json"
+    ]
+  }
+]

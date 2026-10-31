@@ -1,0 +1,194 @@
+{
+  "calls": [
+    {
+      "role": "R1_connectivity",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 51156,
+        "candidatesTokenCount": 2546,
+        "totalTokenCount": 61703,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 51156
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2546
+          }
+        ],
+        "thoughtsTokenCount": 8001
+      },
+      "findings": 5
+    },
+    {
+      "role": "R2_clustering",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 63764,
+        "candidatesTokenCount": 2582,
+        "totalTokenCount": 78831,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 63764
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2582
+          }
+        ],
+        "thoughtsTokenCount": 12485
+      },
+      "findings": 5
+    },
+    {
+      "role": "R3_hubs",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 63770,
+        "candidatesTokenCount": 2489,
+        "totalTokenCount": 78464,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 63770
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2489
+          }
+        ],
+        "thoughtsTokenCount": 12205
+      },
+      "findings": 5
+    },
+    {
+      "role": "R4_mechanics",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 42636,
+        "candidatesTokenCount": 2754,
+        "totalTokenCount": 56923,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 42636
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2754
+          }
+        ],
+        "thoughtsTokenCount": 11533
+      },
+      "findings": 5
+    },
+    {
+      "role": "R5_statistics",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 60144,
+        "candidatesTokenCount": 2802,
+        "totalTokenCount": 69485,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 60144
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2802
+          }
+        ],
+        "thoughtsTokenCount": 6539
+      },
+      "findings": 5
+    },
+    {
+      "role": "R6_numerics",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 42750,
+        "candidatesTokenCount": 3005,
+        "totalTokenCount": 56857,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 42750
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3005
+          }
+        ],
+        "thoughtsTokenCount": 11102
+      },
+      "findings": 5
+    },
+    {
+      "role": "A_topology",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 80215,
+        "candidatesTokenCount": 3572,
+        "totalTokenCount": 88908,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 80215
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3572
+          }
+        ],
+        "thoughtsTokenCount": 5121
+      },
+      "findings": 5
+    },
+    {
+      "role": "A_mechanics",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 89082,
+        "candidatesTokenCount": 4921,
+        "totalTokenCount": 102038,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 89082
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 4921
+          }
+        ],
+        "thoughtsTokenCount": 8035
+      },
+      "findings": 5
+    }
+  ],
+  "successful_calls": 8,
+  "same_model_consensus_is_not_independent_validation": true,
+  "input_tokens": 493517,
+  "visible_output_tokens": 24671,
+  "thinking_tokens": 75021,
+  "adversarial_remote_file_hashes_verified": 8
+}

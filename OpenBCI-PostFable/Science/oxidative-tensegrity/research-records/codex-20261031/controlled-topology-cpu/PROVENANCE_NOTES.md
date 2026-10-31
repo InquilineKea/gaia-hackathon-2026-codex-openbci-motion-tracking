@@ -1,0 +1,7 @@
+# Provenance qualifications
+
+The preliminary eight-case benchmark ran before additional isolation assertions, gradient self-tests, lower-density settings and completed-time fields were added. Its preliminary source file was revised in place before production; an exact separate preliminary-source snapshot is not retained. The core graph geometry and sparse mechanical solve were unchanged by those additions. Exact executed production and control source snapshots were retrieved with remote SHA-256 verification. Benchmark timing is a commissioning observation, not a production throughput guarantee.
+
+The public record preserves the failed initial control-launch log. That launcher omitted the namespace wrapper, failed on its first mount call, and executed no numerical workload. The corrected launch used the isolation wrapper and shared deadline. Shared isolation/self-test diagnostic filenames retain the last writer; their assertions precede case production in each executed source. Successful run completion is additional evidence that these gates passed in each worker, not an independent physical validation.
+
+The initial proposal was narrowed and made concrete for CPU execution. The retained protocol is planning history; ACTUAL_DESIGN.md describes the executed model, finite matrix and actual controls. Existing GCP costs are not separately attributed here. No new compute instance was created and the shared VM was not stopped.

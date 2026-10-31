@@ -1,0 +1,4 @@
+mount: /: must be superuser to use mount.
+       dmesg(1) may have more information after failed mount system call.
+mount: /: must be superuser to use mount.
+       dmesg(1) may have more information after failed mount system call.

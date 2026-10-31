@@ -1,0 +1,19 @@
+[
+  {
+    "id": "A_topology",
+    "name": "Adversarial topology referee",
+    "task": "Critique the specialist critiques against source and supplementary data. Preserve what is established; explicitly reject overclaimed defects, universal thresholds, inferred mixing/condensation, mandatory independent seeds, confusion between winding rank and biconnectivity, and claims that a valid conditional cluster-size statistic is inherently a bug. Distinguish descriptive graph/stress results from full rigidity, physical collagen or phase-transition evidence. Confirm whether claimed next-study fixes preserve sampling measure and physical-model scope. Return at most five findings with exact filenames/lines; give a ranked next study. Same-model consensus is not independent validation.",
+    "files": [
+      "ACTUAL_DESIGN.md",
+      "source/cpu-sweep.py",
+      "analysis/SUMMARY.json",
+      "analysis/graph-summary.csv",
+      "analysis/paired-summary.csv",
+      "analysis/graph-supplement.csv",
+      "analysis/SUPPLEMENTAL_AUDIT.json",
+      "SOURCE_CHECK_NOTES.md",
+      "PROVENANCE_NOTES.md",
+      "SPECIALIST_REVIEWS.json"
+    ]
+  }
+]

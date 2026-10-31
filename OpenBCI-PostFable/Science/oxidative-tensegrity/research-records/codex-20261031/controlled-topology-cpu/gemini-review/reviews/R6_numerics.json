@@ -1,0 +1,96 @@
+{
+  "role": "R6_numerics",
+  "model": "gemini-4-argon",
+  "started_at": "2026-10-31T17:55:56.564002+00:00",
+  "packet_sha256": "0d6c510d7883ad966bf9ab1709155c9c6a00b3062d10e2a2874d7cb3ed70cc44",
+  "status": "ok",
+  "usage": {
+    "promptTokenCount": 42750,
+    "candidatesTokenCount": 3005,
+    "totalTokenCount": 56857,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 42750
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3005
+      }
+    ],
+    "thoughtsTokenCount": 11102
+  },
+  "finish_reason": "STOP",
+  "review": {
+    "summary": "Audit of the CPU benchmark, central-force control, time-step refinement, and numerical-versus-physical conclusions shows strong internal numerical verification for linear solves (all 1,344 production and 336 central-force cases converged with force residuals <= 3.31e-10 and exact elastic retention of 1.0 at r=1). However, several scope and physical-inference limitations restrict the conclusions: (1) the central-force control (kappa=0) was run only at the elastic limit r=1 and omitted viscoelastic relaxation r=0.5, leaving bending-axial coupling confounded with heterogeneous strain-rate relaxation exp(10*abs(e-q)); (2) half-step dt refinement (dt=0.05) covered only 16 cases at L=12, seed 73000, and z in {3.2, 4.8}, leaving L=24 and near-threshold z untested while its maximum discrepancy (1.83e-4) is ~32% of the L=24, kappa=0.003 triangle contrast (5.71e-4); (3) benchmark mode tested only L=8, arm=0, z in {3.2, 4.0}, and kappa=0.03, bypassing all MCMC topological interventions and poorly conditioned low-z/low-kappa solves; (4) 56.5% of production cases (760/1,344) are excluded as numerically nonrigid (G0 <= 1e-6), with 0/4 eligible pairs at L=24, z=2.4; and (5) because the t=0 solve is strictly linear (s0 = 0.1*G0), matched_final_stress (s/G0) is identically 0.1*retention and provides no independent stiffness-matching control.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Central-force control omits viscoelastic relaxation (kappa=0, r=0.5), confounding bending effects with nonlinear axial relaxation heterogeneity",
+        "source_file": "ACTUAL_DESIGN.md",
+        "source_line": 9,
+        "evidence": "The central-force control repeats the 336 graph settings exclusively at kappa=0 and r=1 (elastic), while production relaxation cases use r=0.5 with a strain-dependent update rate exp(min(30, 10*abs(e-q))) in source/cpu-sweep.py line 98.",
+        "implication": "At r=1, internal slip q remains identically zero and the 50 time steps merely re-solve an unchanged static linear system. Because the axial memory rate exp(10*abs(e-q)) is nonlinear in local edge extension |e-q|, spatial strain heterogeneity in a rigid central-force network (kappa=0, r=0.5 at z=4.0, 4.8) will also deviate from the homogeneous analytic null r+(1-r)*exp(-5). Without a kappa=0, r=0.5 control, the reported retention contrasts cannot be uniquely attributed to bending-axial coupling (kappa > 0) versus axial strain heterogeneity.",
+        "recommended_check": "Run the 336-graph central-force control with kappa=0 and r=0.5 and compare retention_delta_mean at z=4.0 and z=4.8 against the kappa=0.003 and kappa=0.03 production sweeps.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Half-step dt refinement is restricted to L=12, one seed, and high z, where discretization error is 32% of the small-kappa triangle contrast",
+        "source_file": "source/refinement.py",
+        "source_line": 102,
+        "evidence": "Refinement (dt=0.05 vs dt=0.1) runs only sizes=[12], seeds=range(1) (seed 73000), and zs=[3.2, 4.8] for 16 cases total, yielding a maximum retention difference of 1.83e-4 (analysis/SUMMARY.json line 13) under the first-order frozen-extension update in source/refinement.py line 98.",
+        "implication": "Time-step sensitivity is unverified at L=24 (where the primary selected contrasts are reported), across seed replicates, and near the rigidity threshold (z=2.0 to 2.4) where localized strains can stiffen the exponential rate exp(10*abs(e-q)). Moreover, a 1.83e-4 refinement discrepancy is already ~32% of the reported L=24, z=4.8, kappa=0.003 triangle_high_minus_low retention delta (5.71e-4, analysis/SUMMARY.json line 1570).",
+        "recommended_check": "Extend dt refinement (testing dt=0.1, 0.05, and 0.025 to confirm first-order convergence) to L=24 across all 4 seeds at z=2.4, 3.2, and 4.8.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "High non-rigidity exclusion rate (56.5%) and zero eligible pairs at L=24, z=2.4 separate algebraic CG convergence from physical rigidity",
+        "source_file": "analysis/SUMMARY.json",
+        "source_line": 12,
+        "evidence": "Although all 1,344 production cases satisfy the CG residual criterion (production_converged: 1344, line 10), only 584 cases (43.5%) pass the G0 > 1e-6 eligibility cutoff (line 12), leaving 0 of 4 eligible pairs for every contrast at L=24, z=2.4 (lines 1451-1504).",
+        "implication": "Because H = B.T@B + kap*(D.T@D) is unregularized and collinear bending only couples adjacent edges along the same lattice direction (source/cpu-sweep.py lines 74-81), CG convergence on rhs in range(B.T) demonstrates algebraic solvability in the range space rather than mechanical rigidity. Complete-case exclusion removes all data at z=2.4 and conditions lower-z comparisons on a small surviving subset without quantifying sensitivity to the declared G0 > 1e-6 gate.",
+        "recommended_check": "Tabulate eligible pair counts and retention contrasts across multiple G0 thresholds (e.g., 1e-8, 1e-6, 1e-4) and sample intermediate coordination targets (z=2.6, 2.8, 3.0) to resolve the rigidity transition.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "matched_final_stress (s/G0) is algebraically redundant with retention (0.1 * s/s0) in the linearized model and triangle contrasts span zero",
+        "source_file": "source/cpu-sweep.py",
+        "source_line": 95,
+        "evidence": "At t=0, q=0 and the linear solve gives s0 = 0.1*G0 for hold strain gamma=0.1, so matched_final_stress = s/G0 in line 100 equals 0.1*(s/s0) = 0.1*retention identically (confirmed in analysis/SUMMARY.json lines 1552-1555 and 1588-1591). Meanwhile, at L=24, z=4.8, hexagon-flip acceptance is <0.2% (lines 1410, 1427), changing mean triangles by <0.4% (593.5 vs 589.0) with pointwise CIs spanning zero (lines 1571-1572, 1607-1608).",
+        "implication": "In a linearized small-strain model, dividing stress by G0 simply multiplies retention by the constant hold amplitude 0.1; it does not rescale the internal strain e entering the nonlinear memory rate exp(10*abs(e-q)). Physically, the degree-preserving triangle intervention produces no statistically resolved retention effect at z=4.8, whereas the surviving hub-bias contrast co-modifies triangle counts (+47.6%), clustering, and component connectivity (analysis/SUMMARY.json lines 1438-1442).",
+        "recommended_check": "Treat matched_final_stress as a scalar multiple (0.1x) of retention rather than an independent observable, decouple seed streams across z (source/cpu-sweep.py line 108), and increase seed count and MCMC acceptance before drawing conclusions on triangle motifs.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Benchmark mode omits all MCMC topology interventions, low-z floppy regimes, and weak bending (kappa=0.003), while self-test files collide",
+        "source_file": "source/cpu-sweep.py",
+        "source_line": 102,
+        "evidence": "In benchmark mode, cpu-sweep.py runs only L=8, arm=0 (proposals=0 at line 27), zs=[3.2, 4.0], and kap=[0.03], finishing in 1.34s (raw/benchmark-complete.json line 1), and both cpu-sweep.py and refinement.py write to the same /mnt/work/out/isolation.json (line 5) and /mnt/work/out/cpu-selftest.json (line 88) only on the first mechanics() call.",
+        "implication": "The benchmark does not test the hexagon-flip (arm=1, 2) or hub-bias (arm=3) code paths, nor does it benchmark CG iteration scaling in poorly conditioned low-z (z <= 2.4) or low-kappa (0.003) regimes that drive the 4x higher per-case runtime in production. Concurrent or sequential control runs in the same output directory overwrite the self-test and isolation logs.",
+        "recommended_check": "Expand benchmark mode to include arms 0-3, kappa=0.003, and a sub-isostatic z=2.4 case, and write mode-specific diagnostic files (e.g., isolation-{mode}.json and cpu-selftest-{mode}.json).",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "Within this small-strain linearized triangular-network model at high coordination (z=4.8, L=24, where all 4 seed blocks are rigid and wrap periodic boundaries), fixed-node hub-biased edge replacement (which jointly increases degree variance, triangle count, and clustering while reducing largest-component fraction) reproducibly lowers dimensionless stress retention relative to uniform networks by 0.0194 (95% pointwise bootstrap CI [-0.0249, -0.0161]) at kappa=0.003 and by 0.0392 (CI [-0.0457, -0.0330]) at kappa=0.03 for r=0.5, with exact numerical convergence of all linear solves.",
+    "decisive_next_experiment": "Run a combined control and refinement sweep on the existing CPU setup: (1) execute the 336-graph central-force control at kappa=0, r=0.5 (~234s) to measure how much of the hub_minus_uniform retention difference at z=4.0 and 4.8 arises purely from heterogeneous axial strain relaxation exp(10*abs(e-q)) without bending; and (2) run dt refinement (dt=0.1, 0.05, 0.025) at L=24 across all 4 seeds for z in {2.4, 3.2, 4.8} (~120s) alongside a sensitivity table of eligible pairs across G0 cutoffs {1e-8, 1e-6, 1e-4}.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz Mao Lubensky MacKintosh 2011 rigidity percolation central force bending triangular lattice",
+        "reason": "Verify theoretical rigidity thresholds and stretching-to-bending crossover scaling on bond-diluted triangular lattices with collinear bending stiffness.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "viscoelastic stress relaxation fiber network bond dilution Maxwell isostatic threshold internal slip",
+        "reason": "Verify how network coordination and degree/clustering heterogeneity govern stress retention in linearized vs finite-strain viscoelastic fiber models.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "finished_at": "2026-10-31T17:58:31.148574+00:00"
+}

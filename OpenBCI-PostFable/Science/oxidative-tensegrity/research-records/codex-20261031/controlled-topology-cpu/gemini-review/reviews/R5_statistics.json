@@ -1,0 +1,96 @@
+{
+  "role": "R5_statistics",
+  "model": "gemini-4-argon",
+  "started_at": "2026-10-31T17:54:52.908625+00:00",
+  "packet_sha256": "4c329bfdb8ab242ece9da5fd05c5d777d2971d14ae96c13e8ef90085172cd3e8",
+  "status": "ok",
+  "usage": {
+    "promptTokenCount": 60144,
+    "candidatesTokenCount": 2802,
+    "totalTokenCount": 69485,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 60144
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 2802
+      }
+    ],
+    "thoughtsTokenCount": 6539
+  },
+  "finish_reason": "STOP",
+  "review": {
+    "summary": "Audit of replication structure, matched-pair eligibility, bootstrap uncertainty, and multiplicity across the 1,344 production and 336 control CPU runs shows that mechanical solver verification (gradient, translational null, and r=1.0 elastic retention checks) is sound, but inferential uncertainty is severely understated. The 1,680 total mechanical runs derive from only 12 size-seed blocks using 8 distinct seed IDs (with 73000-73003 reused between L=12 and L=18 and seed streams correlated across z_target), yielding only 311 unique graph masks out of 336 topology variants. Complete-case selection on G0 > 1e-6 excludes 56.5% of production cases (all z_target <= 2.4) and induces differential post-treatment attrition at z_target = 3.2 because hub-biased rewiring fragments spanning clusters. Finally, nonparametric bootstrap confidence intervals on n = 2 to 4 paired replicas cannot achieve nominal 95% coverage and are unadjusted across 48 eligible contrast cells, leaving small-system triangle retention contrasts indistinguishable from noise.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Post-treatment rigidity conditioning induces differential attrition and survivorship bias",
+        "source_file": "analysis/paired-summary.csv",
+        "source_line": 70,
+        "evidence": "Complete-case filtering on G0 > 1e-6 leaves 584/1,344 eligible production cases (SUMMARY.json line 12) and 0/4 eligible pairs for all contrasts at z_target <= 2.4 and for central-force (kappa=0) at z_target=3.2 (paired-summary.csv lines 2-27, 44-69, 86-111). At z_target=3.2 with bending (kappa=0.003, 0.03), hub_minus_uniform drops to 3/4 eligible pairs at L=12 (lines 28, 30) and 2/4 at L=18 (lines 70, 72) because arm=3 reduces periodic wrapping and largest component fraction (graph-summary.csv lines 21, 49), whereas triangle_high_minus_low retains 4/4 pairs.",
+        "implication": "Conditioning matched-pair contrasts on G0 > 1e-6 selects on a post-intervention mechanical outcome that is directly degraded by hub-biased rewiring. At z_target = 3.2, excluding pairs where the hub arm loses rigidity introduces survivorship/collider bias into hub_minus_uniform estimates, while rendering the entire sub-isostatic regime (z_target <= 2.4) unestimable for G0-normalized retention.",
+        "recommended_check": "Report intention-to-treat (ITT) contrasts on unnormalized stress and G0 across all 4/4 pairs without exclusions, and tabulate sensitivity of eligible pair counts and retention deltas across G0 cutoffs (e.g., 1e-8, 1e-6, 1e-4) as requested in ACTUAL_DESIGN.md line 13.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Four-replica (and n=2, 3) bootstrap intervals cannot support 95% confidence claims",
+        "source_file": "analysis/SUMMARY.json",
+        "source_line": 19,
+        "evidence": "Pointwise bootstrap intervals are constructed from at most n=4 paired seed blocks per setting (SUMMARY.json line 19), and from n=3 or n=2 eligible pairs at z_target=3.2 for L=12 and L=18 (paired-summary.csv lines 28, 30, 70, 72). At L=18, z_target=3.2 (line 70, n=2), the reported CI endpoints (0.0429454, 0.0588768) are symmetric around the two-point sample mean (0.0509111).",
+        "implication": "A nonparametric percentile bootstrap on n <= 4 observations is strictly bounded by the sample minimum and maximum. Under a symmetric null, all n=4 paired differences share the same sign with probability 2*(0.5^4) = 0.125 (and with probability 0.50 for n=2), meaning the minimum achievable two-sided nonparametric p-value exceeds 0.05 and bootstrap CIs excluding zero drastically overstate statistical significance.",
+        "recommended_check": "Replace n <= 4 bootstrap intervals with exact raw paired values (all 4 seed deltas per cell) or increase independent seed replication to at least n >= 20 per cell so exact paired permutation or Wilcoxon signed-rank tests can resolve alpha = 0.05.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Seed reuse across lattice sizes, correlated z-streams, and duplicate topology masks reduce effective replication",
+        "source_file": "ACTUAL_DESIGN.md",
+        "source_line": 9,
+        "evidence": "L=12 and L=18 reuse the same four seed identifiers (73000-73003) while L=24 uses 74000-74003, and settings along z_target share initial seed streams and are correlated (ACTUAL_DESIGN.md line 9). Across 336 graph_treatment_variants and 84 base_graph_settings, there are only 12 size_seed_blocks, 8 distinct_seed_identifiers, and 311 unique_masks (SUMMARY.json lines 5-9).",
+        "implication": "The 1,344 production runs and 336 central-force controls are repeated mechanical evaluations on only 12 correlated size-seed blocks (8 unique RNG seeds), and 25 of the 336 graph variants do not produce unique adjacency masks. Treating trajectories across z_target, across kappa, or between L=12 and L=18 as independent replicates invalidates pooled variance or trend estimates.",
+        "recommended_check": "Assign cryptographically independent RNG seed streams to every (L, z_target, replica) block, log the exact 25 duplicate/unchanged masks among the 336 graph variants, and account for within-seed correlation when summarizing across z_target or kappa.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Unadjusted multiple comparisons across 48 eligible contrast cells inflate false positives for triangle interventions",
+        "source_file": "analysis/paired-summary.csv",
+        "source_line": 125,
+        "evidence": "Pointwise CIs are unadjusted across 48 eligible contrast rows and three outcome metrics (SUMMARY.json line 19). For triangle_high_minus_low retention (r=0.5), CIs exclude zero in only 4 of 18 eligible cells (L=12 lines 35, 41, 43; L=18 line 83), reverse sign across kappa at L=12, z=4.0 (line 35 vs 37) and across size at z=4.0, kappa=0.003 (line 35 vs 119), and span zero across all L=24 cells (lines 113, 115, 119, 121, 125, 127).",
+        "implication": "Given a >=12.5% per-cell false-positive floor from n=4 resampling and 18 tested relaxation cells per contrast family, the 4 isolated small-lattice triangle retention hits that vanish at L=24 are consistent with unadjusted multiple-testing noise and weak finite-MCMC triangle separation (e.g., 593.5 vs 589.0 triangles at L=24, z=4.8 in graph-summary.csv lines 83-84).",
+        "recommended_check": "Apply Holm-Bonferroni or Benjamini-Hochberg adjustments across all tested (L, z_target, kappa, contrast) cells and refrain from claiming a nonzero triangle/clustering effect on stress retention.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Time-step refinement validation is restricted to a single seed and smallest lattice size",
+        "source_file": "ACTUAL_DESIGN.md",
+        "source_line": 9,
+        "evidence": "Half-time-step (dt) refinement covers only 16 r=0.5 cases restricted to L=12, a single seed (seed73000), and two coordination targets (z_target=3.2 and 4.8) (ACTUAL_DESIGN.md line 9; SUMMARY.json lines 4, 13-14).",
+        "implication": "Because the internal memory law relaxes at an assumed exponential rate exp(10*abs(e-q)) that stiffens rapidly with local strain heterogeneity, verifying dt convergence on a single seed at L=12 does not bound integration error at larger system sizes (L=18, 24), at z_target=4.0, or across seeds with near-singular hub-fragmented modes.",
+        "recommended_check": "Extend half-step dt refinement to all four seeds at L=24 across z_target in {3.2, 4.0, 4.8} and verify that refinement differences remain negligible relative to treatment contrasts.",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "Within this small-strain linearized quasistatic periodic triangular network model (with exact G0 energy rescaling and verified zero elastic-null retention error), the fixed-node hub-biased rewiring intervention (arm=3) consistently reduces normalized stress retention relative to uniform networks (arm=0) across all four seed blocks in the fully eligible high-coordination regime (z_target = 4.0 and 4.8 across L = 12, 18, 24, and z_target = 3.2 at L = 24, for both kappa = 0.003 and 0.03); however, because arm=3 co-modifies degree variance, triangle clustering, and component connectivity/wrapping, this effect reflects a composite topological perturbation rather than an isolated effect of degree heterogeneity.",
+    "decisive_next_experiment": "Run an independent-seed replication campaign (n >= 20 unique, non-reused RNG seeds per L and z_target cell) for z_target in {3.2, 4.0, 4.8} that (1) adds a connectivity-preserving hub-biased MCMC arm (rejecting moves that reduce giant-component wrapping or alter triangle counts) to decouple degree variance from fragmentation and clustering, (2) evaluates both intention-to-treat unnormalized stress and G0-cutoff sensitivity (1e-8, 1e-6, 1e-4) to eliminate post-treatment selection bias at z_target = 3.2, and (3) applies exact paired permutation tests with Holm-Bonferroni multiplicity correction.",
+    "literature_to_verify": [
+      {
+        "query": "nonparametric bootstrap confidence interval coverage small sample size n=4 paired permutation sign test",
+        "reason": "Quantify theoretical coverage ceilings and false-positive rates of percentile bootstrap confidence intervals when sample size is n = 2 to 4.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "rigidity percolation diluted triangular lattice bending stabilized central force shear modulus threshold",
+        "reason": "Compare the observed G0 > 1e-6 eligibility transition between z_target = 2.4 and 3.2 against established central-force (z_c ~ 4.0) and bending-stabilized (z_b ~ 2.4) rigidity percolation thresholds on 2D periodic triangular networks.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "finished_at": "2026-10-31T17:56:37.141198+00:00"
+}

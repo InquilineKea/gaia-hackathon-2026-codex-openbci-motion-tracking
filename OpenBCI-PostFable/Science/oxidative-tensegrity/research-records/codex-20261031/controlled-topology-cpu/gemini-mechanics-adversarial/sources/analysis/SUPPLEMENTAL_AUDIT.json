@@ -1,0 +1,137 @@
+{
+  "threshold_sensitivity": [
+    {
+      "G0_threshold": 1e-08,
+      "eligible_production": 584,
+      "largest_size_high_density_contrasts": [
+        {
+          "kappa": 0.003,
+          "arms": [
+            1,
+            2
+          ],
+          "pairs": 4,
+          "mean_retention_delta": 0.0005706421524061811
+        },
+        {
+          "kappa": 0.003,
+          "arms": [
+            3,
+            0
+          ],
+          "pairs": 4,
+          "mean_retention_delta": -0.01939098673472542
+        },
+        {
+          "kappa": 0.03,
+          "arms": [
+            1,
+            2
+          ],
+          "pairs": 4,
+          "mean_retention_delta": 0.00166624653733366
+        },
+        {
+          "kappa": 0.03,
+          "arms": [
+            3,
+            0
+          ],
+          "pairs": 4,
+          "mean_retention_delta": -0.039155212609988194
+        }
+      ]
+    },
+    {
+      "G0_threshold": 1e-06,
+      "eligible_production": 584,
+      "largest_size_high_density_contrasts": [
+        {
+          "kappa": 0.003,
+          "arms": [
+            1,
+            2
+          ],
+          "pairs": 4,
+          "mean_retention_delta": 0.0005706421524061811
+        },
+        {
+          "kappa": 0.003,
+          "arms": [
+            3,
+            0
+          ],
+          "pairs": 4,
+          "mean_retention_delta": -0.01939098673472542
+        },
+        {
+          "kappa": 0.03,
+          "arms": [
+            1,
+            2
+          ],
+          "pairs": 4,
+          "mean_retention_delta": 0.00166624653733366
+        },
+        {
+          "kappa": 0.03,
+          "arms": [
+            3,
+            0
+          ],
+          "pairs": 4,
+          "mean_retention_delta": -0.039155212609988194
+        }
+      ]
+    },
+    {
+      "G0_threshold": 0.0001,
+      "eligible_production": 582,
+      "largest_size_high_density_contrasts": [
+        {
+          "kappa": 0.003,
+          "arms": [
+            1,
+            2
+          ],
+          "pairs": 4,
+          "mean_retention_delta": 0.0005706421524061811
+        },
+        {
+          "kappa": 0.003,
+          "arms": [
+            3,
+            0
+          ],
+          "pairs": 4,
+          "mean_retention_delta": -0.01939098673472542
+        },
+        {
+          "kappa": 0.03,
+          "arms": [
+            1,
+            2
+          ],
+          "pairs": 4,
+          "mean_retention_delta": 0.00166624653733366
+        },
+        {
+          "kappa": 0.03,
+          "arms": [
+            3,
+            0
+          ],
+          "pairs": 4,
+          "mean_retention_delta": -0.039155212609988194
+        }
+      ]
+    }
+  ],
+  "matched_metric_redundancy_max_error": 2.8156434350723458e-08,
+  "notes": [
+    "Threshold sensitivity is an operational normalization check, not a physical rigidity proof.",
+    "Mean finite-cluster size includes isolates and excludes the largest component, a valid explicitly stated convention; it is not an implementation error.",
+    "Winding flags describe any nonzero coefficient in each oblique lattice direction across all components; they do not establish two independent winding cycles or graph biconnectivity.",
+    "Mask and displacement fields were not saved. Seeds, code and mask hashes permit deterministic reconstruction, but existing aggregates cannot identify unrecorded statistics such as isolated-node fraction."
+  ]
+}
