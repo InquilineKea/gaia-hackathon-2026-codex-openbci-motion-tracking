@@ -1,0 +1,88 @@
+{
+  "profile": "local",
+  "params": {
+    "W": 12,
+    "seeds": 2,
+    "batch": 6,
+    "workers": 6,
+    "threads": 2,
+    "z": [
+      3.0,
+      3.6,
+      4.4
+    ],
+    "doses": [
+      0.5,
+      1.0
+    ],
+    "gammas": [
+      0.005,
+      0.03,
+      0.1,
+      0.2,
+      0.35
+    ],
+    "fail": [
+      0.04,
+      0.11,
+      0.18,
+      0.25,
+      0.32,
+      0.39,
+      0.46,
+      0.53,
+      0.6
+    ],
+    "ages": [
+      20,
+      50,
+      80
+    ],
+    "clutch_T": 40.0
+  },
+  "device": "cpu",
+  "S_pa_per_unit": 16567.032587204023,
+  "crosslinks": {
+    "HLNL": {
+      "k_rel": 0.6,
+      "oxidative": false,
+      "note": "LOX-derived divalent, immature; healthy"
+    },
+    "pyridinoline": {
+      "k_rel": 1.0,
+      "oxidative": false,
+      "note": "LOX-derived trivalent, mature; healthy"
+    },
+    "pentosidine": {
+      "k_rel": 1.6,
+      "oxidative": true,
+      "note": "AGE, glycoxidation Lys-Arg"
+    },
+    "glucosepane": {
+      "k_rel": 1.8,
+      "oxidative": true,
+      "note": "AGE, most abundant Lys-Arg crosslink in aged ECM"
+    },
+    "dityrosine": {
+      "k_rel": 2.2,
+      "oxidative": true,
+      "note": "radical Tyr-Tyr biphenyl, short and stiff"
+    },
+    "disulfide": {
+      "k_rel": 1.2,
+      "oxidative": true,
+      "note": "Cys-Cys; physiologic in Col VII NC2, scrambled under oxidation"
+    },
+    "isopeptide_TG2": {
+      "k_rel": 1.1,
+      "oxidative": false,
+      "note": "transglutaminase-2 Gln-Lys; Col VII anchoring"
+    },
+    "sulfilimine": {
+      "k_rel": 1.4,
+      "oxidative": true,
+      "note": "peroxidasin/HOBr Met-S=N-Hyl; physiologic in Col IV NC1"
+    }
+  },
+  "seconds": 3306.04141497612
+}

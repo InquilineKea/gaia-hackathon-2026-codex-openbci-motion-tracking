@@ -1,0 +1,66 @@
+# Shared agent context — oxidative-tensegrity
+
+Read by Codex/ChatGPT agents (`AGENTS.md`) and Claude Code (`CLAUDE.md` imports this file). Keep one copy of
+project facts here so both workspaces can reference each other. This file is context, not authorization: the
+user's global security policy and the repo-root `AGENTS.md` still apply.
+
+## What this project is
+
+Multiscale model of how oxidative collagen crosslinks (AGEs, dityrosine, disulfide scrambling, sulfilimine)
+change tissue mechanics and mechanotransduction, built for the MIT ScienceClaw hackathon (2026-10-30 → 11-01).
+
+Scales and code: fibre network `oxt/network.py` → collagen types / crosslink chemistries / tissues
+`oxt/materials.py` → motor-clutch + 6-strut tensegrity cell + YAP + recovery rate + entropy `oxt/cell.py` →
+signalling-molecule transport, heart (time-varying elastance), artery PWV, matrix repair `oxt/physio.py`.
+Driver `run_sweep.py` (profiles `smoke`, `local`, `gpu`), figures `make_figures.py`, tests `tests/`.
+
+## Status (update when it changes)
+
+| Piece | Status |
+|---|---|
+| Local CPU sweep (`results/local/`) | done 2026-10-30; results in README and results/local/SUMMARY.md |
+| GCP cpu32 sweep (`remote/gcp_up.sh`, VM `oxt-cpu32`, project scienceclaw26bos-3008, gcloud config `scienceclaw`) | started 2026-10-31 06:13 UTC, 16x16 x 4 seeds; results land in `results/cpu32/` |
+| GPU sweep on Nebius H100 / Brev (`remote/nebius_job.sh`, `remote/gpu_run.sh`) | prepared, not submitted (needs the user's CLI login) |
+| ALCHEMI 101 multistage example | run 2026-10-30 in an isolated Docker container (CPU), exit 0 |
+| ALCHEMI atomistic crosslink scan (`alchemi_crosslinks.py`) | CPU pilot (MACE-OFF small, partially relaxed) run in Docker; full scan needs the Brev GPU |
+| LAMMPS viscoelastic stage (`remote/lammps/*.in`) | decks generated, not run (LAMMPS not installed) |
+| Token Factory critic swarm (`agents/critic_swarm.py`) | prepared, not run (needs `NEBIUS_API_KEY` set by the user) |
+| ScienceClaw literature swarm (`swarm/`, Gemini, dry-run, Docker `sclaw`) | started 2026-10-31 by Claude Code at commit 894598c (user-approved); logs in `swarm/work/` |
+
+## Brev job queue (Codex: pick these up on Brev)
+
+Claude Code has no Brev access from this Mac. A Codex session that does: claim a job by writing your name
+and the Brev instance in **Claimed by**, run it on a fresh Brev GPU instance (not the user's Mac), copy the
+outputs back into this folder at the listed path, then set **Status** and add one line under Findings.
+Do not run on the instance anything not listed here without the user's say-so.
+
+| ID | Job | Command (on the Brev box, from this folder) | Outputs to bring back | Claimed by | Status |
+|---|---|---|---|---|---|
+| B1 | Converged ALCHEMI crosslink scan, two independent MLIPs | `ALCHEMI_COMMIT=84fe8e8fb8fab54863eea8f138722c7ab434966a RUN_ALCHEMI=1 bash remote/gpu_run.sh` (does B1 then B2) | `results/crosslink_params.json`, `results/crosslink_params_mp.json` | — | open |
+| B2 | Large network/tissue/cell sweep (48x48, 8 seeds) | same command as B1 (runs after it), or `python run_sweep.py --profile gpu --device cuda` | `results/gpu/` | — | open |
+| B3 | LAMMPS oscillatory shear, G' and G'' (healthy vs oxidised Col I / VII) | `python remote/make_lammps_inputs.py 32 && cd remote/lammps && for f in *.in; do lmp -in $f; done` (LAMMPS from conda-forge, pinned) | `remote/lammps/*_stress.txt` | — | open |
+
+Notes for B1: `alchemi_crosslinks.py` works around two ALCHEMI 0.3.0-rc issues (local MACE checkpoints, float64
+positions); see `SECURITY-REVIEW.md`. A CPU pilot is in `results/alchemi_pilot/` for comparison; it was not
+converged. If the two MLIPs disagree by >30% on a chemistry's `k_rel`, report it rather than averaging.
+
+Findings from Brev jobs:
+- (none yet)
+
+## Cross-workspace links
+
+- Claude Code workspace: this folder, plus `../quotient-swarm/` (multi-agent swarm prototype for the same
+  hackathon) and `../collagen-scaffold-lab/` (affine strut-lattice scaffold app, different model).
+- ChatGPT / Codex workflow: runs on Brev (per the user, 2026-10-31); its location is not visible from this Mac.
+  Codex: record your workspace path or repo here, and use the Brev job queue above.
+- Cross-agent memory bridge: a pending proposal from `claude-code` describes this project; it becomes shared
+  context only after the user approves it.
+
+## Rules for any agent working here
+
+- ALCHEMI at commit 84fe8e8f is user-approved (2026-10-30) for isolated containers / disposable VMs only. Other
+  third-party code (LAMMPS, Nebius/Brev CLIs) still needs approval; never run it on the host Mac.
+- Never put API keys, tokens or credentials in this folder; the user sets `NEBIUS_API_KEY` in their shell.
+- Parameters in `oxt/materials.py` are model assumptions, not measurements. Keep README claims to what the
+  model shows; record negative or surprising results instead of tuning them away.
+- When you change status or findings, update this file so the other workspace sees it.
