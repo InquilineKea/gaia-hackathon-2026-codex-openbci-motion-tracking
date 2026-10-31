@@ -1,0 +1,49 @@
+{
+  "status": "six_reviews_available_after_format_repairs",
+  "roles": 6,
+  "api_requests": 6,
+  "automatic_retries": 0,
+  "reviewer_observations": 23,
+  "usage": {
+    "promptTokenCount": 199823,
+    "candidatesTokenCount": 7307,
+    "thoughtsTokenCount": 6662,
+    "totalTokenCount": 213792
+  },
+  "repairs": {
+    "R2_gag": [
+      "Escaped invalid JSON backslashes in mathematical text; no wording changed"
+    ],
+    "R7_statistics": [
+      {
+        "filename_from": "results/alchemi_brev/crosslink_mace_off.json",
+        "filename_to": "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_off.json"
+      }
+    ]
+  },
+  "source_data": "frozen inputs; see manifest.json",
+  "raw_manifest_status_preserved": "partial_or_failed",
+  "wordpress": {
+    "id": 140,
+    "status": "publish",
+    "link": "https://humanavianaisymbiosis.wordpress.com/2026/10/31/collagen-followup-h5-h8-completed-brev-crosslinks/",
+    "categories": [
+      35835568,
+      792847524,
+      792847528
+    ],
+    "content_exact_match": true,
+    "edit_url": "https://humanavianaisymbiosis.wordpress.com/wp-admin/post.php?post=140&action=edit",
+    "public_http_status": 200
+  },
+  "h5_checks": {
+    "rows": 62,
+    "min_dY_dM": -0.004605463169945849,
+    "max_dY_dM": 0.15580665420770043,
+    "max_loop_gain": 0.23370998131155063,
+    "min_recovery_per_h": 0.1251156624037955,
+    "max_recovery_per_h": 0.16792356378048173,
+    "bistable_rows": 0
+  },
+  "source_files": 37
+}

@@ -1,0 +1,96 @@
+{
+  "role": "R2_gag",
+  "status": "format_validated",
+  "normalizations": [
+    {
+      "from": "oxt/gag.py",
+      "to": "oxidative-tensegrity/oxt/gag.py"
+    },
+    {
+      "from": "oxt/gag.py",
+      "to": "oxidative-tensegrity/oxt/gag.py"
+    },
+    {
+      "from": "oxt/gag.py",
+      "to": "oxidative-tensegrity/oxt/gag.py"
+    },
+    {
+      "from": "run_gag.py",
+      "to": "oxidative-tensegrity/run_gag.py"
+    },
+    {
+      "from": "README.md",
+      "to": "oxidative-tensegrity/README.md"
+    }
+  ],
+  "scientific_validation": "pending",
+  "review": {
+    "summary": "An audit of the GAG dissipation and cyclic sliding implementation in oxt/gag.py and run_gag.py reveals that the sharp drop in energy dissipation under oxidative crosslinking is heavily driven by an imposed pinning rule (which sets slip threshold to infinity if either adjacent node is locked) rather than emergent strain-shielding alone. Furthermore, slip event counters track cumulative iteration steps during L-BFGS cascade relaxations rather than unique link sliding events, and loss of hysteresis is improperly conflated with loss of resilience without matched-modulus or pinning-off ablations.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Imposed Node-Pinning Rule Confounders Dissipation Loss with Arbitrary Link Lock-Out",
+        "source_file": "oxidative-tensegrity/oxt/gag.py",
+        "source_line": 37,
+        "evidence": "In attach_gag, pinned = locked[lat.bi] | locked[lat.bj] sets slip_eps = inf for any GAG slot adjacent to a node with rigid_node > 0, completely disabling sliding on ~44% of links at dose 0.5.",
+        "implication": "The claim that stiff networks 'starve free links of strain' beyond direct pinning is ungrounded, as dissipation loss is heavily dictated by the hardcoded immobilization rule rather than emergent mechanics alone.",
+        "recommended_check": "Implement a pinning-off ablation where eps_slip remains constant across all GAG links regardless of rigid_node to isolate mechanical strain-shielding from rule-imposed link lock-out.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "medium",
+        "title": "Cumulative Cascade Iteration Counting Distorts Reported GAG Slip Counts",
+        "source_file": "oxidative-tensegrity/oxt/gag.py",
+        "source_line": 92,
+        "evidence": "In GAGBatch.cyclic, ns = self.slip(F) is evaluated inside the cascade loop (max_cascade=4) and added to slipped += ns at every step, yielding high counts (e.g., 3372.5) across cycles.",
+        "implication": "The reported '3x fall in slip events' reflects algorithm iteration steps during cascade re-equilibration rather than the physical count or total distance of unique GAG sliding events.",
+        "recommended_check": "Track cumulative slip displacement sum(|delta L0g|) and unique slipped link IDs per load cycle instead of sum of cascade iteration flags.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Coarse Discrete Quadrature for Cyclic Energy Dissipation Integration",
+        "source_file": "oxidative-tensegrity/oxt/gag.py",
+        "source_line": 112,
+        "evidence": "loop_metrics integrates stress-strain hysteresis using np.trapz over n_half=6 discrete strain steps per half-cycle.",
+        "implication": "Trapezoidal integration over 6 coarse strain points introduces numerical quadrature errors on highly non-linear loading paths, potentially misestimating loop hysteresis areas and loss ratios.",
+        "recommended_check": "Evaluate path integration convergence using n_half=48 or adaptive quadrature to ensure loss ratio stability.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Absence of Matched-Modulus and Matched-Topology Ablation Controls",
+        "source_file": "oxidative-tensegrity/run_gag.py",
+        "source_line": 73,
+        "evidence": "The sweep compares dose 0.0, 0.5, and 1.0 networks where crosslinking simultaneously alters branching factor z, junction rigidity, and fibre segment stiffness without isolated controls.",
+        "implication": "It is impossible to attribute dissipation loss specifically to GAG sliding mechanics versus general network stiffening or changes in connectivity.",
+        "recommended_check": "Perform matched-modulus (scaling fibre mu without crosslinks) and matched-topology ablations to measure GAG dissipation at identical network stiffness.",
+        "claim_status": "hypothesis"
+      },
+      {
+        "severity": "low",
+        "title": "Equating High Mechanical Hysteresis directly with Biological Resilience",
+        "source_file": "oxidative-tensegrity/README.md",
+        "source_line": 143,
+        "evidence": "The README describes the reduction in dissipated energy fraction per cycle (0.54 to 0.02) as a loss of 'resilience'.",
+        "implication": "Energy dissipation via Coulomb sliding represents viscous friction and heat generation; reducing hysteresis increases elastic energy storage efficiency, which in many tissues (e.g., energy-storing tendons) represents enhanced elastic resilience.",
+        "recommended_check": "Define resilience rigorously in terms of elastic recoil, peak failure strain, and recovery rate rather than treating maximal hysteretic dissipation as universally beneficial.",
+        "claim_status": "hypothesis"
+      }
+    ],
+    "strongest_surviving_claim": "Sliding GAG models reproduce tendon-like behavior where GAG removal alters energy dissipation far more than initial linear modulus, unlike rigid bridge GAG models which severely alter network modulus upon removal.",
+    "decisive_next_experiment": "Run a 2x2 factorial ablation in run_gag.py (Pinning On/Off x Matched Modulus via mu scaling) to quantify what fraction of dissipation loss is caused by explicit node locking versus structural strain starvation.",
+    "literature_to_verify": [
+      {
+        "query": "tendon glycosaminoglycan enzymatic removal viscoelasticity stress relaxation modulus",
+        "reason": "Verify experimental consensus on whether GAG depletion selectively alters stress relaxation while preserving initial elastic modulus.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "collagen glycation methylglyoxal MG-H1 proteoglycan decorin binding affinity",
+        "reason": "Verify whether arginine glycation by MG-H1 disrupts decorin core protein or GAG chain binding to collagen fibrils.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

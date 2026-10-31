@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "case": "DPD",
+    "replica": 1,
+    "seed": 20261132,
+    "steps": 20000,
+    "time_ps": 20,
+    "n_atoms": 29872,
+    "final_temperature_K": 311.3379733729749,
+    "final_density_g_ml": 0.9993218320366106,
+    "min_saved_temperature_K": 152.90692784613708,
+    "max_saved_temperature_K": 313.58942382503335,
+    "min_saved_density_g_ml": 0.9388132019007692,
+    "max_saved_density_g_ml": 0.9993218320366106,
+    "max_constraint_error_nm": 7.761365786174146e-07,
+    "monitored_centers": 108,
+    "saved_frame_inversions": 0,
+    "final_center_inversions": 0,
+    "final_max_solute_bond_deviation_A": 0.10887977492886836,
+    "final_heavy_solute_displacement_A": 0.8842899258634308,
+    "final_nonlocal_heavy_contacts_below_1p6A": 0,
+    "cpu_cuda_energy_difference_kJ_mol_atom": 6.997815868493028e-06,
+    "cpu_cuda_force_RMS_difference_kJ_mol_nm": 0.004034721313852123,
+    "wall_seconds": 27.24371979900002,
+    "final_state_attributes": {
+      "openmmVersion": "8.6.1",
+      "stepCount": "20000",
+      "time": "20.00000000000146",
+      "type": "State",
+      "version": "1"
+    },
+    "all_runtime_checks_pass": true
+  },
+  "nonlocal_contacts": []
+}

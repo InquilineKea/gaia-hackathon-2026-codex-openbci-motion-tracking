@@ -1,0 +1,21 @@
+{
+  "model": "GLU_LINKED",
+  "atoms": 481,
+  "charge_e": -1.000000999999999,
+  "finite": true,
+  "stereocenters": 31,
+  "stereocenter_inversions": 0,
+  "max_chemical_bond_deviation_A": 0.037005527585647624,
+  "reference_cuda": {
+    "energy_difference_per_atom": 5.454244978344172e-07,
+    "force_rms": 0.0009038191323504862,
+    "pass": true
+  },
+  "source_gromacs_reader": {
+    "energy_difference_per_atom": 1.5599441350575173e-14,
+    "force_rms": 2.0927492123091866e-13,
+    "pass": true
+  },
+  "preparation_seconds": 2.704879228999971,
+  "pass": true
+}

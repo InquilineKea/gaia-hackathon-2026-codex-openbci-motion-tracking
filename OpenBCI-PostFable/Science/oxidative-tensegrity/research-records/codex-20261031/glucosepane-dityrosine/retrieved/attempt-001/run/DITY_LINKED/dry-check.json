@@ -1,0 +1,17 @@
+{
+  "model": "DITY_LINKED",
+  "atoms": 296,
+  "charge_e": -1.0,
+  "finite": true,
+  "stereocenters": 20,
+  "stereocenter_inversions": 0,
+  "max_chemical_bond_deviation_A": 0.04031788676637893,
+  "reference_cuda": {
+    "energy_difference_per_atom": 6.859872084188847e-07,
+    "force_rms": 0.0009436110165247095,
+    "pass": true
+  },
+  "source_gromacs_reader": null,
+  "preparation_seconds": 3.717994869999984,
+  "pass": true
+}

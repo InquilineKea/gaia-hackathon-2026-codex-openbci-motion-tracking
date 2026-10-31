@@ -1,0 +1,65 @@
+{
+  "role": "R1_network",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_status": "reviewed synthesis will qualify unsupported assertions",
+  "review": {
+    "summary": "Audit of the H5 dynamics module reveals critical numerical and theoretical vulnerabilities: fixed-point calculations use a hardcoded 6-iteration loop without residual convergence tolerance, slope estimation relies on an unverified large finite difference (dM=0.15) over noise-dominated mechanics, and the system's calculated recovery rate (~0.166 /h) is an artifact dictated almost entirely by the hardcoded myosin turnover timescale tau_M = 6.0 h rather than critical slowing down near a bifurcation.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Unchecked fixed-point iteration residuals in CellModel steady-state solver",
+        "source_file": "oxidative-tensegrity/oxt/cell.py",
+        "source_line": 341,
+        "evidence": "steady_state() executes exactly 6 damped iterations without checking absolute or relative residual convergence |M - (1 + beta * Y)|.",
+        "implication": "If the fixed-point iteration has not converged within 6 steps, downstream sensitivity estimates (dY/dM) and recovery rates are calculated around off-equilibrium states.",
+        "recommended_check": "Replace fixed loop with a standard root-finder or residual-based while-loop (tol < 1e-6) and log final residual |1 + beta*Y - M|.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Timescale non-identifiability: recovery rate is dominated by hardcoded tau_M parameter",
+        "source_file": "oxidative-tensegrity/oxt/cell.py",
+        "source_line": 358,
+        "evidence": "Jacobian matrix J has trace -(1/tau_Y + 1/tau_M); for small dY/dM, the slowest eigenvalue is fixed near -1/tau_M = -1/6.0 h = -0.1667 /h.",
+        "implication": "The calculated recovery rate of ~0.166 /h reported across cell.csv is an structural artifact of the assumed 6-hour myosin relaxation constant tau_M, not an emergent system-level dynamics result.",
+        "recommended_check": "Perform analytical eigenvalue sensitivity analysis relative to tau_M and tau_Y across varying matrix moduli.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Uncertain slope estimation via coarse finite difference dM = 0.15",
+        "source_file": "oxidative-tensegrity/oxt/cell.py",
+        "source_line": 353,
+        "evidence": "dY/dM is calculated using central finite differences with a wide step size dM = 0.15, producing sign fluctuations around zero in cell.csv.",
+        "implication": "Numerical noise in motor-clutch and tensegrity evaluations combined with coarse step sizes distorts local Jacobian derivative estimates.",
+        "recommended_check": "Evaluate convergence of dY/dM across a range of step sizes (dM = 1e-4 to 0.15) with stochastic averaging over multiple random seeds.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Absence of bistability or bifurcation in simulated parameter domain",
+        "source_file": "oxidative-tensegrity/results/cpu32/cell.csv",
+        "source_line": 2,
+        "evidence": "Across all 62 rows in cell.csv, the 'bistable' flag is everywhere False, and Y_from_high matches Y closely.",
+        "implication": "Claims of critical slowing down or impending bifurcation in the matrix-YAP feedback loop are unsupported by the current dataset.",
+        "recommended_check": "Run a systematic 2D parameter sweep over gain (beta) and matrix stiffness to bound the true bifurcation boundary.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "The cell tensegrity and motor-clutch dynamic model provides a deterministic mechanical mapping between matrix secant stiffness and nuclear YAP localization under steady motor forces.",
+    "decisive_next_experiment": "Design a minimal numerical perturbation test: initialize CellModel at steady state M*, apply an explicit impulse perturbation delta_M = 0.05, integrate the continuous ODE dM/dt = (1 + beta*Y - M)/tau_M and dY/dt = (Y_mech(M) - Y)/tau_Y using SciPy solve_ivp, measure the empirical exponential decay rate k_eff, and compare k_eff directly against the analytical Jacobian eigenvalue across varying values of beta (0.5 to 5.0).",
+    "literature_to_verify": [
+      {
+        "query": "Teuscher 2024 YAP-1 mechanotransduction C. elegans basement membrane",
+        "reason": "Verify empirical biological parameters for hemidesmosome-mediated mechanical feedback timescales.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Pyrkov Fedichev 2021 critical slowing down resilience recovery rate aging",
+        "reason": "Check theoretical bounds and definition of organismic resilience recovery kinetics.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

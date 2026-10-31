@@ -1,0 +1,422 @@
+[
+  {
+    "stage": "heat",
+    "step": 1000,
+    "time_ps": 1.0000000000000007,
+    "target_K": 205.0,
+    "temperature_K": 151.8907932721742,
+    "potential_kJ_mol": -463889.6842211527,
+    "kinetic_kJ_mol": 38797.885048924334,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.5822733560639826e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 2642.694850101834,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 1000,
+    "elapsed_seconds": 10.898113286000125
+  },
+  {
+    "stage": "heat",
+    "step": 2000,
+    "time_ps": 1.9999999999998905,
+    "target_K": 310.0,
+    "temperature_K": 244.92099647669858,
+    "potential_kJ_mol": -435075.2543482934,
+    "kinetic_kJ_mol": 62560.84692601154,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.5944866822477124e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4177.195644665742,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 1000,
+    "elapsed_seconds": 11.86819682800001
+  },
+  {
+    "stage": "NVT",
+    "step": 3000,
+    "time_ps": 2.9999999999997806,
+    "target_K": 310,
+    "temperature_K": 275.0050769289606,
+    "potential_kJ_mol": -418721.0824057185,
+    "kinetic_kJ_mol": 70245.30672798217,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.5482347521840225e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 3653.7478370359167,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 12.852782413000114
+  },
+  {
+    "stage": "NVT",
+    "step": 4000,
+    "time_ps": 3.9999999999996705,
+    "target_K": 310,
+    "temperature_K": 289.5891645942137,
+    "potential_kJ_mol": -409845.44469756214,
+    "kinetic_kJ_mol": 73970.56054087132,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.550924848940486e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4117.985671046423,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 13.835276904000011
+  },
+  {
+    "stage": "NVT",
+    "step": 5000,
+    "time_ps": 5.000000000000004,
+    "target_K": 310,
+    "temperature_K": 298.71816704026634,
+    "potential_kJ_mol": -406297.6852284027,
+    "kinetic_kJ_mol": 76302.4068620544,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.568188519988748e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4321.848689115606,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 14.813972098000022
+  },
+  {
+    "stage": "NVT",
+    "step": 6000,
+    "time_ps": 6.000000000000338,
+    "target_K": 310,
+    "temperature_K": 303.2623425367574,
+    "potential_kJ_mol": -402295.6567791286,
+    "kinetic_kJ_mol": 77463.13816615047,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.5691966177606744e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 3863.004486094229,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 15.7951015000001
+  },
+  {
+    "stage": "NVT",
+    "step": 7000,
+    "time_ps": 7.000000000000672,
+    "target_K": 310,
+    "temperature_K": 307.8026440488102,
+    "potential_kJ_mol": -400785.2363228742,
+    "kinetic_kJ_mol": 78622.87992769641,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.524456223038321e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4323.523635207675,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 16.780719123000154
+  },
+  {
+    "stage": "NVT",
+    "step": 8000,
+    "time_ps": 8.000000000001005,
+    "target_K": 310,
+    "temperature_K": 311.0187543750718,
+    "potential_kJ_mol": -399600.17984088836,
+    "kinetic_kJ_mol": 79444.37987548698,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.609154909991254e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 3975.0921316363383,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 17.759103472000106
+  },
+  {
+    "stage": "NVT",
+    "step": 9000,
+    "time_ps": 9.000000000000451,
+    "target_K": 310,
+    "temperature_K": 310.65245237920294,
+    "potential_kJ_mol": -400384.1052138149,
+    "kinetic_kJ_mol": 79350.81434447123,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.5927601563809937e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4260.078799631447,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 18.74017890800019
+  },
+  {
+    "stage": "NVT",
+    "step": 10000,
+    "time_ps": 9.999999999999897,
+    "target_K": 310,
+    "temperature_K": 309.102142639355,
+    "potential_kJ_mol": -400022.5676533822,
+    "kinetic_kJ_mol": 78954.81444361439,
+    "volume_nm3": 325.8162029813742,
+    "density_g_ml": 0.9433104493945591,
+    "max_constraint_error_nm": 5.590061956384229e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4050.6461327669676,
+    "box_diagonal_nm": [
+      4.2706326923600475,
+      5.885308154627737,
+      12.963171013940629
+    ],
+    "restraint_k": 500,
+    "elapsed_seconds": 19.718917953000073
+  },
+  {
+    "stage": "NPT",
+    "step": 11000,
+    "time_ps": 10.999999999999343,
+    "target_K": 310,
+    "temperature_K": 314.01488446280234,
+    "potential_kJ_mol": -402709.7795088575,
+    "kinetic_kJ_mol": 80209.68966307295,
+    "volume_nm3": 319.21013092040243,
+    "density_g_ml": 0.9628323135239968,
+    "max_constraint_error_nm": 5.503251486460581e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4649.726670679869,
+    "box_diagonal_nm": [
+      4.241572386395524,
+      5.845260492375033,
+      12.874960731513509
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 21.24633952099998
+  },
+  {
+    "stage": "NPT",
+    "step": 12000,
+    "time_ps": 11.999999999998789,
+    "target_K": 310,
+    "temperature_K": 312.65344303376025,
+    "potential_kJ_mol": -403085.1239114646,
+    "kinetic_kJ_mol": 79861.9329167495,
+    "volume_nm3": 315.149417443146,
+    "density_g_ml": 0.9752384483142357,
+    "max_constraint_error_nm": 5.538171755914423e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4369.248628420755,
+    "box_diagonal_nm": [
+      4.22350971178999,
+      5.820368535185524,
+      12.820132897619112
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 22.33569778800006
+  },
+  {
+    "stage": "NPT",
+    "step": 13000,
+    "time_ps": 12.999999999998234,
+    "target_K": 310,
+    "temperature_K": 312.5273442047079,
+    "potential_kJ_mol": -404116.87313903775,
+    "kinetic_kJ_mol": 79829.72314439279,
+    "volume_nm3": 313.16007277849417,
+    "density_g_ml": 0.9814336359277265,
+    "max_constraint_error_nm": 5.544931304390932e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4106.8114971918985,
+    "box_diagonal_nm": [
+      4.214604139567118,
+      5.808095871952591,
+      12.793100730720612
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 23.43478987200001
+  },
+  {
+    "stage": "NPT",
+    "step": 14000,
+    "time_ps": 13.99999999999768,
+    "target_K": 310,
+    "temperature_K": 312.79748115262635,
+    "potential_kJ_mol": -404564.8353760834,
+    "kinetic_kJ_mol": 79898.7249714754,
+    "volume_nm3": 310.8999202890495,
+    "density_g_ml": 0.9885683745709674,
+    "max_constraint_error_nm": 5.5049356365022284e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 6183.859911020845,
+    "box_diagonal_nm": [
+      4.204440374021075,
+      5.794089307455284,
+      12.762249416545394
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 24.528083999000046
+  },
+  {
+    "stage": "NPT",
+    "step": 15000,
+    "time_ps": 14.999999999997126,
+    "target_K": 310,
+    "temperature_K": 313.40427895762207,
+    "potential_kJ_mol": -404156.99778456613,
+    "kinetic_kJ_mol": 80053.72101158414,
+    "volume_nm3": 310.5215658946453,
+    "density_g_ml": 0.9897728937727508,
+    "max_constraint_error_nm": 5.362544139297931e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4057.1743011944927,
+    "box_diagonal_nm": [
+      4.202734129098276,
+      5.791737951606791,
+      12.757070243734425
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 25.622884082000155
+  },
+  {
+    "stage": "NPT",
+    "step": 16000,
+    "time_ps": 15.999999999996572,
+    "target_K": 310,
+    "temperature_K": 314.22756479178213,
+    "potential_kJ_mol": -405163.5600191774,
+    "kinetic_kJ_mol": 80264.01518720883,
+    "volume_nm3": 309.89843883373027,
+    "density_g_ml": 0.9917630757065194,
+    "max_constraint_error_nm": 5.6154475458480846e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 3906.181006355677,
+    "box_diagonal_nm": [
+      4.199921022206512,
+      5.787861242434505,
+      12.748531278118472
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 26.71402592300001
+  },
+  {
+    "stage": "NPT",
+    "step": 17000,
+    "time_ps": 16.999999999997794,
+    "target_K": 310,
+    "temperature_K": 313.0516704249989,
+    "potential_kJ_mol": -405573.283185706,
+    "kinetic_kJ_mol": 79963.65323972474,
+    "volume_nm3": 309.04065987106105,
+    "density_g_ml": 0.9945158316145869,
+    "max_constraint_error_nm": 5.598302967035895e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4132.009247816633,
+    "box_diagonal_nm": [
+      4.196042404255164,
+      5.782516165135164,
+      12.736758037143892
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 27.80296251699997
+  },
+  {
+    "stage": "NPT",
+    "step": 18000,
+    "time_ps": 17.999999999999016,
+    "target_K": 310,
+    "temperature_K": 315.67798929779667,
+    "potential_kJ_mol": -406689.8114904533,
+    "kinetic_kJ_mol": 80634.50112677237,
+    "volume_nm3": 308.1857740958296,
+    "density_g_ml": 0.9972745489505319,
+    "max_constraint_error_nm": 5.582449007224266e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 3677.049339923309,
+    "box_diagonal_nm": [
+      4.192169721067435,
+      5.77717926646303,
+      12.725002810679403
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 28.912474169999996
+  },
+  {
+    "stage": "NPT",
+    "step": 19000,
+    "time_ps": 19.000000000000238,
+    "target_K": 310,
+    "temperature_K": 312.4350956820035,
+    "potential_kJ_mol": -406000.6363683487,
+    "kinetic_kJ_mol": 79806.1598493259,
+    "volume_nm3": 308.15275047680933,
+    "density_g_ml": 0.9973814232676107,
+    "max_constraint_error_nm": 5.5667121912073014e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4536.34271058673,
+    "box_diagonal_nm": [
+      4.192019978528429,
+      5.776972908049795,
+      12.724548278931762
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 30.011545479000006
+  },
+  {
+    "stage": "NPT",
+    "step": 20000,
+    "time_ps": 20.00000000000146,
+    "target_K": 310,
+    "temperature_K": 308.4366017759041,
+    "potential_kJ_mol": -406381.83128273115,
+    "kinetic_kJ_mol": 78784.81350175836,
+    "volume_nm3": 306.59341036181064,
+    "density_g_ml": 1.0024541248022598,
+    "max_constraint_error_nm": 5.591588288222926e-08,
+    "solute_chirality_inversions": 0,
+    "max_abs_force": 4219.018884643447,
+    "box_diagonal_nm": [
+      4.184937082139066,
+      5.767212052719562,
+      12.703048701753517
+    ],
+    "restraint_k": 100,
+    "elapsed_seconds": 31.109124951000013
+  }
+]

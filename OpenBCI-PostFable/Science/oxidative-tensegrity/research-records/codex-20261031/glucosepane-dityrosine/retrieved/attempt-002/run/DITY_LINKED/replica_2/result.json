@@ -1,0 +1,27 @@
+{
+  "model": "DITY_LINKED",
+  "replica": 2,
+  "seed": 20261403,
+  "steps": 50000,
+  "time_ps": 50,
+  "unrestrained_tail_ps": 30,
+  "n_solute_atoms": 296,
+  "n_atoms": 11384,
+  "all_checks_pass": true,
+  "last_frame": {
+    "stage": "NPT_free",
+    "time_ps": 49.99999999997417,
+    "step": 50000,
+    "temperature_K": 311.1920540165907,
+    "density_g_ml": 1.0140941018292247,
+    "potential_kJ_mol": -157248.1394115889,
+    "constraint_error_nm": 5.430093523439705e-08,
+    "stereocenter_inversions": 0,
+    "restraint_k": 0,
+    "wall_seconds": 25.160948524999867
+  },
+  "wall_seconds": 25.3915927999999,
+  "integration_precision": "mixed",
+  "origin_attempt": "attempt-002",
+  "physical_accuracy_or_convergence_established": false
+}

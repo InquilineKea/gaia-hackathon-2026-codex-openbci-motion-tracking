@@ -1,0 +1,75 @@
+{
+  "role": "R8_scaffold",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_validation": "pending",
+  "review": {
+    "summary": "The evaluated collagen scaffold model calculates constrained axial stiffness (C_iiii) under a strict kinematic affine strain assumption without solving nodal equilibrium. While scale invariance and symmetry checks pass, the model neglects boundary strut clipping (causing cell-count-dependent density and stiffness inflation), nodal junction volume overlaps, non-affine relaxation, and strut bending/buckling. Its within-model comparisons are valid strictly as upper-bound kinematic orientation metrics for highly constrained systems, provided strut modulus calibration is independently obtained.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Unclipped Boundary Struts Cause Size-Dependent Density and Stiffness Inflation",
+        "source_file": "collagen-scaffold-lab/model.js",
+        "source_line": 30,
+        "evidence": "Strut length sum includes full unclipped outer boundary cylinders while dividing by box volume V = (n * pitch)^3.",
+        "implication": "Scaffold stiffness C_iiii and nominal solid fraction depend strongly on finite cell count n (e.g. cubic stiffness scales as (n+1)^2 / n^2), overestimating infinite bulk metamaterial properties for small lattice grids.",
+        "recommended_check": "Evaluate stiffness across n = 1, 3, and 10 to quantify boundary material inflation, and apply boundary strut half-weighting or spatial clipping.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Risk of Calibration Circularity if Fitting Strut Modulus to Bulk Compression Data",
+        "source_file": "collagen-scaffold-lab/README.md",
+        "source_line": 45,
+        "evidence": "Document highlights that back-calculating strut modulus from scaffold stiffness creates circular validation.",
+        "implication": "Because the affine model overpredicts stiffness by ignoring non-affine relaxation and bending, back-fitting single-strut modulus to bulk experimental data produces an artificially depressed strut modulus.",
+        "recommended_check": "Enforce input requirements that strut modulus originate from direct single-fibril or single-strut hydrated micro-tensile measurements.",
+        "claim_status": "hypothesis"
+      },
+      {
+        "severity": "medium",
+        "title": "Junction Overlap Neglect Overestimates Density at Higher Solid Fractions",
+        "source_file": "collagen-scaffold-lab/model.js",
+        "source_line": 31,
+        "evidence": "Nominal density is computed as total cylinder volume area * totalLength / V without subtracting vertex intersections.",
+        "implication": "At larger strut radii, overlapping volume at nodal junctions double-counts material, underestimating true porosity and distorting matched-density comparisons across topologies with different coordination numbers.",
+        "recommended_check": "Compare nominal line-cylinder density against exact volumetric boolean union (CSG) for strut radius/pitch ratios r/a > 0.05.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Affine Kinematic Constraint Distorts Bending vs Stretch Topology Comparisons",
+        "source_file": "collagen-scaffold-lab/model.js",
+        "source_line": 30,
+        "evidence": "Stiffness uses an affine projection sum sum(A L n_i^4) assuming zero transverse nodal relaxation and pure axial strut strain.",
+        "implication": "Topologies that deform primarily by bending (e.g., BCC under axial compression) are artificially constrained, overstating their relative stiffness compared to stretch-dominated lattices (e.g., octet/cubic).",
+        "recommended_check": "Compare affine stiffness ratios E_octet / E_bcc against elastic frame or beam finite element calculations with free internal nodal equilibrium.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "Scale Invariance Preserved Under Isotropic Pitch and Radius Rescaling",
+        "source_file": "collagen-scaffold-lab/model.js",
+        "source_line": 30,
+        "evidence": "Proportional scaling of cell pitch and strut radius maintains solid fraction and affine stiffness C_iiii.",
+        "implication": "The linear axial-strut kinematic formulation correctly obeys standard continuum scale invariance when geometric proportions remain constant.",
+        "recommended_check": "Verify scale invariance test in test-model.js line 13 when scaling pitch and radius simultaneously.",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "Under complete kinematic affine constraint (such as high lateral confinement or rigid matrix embedding), the model's stiffness metrics accurately rank lattices according to the axial projection factor sum(A L n_z^4) / V at equal nominal line-volume fractions.",
+    "decisive_next_experiment": "Perform unconfined compression testing on 3D-fabricated micro-lattice scaffolds combined with optical Digital Image Correlation (DIC) to measure non-affine nodal displacements and local strut bending/buckling, using independently measured single-strut hydrated modulus (via micro-tensile testing) as input.",
+    "literature_to_verify": [
+      {
+        "query": "octet truss lattice non-affine displacement relaxation stiffness reduction",
+        "reason": "Quantify the departure of actual relaxed lattice stiffness from the unrelaxed affine kinematic upper bound.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "collagen single fibril hydrated tensile modulus micro-tensile nanoindentation",
+        "reason": "Obtain non-circular, independently measured hydrated strut modulus values for calibration input.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

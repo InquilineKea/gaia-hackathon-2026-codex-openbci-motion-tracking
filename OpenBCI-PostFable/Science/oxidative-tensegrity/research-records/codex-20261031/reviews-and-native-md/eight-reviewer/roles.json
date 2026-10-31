@@ -1,0 +1,111 @@
+[
+  {
+    "id": "R1_network",
+    "name": "Fibre network mechanics critic",
+    "task": "Audit dimensionality, target versus realized connectivity, finite size and boundary conditions, matched-dose anisotropy, forced brittleness versus emergent failure, equilibrium convergence and failure-step resolution. Identify one ablation per causal claim.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/oxt/network.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/tests/test_oxt.py",
+      "derived/failure_selected.csv",
+      "derived/network_summary.csv"
+    ]
+  },
+  {
+    "id": "R2_gag",
+    "name": "GAG dissipation critic",
+    "task": "Audit the imposed pinning rule, changes to eligible GAG slots and actual link counts with dose, energy and path integration, cascade convergence and slip versus rupture dissipation. Design pinning-off, matched-topology and matched-modulus ablations. Do not equate more dissipation with universally better resilience.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/oxt/gag.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/run_gag.py",
+      "oxidative-tensegrity/results/cpu32/gag.csv",
+      "oxidative-tensegrity/results/cpu32/gag_summary.csv"
+    ]
+  },
+  {
+    "id": "R3_h8",
+    "name": "H8 molecular chemistry critic",
+    "task": "Challenge whether the modeled species encode the claimed stereochemistry, charge, protonation, tautomer and atom-map reaction coordinate. Test the short-range plus screened-Coulomb decomposition for possible inconsistent solvation or double counting; treat this as a question requiring wrapper verification. Audit skipped steric clashes, one conformer, one-axis rotations, lower grid bounds, and architecture comparisons confounded by different orientation counts. Distinguish mapped distance from nearest contact and energy minima from binding affinity. Propose a solvent-controlled validation of MG-H1 versus CML.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/alchemi_collagen_gag.py",
+      "oxidative-tensegrity/results/alchemi_gag/collagen_gag_pilot.json",
+      "oxidative-tensegrity/results/alchemi_gag/collagen_gag_brev_L4.json"
+    ]
+  },
+  {
+    "id": "R4_atomistic",
+    "name": "Crosslink atomistic modeling critic",
+    "task": "Audit molecular identities, neutrality, fragment length, geometric constraints, convergence, derivative fitting and extrapolation from MLIP fragments to network stiffness or rupture. Explain which network claims can survive while k_rel values remain placeholders. Do not claim an actual ALCHEMI wrapper defect unless supplied source establishes it.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/alchemi_crosslinks.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/results/alchemi_pilot/crosslink_params_pilot.json",
+      "oxidative-tensegrity/results/cpu32/summary.json"
+    ]
+  },
+  {
+    "id": "R5_h5",
+    "name": "H5 mechanotransduction and recovery critic",
+    "task": "Audit the fixed point residual, Jacobian derivation, noisy finite difference, six-hour myosin timescale, 0.166 per-hour baseline, stability versus true approach to a bifurcation, one clutch seed, nonlinear stiffening, prestress threshold and entropy interpretation. Design an individual-level recovery and remaining-lifespan study controlling for age without making efficacy claims.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/oxt/cell.py",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/results/cpu32/cell.csv"
+    ]
+  },
+  {
+    "id": "R6_organs",
+    "name": "Tissue scaling and organ critic",
+    "task": "Audit dose(age) documentation against implemented feedback ODE, the common modulus calibration, assumptions of incompressibility, collagen II proxy, collagen IV and VII analogies, turnover, growth-factor binding, transport uptake, PWV-to-arterial-elastance mapping and myocardial 10x scale factor. State which outputs are dimensional scenario projections.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/oxt/physio.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/results/cpu32/organ.csv",
+      "oxidative-tensegrity/results/cpu32/heart.csv"
+    ]
+  },
+  {
+    "id": "R7_statistics",
+    "name": "Statistics and inference critic",
+    "task": "Audit independent experimental units versus four synthetic network seeds, paired design, aggregation before nonlinear cell mapping, one clutch seed, omitted uncertainty propagation, exploratory hypothesis selection and multiple comparisons. Separate reproducibility, numerical convergence and biological validation. Give a prioritized minimal replication and sensitivity plan without inventing a power calculation.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/run_gag.py",
+      "oxidative-tensegrity/results/cpu32/summary.json",
+      "oxidative-tensegrity/results/cpu32/cell.csv",
+      "derived/failure_selected.csv",
+      "derived/network_summary.csv"
+    ]
+  },
+  {
+    "id": "R8_scaffold",
+    "name": "Scaffold mechanics and calibration critic",
+    "task": "Review this separate affine scaffold model on its stated constrained-strain terms. Audit topology versus material quantity, finite boundaries, porosity approximation, scale invariance, missing relaxation and buckling, and calibration circularity. Identify any legitimate within-model comparisons and the next independent experiment. Do not treat the absence of intentionally excluded physics as a coding bug.",
+    "files": [
+      "collagen-scaffold-lab/README.md",
+      "collagen-scaffold-lab/model.js",
+      "collagen-scaffold-lab/test-model.js",
+      "collagen-scaffold-lab/examples/calibration-format.json",
+      "collagen-scaffold-lab/examples/sample-design.json",
+      "collagen-scaffold-lab/examples/sweep.csv",
+      "collagen-scaffold-lab/examples/research-brief.md"
+    ]
+  }
+]

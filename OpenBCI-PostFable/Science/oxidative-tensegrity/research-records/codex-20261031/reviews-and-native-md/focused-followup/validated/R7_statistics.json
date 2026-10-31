@@ -1,0 +1,75 @@
+{
+  "role": "R7_statistics",
+  "status": "format_validated",
+  "normalizations": [
+    {
+      "filename_from": "results/alchemi_brev/crosslink_mace_off.json",
+      "filename_to": "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_off.json"
+    }
+  ],
+  "scientific_status": "reviewed synthesis will qualify unsupported assertions",
+  "review": {
+    "summary": "The crosslink model pipeline presents well-structured biological hypotheses (H1\u2013H8) and clear experimental proposed tests, but its quantitative atomistic parameters suffer from high MLIP-dependent error, conformational basin shifts, gas-phase simplifications, and missing explicit solvent/counterion dynamics. MACE-OFF and MACE-MP disagree by >5\u00d7 on relative stiffness for chemistries such as sulfilimine and HLNL, with global energy minima shifting across large strain ranges. Dityrosine robustly emerges as the highest-stiffness crosslink across both MLIP datasets, making relative crosslink rank order partially surviving, whereas absolute stiffness values and unconverged local minima fittings remain invalid.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Severe MLIP-dependent divergence in crosslink stiffness and minimum-basin strain",
+        "source_file": "derived/completed_brev_comparison.json",
+        "source_line": 108,
+        "evidence": "Sulfilimine k_rel is 0.60 under MACE-OFF but 3.49 under MACE-MP (5.77\u00d7 ratio), while HLNL's global minimum shifts from strain +0.188 (index 16) in MACE-OFF to +0.002 (index 4) in MACE-MP.",
+        "implication": "Single MLIP predictions cannot provide quantitative stiffness parameters for macro-scale matrix network models without empirical validation or high-level QM benchmarks.",
+        "recommended_check": "Compare MACE-OFF and MACE-MP minimum-energy structures against high-level DFT (e.g., \u03c9B97X-V/def2-TZVP) relaxation scans.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Local conformational jumping and non-monotonic energy curves invalidate quadratic fitting",
+        "source_file": "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_off.json",
+        "source_line": 405,
+        "evidence": "Sulfilimine energy E_eV rises to 0.111 eV at step 17, then drops abruptly to 0.065 eV and 0.049 eV at higher strains, indicating discrete conformational transitions during constrained FIRE relaxation.",
+        "implication": "Fitting a 2nd-order polynomial (polyfit) across 5 points near the global energy minimum captures conformational rearrangement rather than true bond/angle axial elasticity.",
+        "recommended_check": "Inspect atomic trajectory movies at each strain step and apply continuous path-following / nudged elastic band (NEB) methods instead of isolated frame relaxations.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Gas-phase neutral fragment approximation omits electrostatic screening and solvent dynamics",
+        "source_file": "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+        "source_line": 131,
+        "evidence": "H8 GAG-collagen contact energies were computed using rigid gas-phase fragments with AIMNet2/ALCHEMI (\u22122.3 to \u22123.1 eV for Arg vs \u22121.1 to \u22121.6 eV for MG-H1-Arg) without explicit water or counterions.",
+        "implication": "Charged species like arginine and sulfated GAGs are strongly dominated by screening and solvent entropy; gas-phase contact energies overestimate interaction magnitudes.",
+        "recommended_check": "Perform explicit-solvent OpenMM/GROMACS free energy perturbation (FEP) or umbrella sampling simulations with Na+/Cl- counterions.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "medium",
+        "title": "H5 mechanotransduction recovery clock lacks individual lifespan predictive evidence",
+        "source_file": "evidence/PRIMARY_EVIDENCE.md",
+        "source_line": 12,
+        "evidence": "Citing Teuscher 2024 (PMID 38177158) and Pyrkov 2021 (PMID 34035236) supports general ECM mechanotransduction and organismal resilience, but neither establishes the model's 6-hour YAP-myosin loop timescale or individual remaining-lifespan prediction.",
+        "implication": "The simulated resilience clock parameter (0.12\u20130.14 /h recovery rate drop) remains an unvalidated mathematical analogy rather than an established biological mechanism.",
+        "recommended_check": "Run the proposed WorMotel pressure-pulse experiment in C. elegans tracking yap-1 reporter return kinetics versus individual animal survival.",
+        "claim_status": "hypothesis"
+      }
+    ],
+    "strongest_surviving_claim": "Dityrosine acts as a consistently high-stiffness oxidative crosslink relative to pyridinoline across independent MLIP models (k_rel = 4.31 in MACE-OFF, 6.80 in MACE-MP), surviving qualitative rank ordering despite large quantitative stiffness discrepancies.",
+    "decisive_next_experiment": "Execute explicit-solvent molecular dynamics (OpenMM/AMBER) of a collagen-like peptide (PPG)10 triple helix with native (pyridinoline) vs oxidative (dityrosine, MG-H1) crosslinks in 150 mM NaCl at 300 K. Include 3 independent replicas (100 ns each), measuring RMSD convergence, axial force-extension curves, and decorin GAG-binding potential of mean force (PMF) via umbrella sampling. Stop criteria: RMSD drift > 2.5 \u00c5 over final 20 ns or PMF statistical error < 0.5 kcal/mol.",
+    "literature_to_verify": [
+      {
+        "query": "Ewald collagen remodelling longevity insulin IGF-1 C. elegans",
+        "reason": "Verify primary context for H1 collagen turnover escape and lifespan dependency.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Teuscher YAP-1 mechanosensing hemidesmosome basement membrane collagen stiffening aging",
+        "reason": "Verify empirical evidence for YAP-1 mediated strain sensing in C. elegans matrix.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "methylglyoxal MG-H1 arginine collagen proteoglycan decorin binding affinity",
+        "reason": "Verify whether arginine glycation specifically disrupts decorin/GAG attachment compared to lysine CML.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

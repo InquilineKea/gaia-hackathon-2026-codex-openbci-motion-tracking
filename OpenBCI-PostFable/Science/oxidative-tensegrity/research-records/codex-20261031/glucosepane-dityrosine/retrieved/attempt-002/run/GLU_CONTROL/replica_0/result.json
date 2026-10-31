@@ -1,0 +1,27 @@
+{
+  "model": "GLU_CONTROL",
+  "replica": 0,
+  "seed": 20261101,
+  "steps": 50000,
+  "time_ps": 50,
+  "unrestrained_tail_ps": 30,
+  "n_solute_atoms": 471,
+  "n_atoms": 12431,
+  "all_checks_pass": true,
+  "last_frame": {
+    "stage": "NPT_free",
+    "time_ps": 49.99999999997417,
+    "step": 50000,
+    "temperature_K": 303.84828993658755,
+    "density_g_ml": 0.9888195215616721,
+    "potential_kJ_mol": -169772.55617728573,
+    "constraint_error_nm": 5.552697662780659e-08,
+    "stereocenter_inversions": 0,
+    "restraint_k": 0,
+    "wall_seconds": 414.1687015560001
+  },
+  "wall_seconds": 414.3915479960001,
+  "physical_accuracy_or_convergence_established": false,
+  "integration_precision": "double",
+  "origin_attempt": "attempt-001"
+}

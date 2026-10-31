@@ -1,0 +1,75 @@
+{
+  "role": "R3_h8",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_status": "reviewed synthesis will qualify unsupported assertions",
+  "review": {
+    "summary": "The H8 collagen\u2013GAG interaction model relies on rigid gas-phase fragment energy scans lacking explicit stereochemistry, conformational sampling, solvent, and counterions. Crucially, single-axis rotations and arbitrary ETKDG embedded conformers produce unconverged contact energies that shift significantly when rotation counts change. MLIP evaluations cannot simulate bond-forming crosslinking pathways without explicit reactive training data and transition-state validation.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Unspecified stereochemistry and single-conformer rigid docking mask physical binding modes",
+        "source_file": "oxidative-tensegrity/alchemi_collagen_gag.py",
+        "source_line": 49,
+        "evidence": "RDKit ETKDGv3 embeds SMILES strings without explicit stereochemical flags for glycosidic/sugar centers or conformational sampling of flexible side chains.",
+        "implication": "Calculated interaction energies depend on arbitrary initial embed conformers rather than ensemble-averaged solution state structures.",
+        "recommended_check": "Generate stereospecifically defined disaccharide and amino-acid conformer ensembles using explicit force-field or metadynamics sampling.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Angular orientation grid insufficiency leads to energy instability and rank reordering",
+        "source_file": "oxidative-tensegrity/results/alchemi_gag/collagen_gag_pilot.json",
+        "source_line": 43,
+        "evidence": "Increasing orientation count from 6 to 24 shifted Lys|DS-0S minimum energy from -1.86 eV (d=2.8 A) to -1.41 eV (d=2.8 A), altering relative rankings across chemical pairs.",
+        "implication": "Static 1D/1-axis rotation scans fail to locate true interaction minima, rendering relative energy rankings unconverged.",
+        "recommended_check": "Perform full 3D rigid-body spherical grid minimization or unbiased molecular dynamics in solution.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Mapped coordinate axis measures key-atom distance rather than steric intermolecular contact",
+        "source_file": "oxidative-tensegrity/alchemi_collagen_gag.py",
+        "source_line": 65,
+        "evidence": "Distances are defined along an axis anchored at specific atom map numbers (e.g. ammonium N to sulfate O) rather than minimum atom-atom contact distance.",
+        "implication": "Calculated minimum distance d_at_min reflects reference atom separation rather than closest van der Waals contact, risking steric overlap or distant fragment tails.",
+        "recommended_check": "Report interaction energy as a function of minimum atom-atom distance across all atomic pairs.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Experimental literature bounds universal claims of glycation-driven proteoglycan detachment",
+        "source_file": "evidence/PRIMARY_EVIDENCE.md",
+        "source_line": 17,
+        "evidence": "Reigle et al. 2008 demonstrated that while glycated collagen bound heparin/keratan sulfate weakly, decorin and biglycan binding remained unaffected.",
+        "implication": "Hypothesis H8 overgeneralizes GAG detachment, as proteoglycan core-protein contacts can preserve binding independently of GAG-chain glycation.",
+        "recommended_check": "Distinguish full proteoglycan core-protein binding from isolated disaccharide chain contacts in experimentalSPR assays.",
+        "claim_status": "hypothesis"
+      },
+      {
+        "severity": "high",
+        "title": "Foundation MLIPs evaluated at near-equilibrium cannot predict reactive bond-formation barriers",
+        "source_file": "evidence/REVIEW_QUESTIONS.md",
+        "source_line": 3,
+        "evidence": "AIMNet2/ALCHEMI single-point calculations evaluate nonreactive topology energy surfaces and lack reactive transition-state training data.",
+        "implication": "MLIP energy surfaces cannot be used to infer oxidative crosslinking reaction rates or chemical kinetics without explicit reactive validation.",
+        "recommended_check": "Separate classical/MLIP nonreactive dynamics from quantum chemical (QM/MM or ReaxFF) transition-state barrier calculations.",
+        "claim_status": "assumption"
+      }
+    ],
+    "strongest_surviving_claim": "In simplified gas-phase fragment models, converting positively charged Arg to neutral MG-H1 substantially weakens electrostatic and short-range contact energy with isolated sulfated disaccharides relative to native Arg.",
+    "decisive_next_experiment": "Execute a nonreactive pilot using explicit-solvent OpenMM MD (e.g., Amber ff14SB + GLYCAM06) with Na+/Cl- counterions at 0.15 M ionic strength for a collagen triple-helical peptide (e.g., (OGP)_4-GKA-GER-(OGP)_4) bound to a dermatan sulfate hexasaccharide. Measure potential of mean force (PMF) umbrella sampling binding free energies for Lys vs CML and Arg vs MG-H1. For reactive crosslinking pathways, separately validate DFT/QM-MM barrier heights against experimental kinetic rates before running reactive dynamics.",
+    "literature_to_verify": [
+      {
+        "query": "Reigle 2008 collagen glycation decorin biglycan binding",
+        "reason": "Verify specific proteoglycan core protein versus GAG chain differential retention on glycated collagen I.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "AIMNet2 neutral vs charged adduct interaction energy accuracy benchmarks",
+        "reason": "Verify whether MLIP short-range interaction energy correctly partitions implicit charge transfer in gas-phase organic cations.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

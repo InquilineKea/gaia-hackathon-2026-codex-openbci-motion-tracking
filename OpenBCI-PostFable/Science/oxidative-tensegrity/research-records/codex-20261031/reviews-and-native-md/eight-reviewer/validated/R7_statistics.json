@@ -1,0 +1,111 @@
+{
+  "role": "R7_statistics",
+  "status": "format_validated",
+  "normalizations": [
+    {
+      "from": "run_sweep.py",
+      "to": "oxidative-tensegrity/run_sweep.py"
+    },
+    {
+      "from": "run_sweep.py",
+      "to": "oxidative-tensegrity/run_sweep.py"
+    },
+    {
+      "from": "run_sweep.py",
+      "to": "oxidative-tensegrity/run_sweep.py"
+    },
+    {
+      "from": "run_gag.py",
+      "to": "oxidative-tensegrity/run_gag.py"
+    },
+    {
+      "from": "run_sweep.py",
+      "to": "oxidative-tensegrity/run_sweep.py"
+    }
+  ],
+  "scientific_validation": "pending",
+  "review": {
+    "summary": "Statistical and methodological audit of the multiscale oxidative tensegrity model reveals critical threats to statistical validity and uncertainty propagation. Specifically, Monte Carlo network replicates are averaged prior to nonlinear cell and tissue mapping, violating Jensen's inequality and underestimating output variance. The cell mechanics model relies on a single clutch seed with deterministic, arbitrary thresholds for failure classification. Organ-scale outputs collapse seed-level variance entirely. Furthermore, atomistic crosslink rigidities currently rely on placeholder assumptions due to unconverged ALCHEMI simulations, and GAG sliding dynamics exhibit circularity due to hardcoded slip restrictions at crosslinked junctions.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Pre-aggregation of network Monte Carlo seeds before nonlinear cell mapping introduces statistical bias and artificially eliminates variance",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 160,
+        "evidence": "Network moduli and failure outputs across synthetic seeds are averaged using `.groupby(...).mean()` at line 160 before passing secant curves into the nonlinear `CellModel`.",
+        "implication": "Because cell mechanics functions (motor-clutch dynamics, tensegrity, YAP translocation) are nonlinear, $f(E[X]) \\neq E[f(X)]$. Averaging before mapping biases mean predictions and destroys all seed-level standard errors at the cell scale.",
+        "recommended_check": "Pass each Monte Carlo network seed curve individually through `CellModel` and compute ensemble statistics on the resulting cell outputs.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Single stochastic clutch seed and unvalidated deterministic failure thresholds in cell model",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 167,
+        "evidence": "The `CellModel` is instantiated with a default single seed (`seed=0`) at line 167, and 'self_supporting' is evaluated on a fixed threshold (`prestress_ratio >= 0.5`).",
+        "implication": "Stochastic motor-clutch binding/unbinding dynamics are not sampled across multiple random seeds per condition, making threshold-based claims vulnerable to single-trajectory noise.",
+        "recommended_check": "Run $N \\ge 30$ random seeds per cell state, report mean and variance for clutch readouts, and perform sensitivity analysis on the 0.5 prestress threshold.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Complete collapse of Monte Carlo seed variance at the tissue and organ scale",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 190,
+        "evidence": "Tissue dataframe outputs are grouped and averaged (`.groupby(['tissue', 'age']).mean()`) before passing into transport, heart elastance, and pulse wave velocity functions.",
+        "implication": "Variance in 2D network elastic moduli (which exhibits standard deviations of 20\u201350% in `network_summary.csv`) is lost, generating deterministic organ readouts with unquantified uncertainty.",
+        "recommended_check": "Propagate per-seed network moduli through `stage_organ` calculations to derive standard errors for ejection fraction, pulse wave velocity, and molecule transport.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Emergent GAG sliding dissipation loss is partially hardcoded by rule definition",
+        "source_file": "oxidative-tensegrity/run_gag.py",
+        "source_line": 47,
+        "evidence": "In `_worker`, crosslink-locked junctions explicitly block GAG sliding by construction ('Slip is assumed blocked at crosslink-locked junctions').",
+        "implication": "The claim that oxidative crosslinks cost resilience by blocking GAG sliding is largely enforced by parameter definition rather than arising purely as an unconstrained physical output.",
+        "recommended_check": "Implement continuous potential energy barriers or probabilistic slipping mechanics rather than binary slip lockout at crosslinked junctions.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "medium",
+        "title": "Multiscale pipeline relies on uncalibrated placeholder parameters for crosslink rigidities",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 64,
+        "evidence": "`load_crosslink_overrides()` uses hardcoded placeholder values in `summary.json` because ALCHEMI pilot relaxation failed to converge ($f_{max} = 0.30$ eV/\u00c5 vs 0.05 eV/\u00c5 target).",
+        "implication": "Network stiffness results reflect subjective placeholder assignments (e.g. glucosepane rigidity = 1.8) rather than physical or MLIP-derived atomistic mechanics.",
+        "recommended_check": "Execute fully relaxed GPU ALCHEMI scans to convergence and evaluate network sensitivity across the resulting range of relative rigidities.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "low",
+        "title": "Finite-size lattice boundary artifacts heavily distort strain-at-peak stress estimates",
+        "source_file": "oxidative-tensegrity/README.md",
+        "source_line": 134,
+        "evidence": "Col I strain-at-peak baseline shifted from 0.36 on $12 \\times 12$ lattices to 0.20 on $16 \\times 16$ lattices, as documented in the GCP 32-vCPU run notes.",
+        "implication": "Results from `local` ($12 \\times 12$) and `cpu32` ($16 \\times 16$) runs suffer from finite-size boundary distortions and cannot be treated as converged physical values.",
+        "recommended_check": "Conduct finite-size scaling analysis across $W \\in \\{12, 16, 24, 32, 48, 64\\}$ to identify the asymptotic lattice size limit.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "In 2D diluted triangular networks below the isostatic point ($z < 4.0$), adding crosslinks increases small-strain shear modulus $G$ and flattens the strain-stiffening ratio $K(\\gamma)/G_0$, as demonstrated across Monte Carlo seed replicates at the network scale.",
+    "decisive_next_experiment": "Re-run the multiscale pipeline on $W \\ge 48$ lattices without pre-aggregating Monte Carlo seed replicates, evaluating cell clutch dynamics ($N \\ge 30$ seeds) and tissue-organ equations individually per network seed to generate proper uncertainty bounds across all scales.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz MacKintosh 2011 Nat Phys filamentous network elasticity",
+        "reason": "Verify the theoretical rigidity threshold ($z=4$ in 2D) and non-linear modulus scaling rules for diluted central-force lattice networks.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Elosegui-Artola 2016 force triggers YAP nuclear translocation strain stiffening",
+        "reason": "Verify the empirical relationship between matrix secant modulus, talin unfolding, and YAP nuclear translocation threshold.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Chan Odde 2008 motor clutch model traction force stiffness dependence",
+        "reason": "Verify parameter baseline ranges for motor clutch binding kinetics and substrate rigidity sensing.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

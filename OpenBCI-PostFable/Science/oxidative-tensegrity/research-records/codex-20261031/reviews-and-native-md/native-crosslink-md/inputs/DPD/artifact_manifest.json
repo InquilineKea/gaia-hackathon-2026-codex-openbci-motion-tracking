@@ -1,0 +1,15 @@
+{
+  "model": "collagen_DPD_6chain_coupon",
+  "sha256": {
+    "physical_system.xml": "8efdeda35fafc35f86c9d214393c510b3123f227a6f43bddfb3a6faaf1942c3e",
+    "positions_nm.npy": "3f7d43561e2622e5a399cf9a333edd7920856e9e3a680f5b4aa438b688d29750",
+    "prepared.pdb": "22108fca8fca4095c9fb6501a7c6c31b48663e95c3aa3ec0b9e1fe57620cd2e1",
+    "prepared.json": "dfb52fe7f54f78752c1a873777783d1aa3b0be59e65463852072c3a0aeb23bcd",
+    "validation.json": "0cfddea081577658ee4ebcc9df1cf8699740192d930f109d833f966e3e9ad619"
+  },
+  "scope": "dry restrained preparation; zero dynamics",
+  "all_preparation_checks_pass": true,
+  "solvated": false,
+  "equilibrated": false,
+  "production_validated": false
+}

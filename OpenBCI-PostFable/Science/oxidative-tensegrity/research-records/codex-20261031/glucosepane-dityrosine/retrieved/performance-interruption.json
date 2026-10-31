@@ -1,0 +1,65 @@
+{
+  "reason": "double-precision integration projects beyond the shared one-hour cap; preserve completed run and use mixed integration for remaining seeds, retaining double-precision checks",
+  "interrupted_unix_s": 1793454675.0591815,
+  "completed_replicas": [
+    {
+      "model": "GLU_CONTROL",
+      "replica": 0,
+      "seed": 20261101,
+      "steps": 50000,
+      "time_ps": 50,
+      "unrestrained_tail_ps": 30,
+      "n_solute_atoms": 471,
+      "n_atoms": 12431,
+      "all_checks_pass": true,
+      "last_frame": {
+        "stage": "NPT_free",
+        "time_ps": 49.99999999997417,
+        "step": 50000,
+        "temperature_K": 303.84828993658755,
+        "density_g_ml": 0.9888195215616721,
+        "potential_kJ_mol": -169772.55617728573,
+        "constraint_error_nm": 5.552697662780659e-08,
+        "stereocenter_inversions": 0,
+        "restraint_k": 0,
+        "wall_seconds": 414.1687015560001
+      },
+      "wall_seconds": 414.3915479960001,
+      "physical_accuracy_or_convergence_established": false
+    }
+  ],
+  "progress": [
+    {
+      "path": "attempt-001/run/GLU_CONTROL/replica_0/progress.json",
+      "last_frame": {
+        "stage": "NPT_free",
+        "time_ps": 49.99999999997417,
+        "step": 50000,
+        "temperature_K": 303.84828993658755,
+        "density_g_ml": 0.9888195215616721,
+        "potential_kJ_mol": -169772.55617728573,
+        "constraint_error_nm": 5.552697662780659e-08,
+        "stereocenter_inversions": 0,
+        "restraint_k": 0,
+        "wall_seconds": 414.1687015560001
+      },
+      "has_final_result": true
+    },
+    {
+      "path": "attempt-001/run/GLU_CONTROL/replica_1/progress.json",
+      "last_frame": {
+        "stage": "NPT_free",
+        "time_ps": 21.000000000002682,
+        "step": 21000,
+        "temperature_K": 312.6908653452907,
+        "density_g_ml": 0.9896631198941336,
+        "potential_kJ_mol": -169770.6906268408,
+        "constraint_error_nm": 5.3739677555175724e-08,
+        "stereocenter_inversions": 0,
+        "restraint_k": 0,
+        "wall_seconds": 181.5964225360001
+      },
+      "has_final_result": false
+    }
+  ]
+}

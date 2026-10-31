@@ -1,0 +1,194 @@
+{
+  "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/equilibrated_systems/glucosepane/glucosepane_eq.gro.zip",
+  "commit": "4e51b2bb6ab747ba4c8743b3f676a448f8b26d43",
+  "sha256": "35f87c6b99441bb755385a2215729fda9b3c23904a382ad4d7e02b68850ef55d",
+  "git_blob_sha1_verified": true,
+  "archive_CRC_verified": true,
+  "gro_title": "Collagen Microfibril in Water",
+  "total_atoms": 3536468,
+  "solute_residues": 35024,
+  "chains_inferred_by_residue_number_reset": 145,
+  "box_line": "18.82851  19.81949  94.14257",
+  "pairs": [
+    {
+      "ags_index": 4987,
+      "lgx_index": 5622,
+      "bond_A": 1.4534441853748572,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 19,
+      "lgx_chain": 23
+    },
+    {
+      "ags_index": 5718,
+      "lgx_index": 5084,
+      "bond_A": 1.4578751661236156,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 23,
+      "lgx_chain": 19
+    },
+    {
+      "ags_index": 6027,
+      "lgx_index": 6662,
+      "bond_A": 1.4455794685868804,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 24,
+      "lgx_chain": 28
+    },
+    {
+      "ags_index": 6758,
+      "lgx_index": 6124,
+      "bond_A": 1.5004665940966182,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 28,
+      "lgx_chain": 24
+    },
+    {
+      "ags_index": 7973,
+      "lgx_index": 8379,
+      "bond_A": 1.4738385257550826,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 33,
+      "lgx_chain": 34
+    },
+    {
+      "ags_index": 8282,
+      "lgx_index": 7877,
+      "bond_A": 1.4990663761154839,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 34,
+      "lgx_chain": 33
+    },
+    {
+      "ags_index": 9519,
+      "lgx_index": 10154,
+      "bond_A": 1.5029970059850422,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 39,
+      "lgx_chain": 43
+    },
+    {
+      "ags_index": 10250,
+      "lgx_index": 9616,
+      "bond_A": 1.4813844875655615,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 43,
+      "lgx_chain": 39
+    },
+    {
+      "ags_index": 10559,
+      "lgx_index": 11194,
+      "bond_A": 1.4586980496319328,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 44,
+      "lgx_chain": 48
+    },
+    {
+      "ags_index": 11290,
+      "lgx_index": 10656,
+      "bond_A": 1.4845874847917275,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 48,
+      "lgx_chain": 44
+    },
+    {
+      "ags_index": 11801,
+      "lgx_index": 12207,
+      "bond_A": 1.5057888298164475,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 51,
+      "lgx_chain": 52
+    },
+    {
+      "ags_index": 12110,
+      "lgx_index": 11705,
+      "bond_A": 1.5253196386331613,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 52,
+      "lgx_chain": 51
+    },
+    {
+      "ags_index": 12639,
+      "lgx_index": 13274,
+      "bond_A": 1.472446943016968,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 55,
+      "lgx_chain": 59
+    },
+    {
+      "ags_index": 13370,
+      "lgx_index": 12736,
+      "bond_A": 1.4738385257551205,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 59,
+      "lgx_chain": 55
+    },
+    {
+      "ags_index": 15289,
+      "lgx_index": 15695,
+      "bond_A": 1.5032631173550979,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 67,
+      "lgx_chain": 68
+    },
+    {
+      "ags_index": 15598,
+      "lgx_index": 15193,
+      "bond_A": 1.4710540438746722,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 68,
+      "lgx_chain": 67
+    },
+    {
+      "ags_index": 21044,
+      "lgx_index": 21679,
+      "bond_A": 1.4628055236428317,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 88,
+      "lgx_chain": 92
+    },
+    {
+      "ags_index": 21775,
+      "lgx_index": 21141,
+      "bond_A": 1.4727525250360316,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 92,
+      "lgx_chain": 88
+    },
+    {
+      "ags_index": 25096,
+      "lgx_index": 25502,
+      "bond_A": 1.4733295625894434,
+      "ags_resid": 101,
+      "lgx_resid": 1046,
+      "ags_chain": 104,
+      "lgx_chain": 105
+    },
+    {
+      "ags_index": 25405,
+      "lgx_index": 25000,
+      "bond_A": 1.5001333274079052,
+      "ags_resid": 949,
+      "lgx_resid": 5,
+      "ags_chain": 105,
+      "lgx_chain": 104
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "model": "GLU_CONTROL",
+  "source_coordinate_archive_sha256": "35f87c6b99441bb755385a2215729fda9b3c23904a382ad4d7e02b68850ef55d",
+  "published_pair": {
+    "ags_index": 5718,
+    "lgx_index": 5084,
+    "bond_A": 1.4578751661236156,
+    "ags_resid": 101,
+    "lgx_resid": 1046,
+    "ags_chain": 23,
+    "lgx_chain": 19
+  },
+  "neighborhoods": {
+    "LGX": [
+      5077,
+      5091
+    ],
+    "AGS": [
+      5711,
+      5725
+    ]
+  },
+  "linked": false,
+  "caps": "ACE/NME from adjacent source backbone; cap hydrogens built geometrically",
+  "context": "two 15-residue collagen fragments extracted from the published equilibrated AGE-only fibril; other fibril chains/solvent omitted",
+  "charge_e": 1.0000000000000027,
+  "species": "not inferred from GRO title; use author metadata",
+  "independent_preparation_or_physical_validation": false
+}

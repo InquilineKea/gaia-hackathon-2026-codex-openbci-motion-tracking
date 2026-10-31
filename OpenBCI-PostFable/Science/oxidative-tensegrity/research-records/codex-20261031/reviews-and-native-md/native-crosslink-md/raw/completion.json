@@ -1,0 +1,63 @@
+{
+  "phases": [
+    {
+      "case": "PYD",
+      "phase": "build",
+      "replica": 0,
+      "returncode": 0,
+      "seconds": 9.838368351999861
+    },
+    {
+      "case": "PYD",
+      "phase": "equilibrate",
+      "replica": 0,
+      "returncode": 0,
+      "seconds": 36.20625735999988
+    },
+    {
+      "case": "PYD",
+      "phase": "equilibrate",
+      "replica": 1,
+      "returncode": 0,
+      "seconds": 27.98643986000002
+    },
+    {
+      "case": "PYD",
+      "phase": "equilibrate",
+      "replica": 2,
+      "returncode": 0,
+      "seconds": 28.537677090000216
+    },
+    {
+      "case": "DPD",
+      "phase": "build",
+      "replica": 0,
+      "returncode": 0,
+      "seconds": 9.136670319999894
+    },
+    {
+      "case": "DPD",
+      "phase": "equilibrate",
+      "replica": 0,
+      "returncode": 0,
+      "seconds": 34.35317247099988
+    },
+    {
+      "case": "DPD",
+      "phase": "equilibrate",
+      "replica": 1,
+      "returncode": 0,
+      "seconds": 29.08711786500021
+    },
+    {
+      "case": "DPD",
+      "phase": "equilibrate",
+      "replica": 2,
+      "returncode": 0,
+      "seconds": 29.087355056999968
+    }
+  ],
+  "all_complete": true,
+  "planned_total_ps": 120,
+  "reaction_dynamics_run": false
+}

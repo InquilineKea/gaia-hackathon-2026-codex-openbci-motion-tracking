@@ -1,0 +1,65 @@
+{
+  "role": "R4_atomistic",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_status": "reviewed synthesis will qualify unsupported assertions",
+  "review": {
+    "summary": "Comparison of the completed MACE-OFF and MACE-MP Brev model outputs reveals severe model-to-model inconsistencies, with relative stiffnesses differing by up to 5.77-fold (sulfilimine) and 5.60-fold (HLNL). The claim that dityrosine is unconditionally the stiffest crosslink is contradicted by raw MACE-OFF output where HLNL achieves k_rel = 16.29 due to a conformational relaxation shift (+18.8% strain). Furthermore, gas-phase neutralizations and boundary polyfit artifacts distort relative stiffness estimates, making these raw MLIP values unsafe for direct tissue network parameterization without explicit solvent PMF controls.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "HLNL Outstiffs Dityrosine in MACE-OFF Due to Unconstrained Minimum Shift",
+        "source_file": "derived/completed_brev_comparison.json",
+        "source_line": 15,
+        "evidence": "In MACE-OFF, HLNL off_k_rel reaches 16.29 compared to dityrosine's 4.31, with the global minimum shifting to index 16 (+18.8% strain).",
+        "implication": "Falsifies the claim that dityrosine is unconditionally stiffest across all raw model outputs.",
+        "recommended_check": "Inspect ETKDG starting conformers and enforce local minimum validation before applying axial stretch scans.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Severe Inter-Model Discrepancies in Relative Stiffness Predictions",
+        "source_file": "derived/completed_brev_comparison.json",
+        "source_line": 108,
+        "evidence": "Sulfilimine k_rel varies 5.77-fold (0.60 in MACE-OFF vs 3.49 in MACE-MP) and HLNL varies 5.60-fold (16.29 vs 2.91).",
+        "implication": "MLIP foundation model outputs are uncalibrated for gas-phase crosslink fragments and cannot serve as quantitative inputs for tissue-level mechanics.",
+        "recommended_check": "Benchmark MLIP strain energy profiles against high-level QM (e.g. revPBE-D4 or DLPNO-CCSD(T)) fragment scans.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Polynomial Fitting Artifacts on Boundary Minima",
+        "source_file": "oxidative-tensegrity/alchemi_crosslinks.py",
+        "source_line": 198,
+        "evidence": "analyse() fits a 2nd-order polynomial using 5 points centered on np.argmin(e), which hits grid boundary index 0 (-6.0% strain) for MACE-OFF sulfilimine.",
+        "implication": "Calculated stiffness constants near grid edges reflect artificial asymmetric sampling rather than true harmonic wells.",
+        "recommended_check": "Reject scan runs where the energy minimum is at or adjacent to boundary grid points.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Neutralization of Charged Pyridinium Cores Alters Relative Baseline",
+        "source_file": "oxidative-tensegrity/alchemi_crosslinks.py",
+        "source_line": 40,
+        "evidence": "Pyridinoline is modeled as a neutral pyridinone proxy fragment to avoid unpassivated ionic charges in gas-phase calculations.",
+        "implication": "Removing formal charge alters backbone electrostatics and distorts the denominator (pyridinoline k) used for all relative k_rel normalizations.",
+        "recommended_check": "Compute solvation free energies and explicit-water potentials of mean force (PMF) for charged native structures.",
+        "claim_status": "assumption"
+      }
+    ],
+    "strongest_surviving_claim": "Qualitatively, oxidative crosslinks with short, rigid aromatic/biphenyl cores (dityrosine) exhibit higher conformational axial rigidity than long, flexible aliphatic chains (isopeptide_TG2) when both are evaluated near their local relaxed minimum.",
+    "decisive_next_experiment": "Perform umbrella sampling / steered molecular dynamics (SMD) in explicit solvent with counterions using periodic collagen triple-helix fragments crosslinked by dityrosine vs glucosepane vs pyridinoline, extracting PMF curves and stiffness constants from converged harmonic force distributions.",
+    "literature_to_verify": [
+      {
+        "query": "dityrosine crosslink collagen stiffness mechanical properties",
+        "reason": "Verify experimental force-extension or micro-mechanical measurements of dityrosine relative to trivalent enzymatic crosslinks.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "glucosepane collagen triple helix structural rigidity MD simulation",
+        "reason": "Check whether atomistic MD simulations of glucosepane in collagen helices show higher or equal bending/stretching rigidity compared to pyridinoline.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

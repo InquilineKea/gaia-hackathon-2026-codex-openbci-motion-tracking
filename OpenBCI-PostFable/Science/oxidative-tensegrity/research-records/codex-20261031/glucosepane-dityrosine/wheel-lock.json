@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "scope": "PYD_DPD_collagen_explicit_solvent_6x20ps",
+  "target": "Linux x86_64, CPython 3.12, glibc >=2.34; CUDA 12-compatible NVIDIA driver required",
+  "review_date": "2026-10-31",
+  "executed": false,
+  "system_driver_and_VM_image_verified": false,
+  "packages": [
+    {
+      "name": "OpenMM",
+      "version": "8.6.1",
+      "filename": "openmm-8.6.1-cp312-cp312-manylinux_2_34_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/01/09/23fa5df6c710336300d3b69b2b409099612a100f97faed2c13df9adb73a2/openmm-8.6.1-cp312-cp312-manylinux_2_34_x86_64.whl",
+      "sha256": "c198fa3a0cb236ab2e8c6405b59ee8acc4ffb6b1a54d001e29c4afb8419e959b",
+      "size_bytes": 14413848,
+      "requires_dist": [
+        "numpy",
+        "OpenMM-CUDA-12==8.6.1; platform_system != \"Darwin\" and extra == \"cuda12\"",
+        "OpenMM-CUDA-13==8.6.1; platform_system != \"Darwin\" and extra == \"cuda13\"",
+        "OpenMM-HIP-6==8.6.1; (platform_system != \"Darwin\" and platform_machine == \"x86_64\") and extra == \"hip6\"",
+        "OpenMM-HIP-7==8.6.1; (platform_system != \"Darwin\" and platform_machine == \"x86_64\") and extra == \"hip7\""
+      ],
+      "upload_time": "2026-09-11T21:14:37.362738Z"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4",
+      "filename": "numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/43/a3/c799c62e19c337e6d3770b08e475887fb30ce8477d3c09efca6b2f0228a6/numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "sha256": "fbde6962867ee75b48b0ee29b2b9372ec5d617799dbaf38e82dc0596f2f7738a",
+      "size_bytes": 16727283,
+      "requires_dist": null,
+      "upload_time": "2026-10-10T20:02:53.186780Z"
+    },
+    {
+      "name": "OpenMM-CUDA-12",
+      "version": "8.6.1",
+      "filename": "openmm_cuda_12-8.6.1-py3-none-manylinux_2_34_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/a6/c3/4856aa70ed238e43a4092ddfbff39e261cea4bfac3062f6eb994aa52c837/openmm_cuda_12-8.6.1-py3-none-manylinux_2_34_x86_64.whl",
+      "sha256": "7338c20f052bff983da8715a740b8191502283cbc7020382c1c60b4c572b7da8",
+      "size_bytes": 2289533,
+      "requires_dist": [
+        "nvidia-cuda-runtime-cu12",
+        "nvidia-cuda-nvcc-cu12",
+        "nvidia-cuda-nvrtc-cu12",
+        "nvidia-cuda-cupti-cu12",
+        "nvidia-cufft-cu12"
+      ],
+      "upload_time": "2026-09-11T21:13:48.146705Z"
+    },
+    {
+      "name": "nvidia-cuda-cupti-cu12",
+      "version": "12.9.79",
+      "filename": "nvidia_cuda_cupti_cu12-12.9.79-py3-none-manylinux_2_25_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/c1/2e/b84e32197e33f39907b455b83395a017e697c07a449a2b15fd07fc1c9981/nvidia_cuda_cupti_cu12-12.9.79-py3-none-manylinux_2_25_x86_64.whl",
+      "sha256": "096bcf334f13e1984ba36685ad4c1d6347db214de03dbb6eebb237b41d9d934f",
+      "size_bytes": 10814997,
+      "requires_dist": null,
+      "upload_time": "2025-06-05T20:01:10.168872Z"
+    },
+    {
+      "name": "nvidia-cuda-nvcc-cu12",
+      "version": "12.9.86",
+      "filename": "nvidia_cuda_nvcc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/25/48/b54a06168a2190572a312bfe4ce443687773eb61367ced31e064953dd2f7/nvidia_cuda_nvcc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "sha256": "5d6a0d32fdc7ea39917c20065614ae93add6f577d840233237ff08e9a38f58f0",
+      "size_bytes": 40546229,
+      "requires_dist": null,
+      "upload_time": "2025-06-05T20:01:53.357217Z"
+    },
+    {
+      "name": "nvidia-cuda-nvrtc-cu12",
+      "version": "12.9.86",
+      "filename": "nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/b8/85/e4af82cc9202023862090bfca4ea827d533329e925c758f0cde964cb54b7/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "sha256": "210cf05005a447e29214e9ce50851e83fc5f4358df8b453155d5e1918094dcb4",
+      "size_bytes": 89568129,
+      "requires_dist": null,
+      "upload_time": "2025-06-05T20:02:41.973433Z"
+    },
+    {
+      "name": "nvidia-cuda-runtime-cu12",
+      "version": "12.9.79",
+      "filename": "nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/bc/46/a92db19b8309581092a3add7e6fceb4c301a3fd233969856a8cbf042cd3c/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "sha256": "25bba2dfb01d48a9b59ca474a1ac43c6ebf7011f1b0b8cc44f54eb6ac48a96c3",
+      "size_bytes": 3493179,
+      "requires_dist": null,
+      "upload_time": "2025-06-05T20:00:53.735846Z"
+    },
+    {
+      "name": "nvidia-cufft-cu12",
+      "version": "11.4.1.4",
+      "filename": "nvidia_cufft_cu12-11.4.1.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/95/f4/61e6996dd20481ee834f57a8e9dca28b1869366a135e0d42e2aa8493bdd4/nvidia_cufft_cu12-11.4.1.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "sha256": "c67884f2a7d276b4b80eb56a79322a95df592ae5e765cf1243693365ccab4e28",
+      "size_bytes": 200877592,
+      "requires_dist": [
+        "nvidia-nvjitlink-cu12"
+      ],
+      "upload_time": "2025-06-05T20:05:45.862434Z"
+    },
+    {
+      "name": "nvidia-nvjitlink-cu12",
+      "version": "12.9.86",
+      "filename": "nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/46/0c/c75bbfb967457a0b7670b8ad267bfc4fffdf341c074e0a80db06c24ccfd4/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl",
+      "sha256": "e3f1171dbdc83c5932a45f0f4c99180a70de9bd2718c1ab77d14104f6d7147f9",
+      "size_bytes": 39748338,
+      "requires_dist": null,
+      "upload_time": "2025-06-05T20:10:25.613163Z"
+    }
+  ]
+}

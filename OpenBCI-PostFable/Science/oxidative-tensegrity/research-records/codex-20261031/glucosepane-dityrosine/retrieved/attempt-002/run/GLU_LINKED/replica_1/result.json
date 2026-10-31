@@ -1,0 +1,27 @@
+{
+  "model": "GLU_LINKED",
+  "replica": 1,
+  "seed": 20261202,
+  "steps": 50000,
+  "time_ps": 50,
+  "unrestrained_tail_ps": 30,
+  "n_solute_atoms": 481,
+  "n_atoms": 12702,
+  "all_checks_pass": true,
+  "last_frame": {
+    "stage": "NPT_free",
+    "time_ps": 49.99999999997417,
+    "step": 50000,
+    "temperature_K": 316.6424453916483,
+    "density_g_ml": 0.9966737795249465,
+    "potential_kJ_mol": -173154.48974672786,
+    "constraint_error_nm": 4.93474012486228e-08,
+    "stereocenter_inversions": 0,
+    "restraint_k": 0,
+    "wall_seconds": 24.61397174800004
+  },
+  "wall_seconds": 24.83478839700001,
+  "integration_precision": "mixed",
+  "origin_attempt": "attempt-002",
+  "physical_accuracy_or_convergence_established": false
+}

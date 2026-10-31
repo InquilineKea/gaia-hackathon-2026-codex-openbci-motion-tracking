@@ -1,0 +1,12 @@
+Looking in links: /wheels
+Processing /wheels/openmm-8.6.1-cp312-cp312-manylinux_2_34_x86_64.whl (from -r /project/requirements.txt (line 1))
+Processing /wheels/numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from -r /project/requirements.txt (line 2))
+Processing /wheels/openmm_cuda_12-8.6.1-py3-none-manylinux_2_34_x86_64.whl (from -r /project/requirements.txt (line 3))
+Processing /wheels/nvidia_cuda_cupti_cu12-12.9.79-py3-none-manylinux_2_25_x86_64.whl (from -r /project/requirements.txt (line 4))
+Processing /wheels/nvidia_cuda_nvcc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /project/requirements.txt (line 5))
+Processing /wheels/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /project/requirements.txt (line 6))
+Processing /wheels/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /project/requirements.txt (line 7))
+Processing /wheels/nvidia_cufft_cu12-11.4.1.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (from -r /project/requirements.txt (line 8))
+Processing /wheels/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (from -r /project/requirements.txt (line 9))
+Installing collected packages: OpenMM-CUDA-12, OpenMM, nvidia-nvjitlink-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-nvcc-cu12, nvidia-cuda-cupti-cu12, numpy
+Successfully installed OpenMM-8.6.1 OpenMM-CUDA-12-8.6.1 numpy-2.5.4 nvidia-cuda-cupti-cu12-12.9.79 nvidia-cuda-nvcc-cu12-12.9.86 nvidia-cuda-nvrtc-cu12-12.9.86 nvidia-cuda-runtime-cu12-12.9.79 nvidia-cufft-cu12-11.4.1.4 nvidia-nvjitlink-cu12-12.9.86

@@ -1,0 +1,19 @@
+{
+  "atoms": 12431,
+  "solute_atoms": 471,
+  "counts": {
+    "HOH": 3979,
+    "NA": 11,
+    "CL": 12
+  },
+  "box_nm": [
+    3.735007732188957,
+    4.773161558593485,
+    7.532870518022117
+  ],
+  "net_charge_e": 9.408706452829207e-16,
+  "rotation_determinant": 1.0000000000000007,
+  "requested_salt_M": 0.15,
+  "force_field_family": "Amber99/ColBuilder",
+  "solvent": "TIP3P/Joung-Cheatham"
+}

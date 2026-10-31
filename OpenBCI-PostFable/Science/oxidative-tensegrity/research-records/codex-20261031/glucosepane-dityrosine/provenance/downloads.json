@@ -1,0 +1,93 @@
+[
+  {
+    "path": "authors/age/README.md",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/README.md",
+    "sha256": "f7f1dfbff273678889dbb9de94c4ae22802c22cf71e702c691d9e1739b224494",
+    "bytes": 9166
+  },
+  {
+    "path": "authors/age/parametrization/README.md",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/README.md",
+    "sha256": "2dd23aa2077fde35c2a240f158c64c35f5d66a5b3b2e957442551624bc4d4f7f",
+    "bytes": 1343
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/README.md",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/README.md",
+    "sha256": "4087b31c680dcd162a84e537c2f5a29c0ec528a153a1b0cca3a70b6e0360164c",
+    "bytes": 2487
+  },
+  {
+    "path": "authors/age/parametrization/topology_antechamber+Grappa/README.md",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/topology_antechamber%2BGrappa/README.md",
+    "sha256": "fa5e07b23e79792de37055c12c04104c44dce6b32e8f116e80c6b9219c3bb7a6",
+    "bytes": 1022
+  },
+  {
+    "path": "authors/age/parametrization/topology_antechamber+Grappa/amber99sb-star-ildnp.ff.zip",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/topology_antechamber%2BGrappa/amber99sb-star-ildnp.ff.zip",
+    "sha256": "2f91378a79620d58ad7384699104939f5b847a60669978cba2d38c0bd5cd63a6",
+    "bytes": 47064
+  },
+  {
+    "path": "authors/age/parametrization/topology_antechamber+Grappa/glucosepane/topol.top",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/topology_antechamber%2BGrappa/glucosepane/topol.top",
+    "sha256": "f28d08cbb412844199aa36e58ecaec8c223d03c10b7e666afa33a1bff431e792",
+    "bytes": 23530
+  },
+  {
+    "path": "authors/age/MODELLER/glucosepane/glucosepane_ic.str",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/MODELLER/glucosepane/glucosepane_ic.str",
+    "sha256": "3ec8e22ee37a8aa80de3c21ad1691922260ad05d815d8b66addde7d1a63fdc72",
+    "bytes": 6974
+  },
+  {
+    "path": "authors/age/MODELLER/top_heav_mod.lib",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/MODELLER/top_heav_mod.lib",
+    "sha256": "50d3075d2b1b50553641de1cd5404565c6fea25c41e98f70835fc3095c2a3c2b",
+    "bytes": 127981
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/glucosepane/MOL.amb2gmx/MOL_GMX.gro",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/glucosepane/MOL.amb2gmx/MOL_GMX.gro",
+    "sha256": "d29f0c5303deb4aec2ec63136450306f0805936ed9602f085aadfd544e6dc9ca",
+    "bytes": 3714
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/glucosepane/glucosepane.frcmod",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/glucosepane/glucosepane.frcmod",
+    "sha256": "17680e16cf139e7adc7d1cee3a395cc3bc592894f1a67967d055a8b1ca6dca3d",
+    "bytes": 1044
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/glucosepane/glucosepane.inpcrd",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/glucosepane/glucosepane.inpcrd",
+    "sha256": "06e5a7079250b072ce23f43fceebc6f0770dae9fb3952e50ca60a4206425d72b",
+    "bytes": 2931
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/glucosepane/glucosepane.prepi",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/glucosepane/glucosepane.prepi",
+    "sha256": "b4f9b0b5dda07d2095301adc31fd3adbfc750fa52f32e1bd8a8c90f04fcbd637",
+    "bytes": 6501
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/glucosepane/glucosepane.prmtop",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/glucosepane/glucosepane.prmtop",
+    "sha256": "02f1c01f0aa5c617df0f33dd40107c714350cb1cfc42214ba004ab92361ec4c6",
+    "bytes": 45709
+  },
+  {
+    "path": "authors/age/parametrization/Antechamber_steps/glucosepane/glucosepane_resp_gaff.mol2",
+    "url": "https://raw.githubusercontent.com/gggguido/AGEs-ColBuilder/4e51b2bb6ab747ba4c8743b3f676a448f8b26d43/parametrization/Antechamber_steps/glucosepane/glucosepane_resp_gaff.mol2",
+    "sha256": "5a53b27a8c251512265ba6c0fb268b1976b4d06f6da6f11aa14ab236eae0ec9c",
+    "bytes": 8704
+  },
+  {
+    "path": "authors/dityrosine-source.zip",
+    "url": "https://zenodo.org/api/records/16865891/files/Jacob608/crosslinked_mfp_simulation_prototype-v1.0.1.zip/content",
+    "sha256": "9e9aa6c842d34f58ed24a78351062e62fc778506d4d313a129a38dc565ded275",
+    "bytes": 3565824,
+    "zenodo_md5_verified": true
+  }
+]

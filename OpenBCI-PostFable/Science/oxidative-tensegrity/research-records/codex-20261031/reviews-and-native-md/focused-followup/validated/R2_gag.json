@@ -1,0 +1,52 @@
+{
+  "role": "R2_gag",
+  "status": "format_validated",
+  "normalizations": [
+    "Escaped invalid JSON backslashes in mathematical text; no wording changed"
+  ],
+  "scientific_status": "reviewed synthesis will qualify unsupported assertions",
+  "review": {
+    "summary": "Glucose glycation literature (Reigle et al., 2008) demonstrates that D-glucose exposure impairs collagen binding to heparin and keratan sulfate while preserving binding to intact decorin and biglycan proteoglycans. This result refutes broad claims that generalized glycation universally detaches all proteoglycans, but it does not directly test or falsify the specific hypothesis (H8) regarding methylglyoxal-derived MG-H1 arginine modification versus glyoxylate-derived CML lysine modification. Existing molecular modeling evidence (ALCHEMI/AIMNet2) is limited by gas-phase rigid-fragment assumptions without explicit solvent, counterions, or core-protein interactions.",
+    "findings": [
+      {
+        "severity": "medium",
+        "title": "D-glucose glycation data challenges universal detachment but lacks adduct specificity",
+        "source_file": "evidence/PRIMARY_EVIDENCE.md",
+        "source_line": 17,
+        "evidence": "Reigle et al. (2008) showed glucose-glycated type I collagen retains decorin and biglycan binding despite reduced heparin and keratan sulfate binding.",
+        "implication": "Generalized glucose glycation does not globally displace small leucine-rich proteoglycans, challenging non-specific detachment claims, but it fails to isolate arginine-specific MG-H1 adducts from lysine CML adducts.",
+        "recommended_check": "Quantify exact adduct ratios (MG-H1, CML, pentosidine) in glucose-glycated vs methylglyoxal-treated collagen films before drawing conclusions about specific adduct mechanisms.",
+        "claim_status": "hypothesis"
+      },
+      {
+        "severity": "medium",
+        "title": "Confounding between proteoglycan core-protein binding and free GAG chain interactions",
+        "source_file": "evidence/PRIMARY_EVIDENCE.md",
+        "source_line": 17,
+        "evidence": "Intact decorin/biglycan proteoglycan binding assays aggregate core-protein and GAG-chain contact dynamics.",
+        "implication": "Preserved binding of intact decorin to glycated collagen may be driven by un-modified core-protein-binding epitopes, masking local GAG chain detachment caused by arginine modification.",
+        "recommended_check": "Evaluate binding kinetics separately for isolated GAG chains (chondroitin/dermatan sulfate), recombinant core proteins, and intact proteoglycans.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "high",
+        "title": "Gas-phase rigid fragment calculations omit solvent screening and entropic effects",
+        "source_file": "oxidative-tensegrity/alchemi_collagen_gag.py",
+        "source_line": 12,
+        "evidence": "ALCHEMI/AIMNet2 scans use rigid capped amino-acid fragments and disaccharides without explicit water, counterions, or structural relaxation.",
+        "implication": "Absolute interaction energy differences (-2.3 eV vs -1.1 eV) reflect gas-phase contact potentials rather than aqueous binding free energies ($\\Delta G_{\text{bind}}$).",
+        "recommended_check": "Perform explicit-solvent MD simulations (OpenMM/GROMACS) with free energy perturbation (FEP) or umbrella sampling to calculate solution-phase binding free energies.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "Methylglyoxal-induced arginine modification (MG-H1) selectively reduces the localized contact energy between basic amino acid side chains and glycosaminoglycan sulfate/carboxylate groups in gas-phase contact models, without establishing full proteoglycan detachment in physiological tissue matrices.",
+    "decisive_next_experiment": "Perform Surface Plasmon Resonance (SPR) binding assays using collagen type I films pre-treated specifically with methylglyoxal (to generate MG-H1) or glyoxylate (to generate CML), comparing binding affinities ($K_D$) across three analyte conditions: (1) free enzymatic-released dermatan sulfate GAG chains, (2) chondroitinase-cleaved decorin core protein, and (3) intact decorin proteoglycan.",
+    "literature_to_verify": [
+      {
+        "query": "Reigle et al 2008 collagen glycation decorin biglycan heparin binding",
+        "reason": "Verify experimental conditions, glucose exposure durations, and specific binding assay protocols used for decorin and biglycan.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

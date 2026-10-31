@@ -1,0 +1,19 @@
+{
+  "atoms": 11384,
+  "solute_atoms": 296,
+  "counts": {
+    "HOH": 3689,
+    "NA": 11,
+    "CL": 10
+  },
+  "box_nm": [
+    3.3607435433152877,
+    3.7037814255063477,
+    9.466042892360951
+  ],
+  "net_charge_e": -1.9081958235744878e-17,
+  "rotation_determinant": 1.0,
+  "requested_salt_M": 0.15,
+  "force_field_family": "CHARMM36/CGenFF",
+  "solvent": "CHARMM modified TIP3P and native ion parameters"
+}

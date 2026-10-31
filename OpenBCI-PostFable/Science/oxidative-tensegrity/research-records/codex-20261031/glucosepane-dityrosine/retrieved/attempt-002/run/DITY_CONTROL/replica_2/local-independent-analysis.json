@@ -1,0 +1,98 @@
+{
+  "model": "DITY_CONTROL",
+  "replica": 2,
+  "seed": 20261303,
+  "time_ps": 50,
+  "free_tail_ps": 30,
+  "n_atoms": 11596,
+  "n_solute_atoms": 298,
+  "final_temperature_K": 307.9346414064255,
+  "final_density_g_ml": 1.0115257977049186,
+  "max_constraint_error_nm": 7.875404700874444e-07,
+  "monitored_centers": 20,
+  "final_stereocenter_inversions": 0,
+  "final_max_chemical_bond_deviation_A": 0.09787207400684395,
+  "final_heavy_solute_displacement_A": 3.060294130851788,
+  "free_tail_CA_marker_mean_A": 7.09701259112154,
+  "free_tail_CA_marker_SD_A": 0.21390464656260297,
+  "free_tail_link_bond_mean_A": null,
+  "force_inventory": [
+    {
+      "type": "HarmonicBondForce",
+      "child_counts": {
+        "Bonds": 528
+      }
+    },
+    {
+      "type": "PeriodicTorsionForce",
+      "child_counts": {
+        "Torsions": 758
+      }
+    },
+    {
+      "type": "CustomTorsionForce",
+      "child_counts": {
+        "PerTorsionParameters": 2,
+        "GlobalParameters": 0,
+        "EnergyParameterDerivatives": 0,
+        "Torsions": 46
+      }
+    },
+    {
+      "type": "CMAPTorsionForce",
+      "child_counts": {
+        "Maps": 8,
+        "Torsions": 22
+      }
+    },
+    {
+      "type": "NonbondedForce",
+      "child_counts": {
+        "GlobalParameters": 0,
+        "ParticleOffsets": 0,
+        "ExceptionOffsets": 0,
+        "Particles": 298,
+        "Exceptions": 1625
+      }
+    },
+    {
+      "type": "CustomNonbondedForce",
+      "child_counts": {
+        "PerParticleParameters": 1,
+        "GlobalParameters": 0,
+        "ComputedValues": 0,
+        "EnergyParameterDerivatives": 0,
+        "Particles": 298,
+        "Exclusions": 1625,
+        "Functions": 2,
+        "InteractionGroups": 0
+      }
+    },
+    {
+      "type": "HarmonicAngleForce",
+      "child_counts": {
+        "Angles": 547
+      }
+    },
+    {
+      "type": "CustomBondForce",
+      "child_counts": {
+        "PerBondParameters": 2,
+        "GlobalParameters": 0,
+        "EnergyParameterDerivatives": 0,
+        "Bonds": 776
+      }
+    }
+  ],
+  "final_state_step": 50000,
+  "final_state_time_ps": 49.99999999997417,
+  "final_solute_restraint_k": 0.0,
+  "wet_platform_check": {
+    "energy_difference_per_atom": 4.450527562862779e-06,
+    "force_rms": 0.0028396588202064146,
+    "pass": true
+  },
+  "all_runtime_checks_pass": true,
+  "integration_precision": "mixed",
+  "origin_attempt": "attempt-002"
+}

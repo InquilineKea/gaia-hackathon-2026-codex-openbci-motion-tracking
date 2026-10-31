@@ -1,0 +1,112 @@
+[
+  {
+    "id": "R1_network",
+    "name": "H5 dynamics referee",
+    "task": "Audit fixed-point residuals, slope estimation, timescale identifiability and bifurcation interpretation. Design a minimal numerical perturbation test. Treat the supplied evidence summaries within their stated scope.",
+    "files": [
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "evidence/PRIMARY_EVIDENCE.md",
+      "evidence/REVIEW_QUESTIONS.md",
+      "oxidative-tensegrity/oxt/cell.py",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/results/cpu32/cell.csv"
+    ]
+  },
+  {
+    "id": "R2_gag",
+    "name": "H8 experimental evidence referee",
+    "task": "Assess the glucose-glycation result preserving decorin/biglycan binding. Specify why it challenges a broad claim but does not directly compare MG-H1 and CML. Propose controls separating free GAGs, core proteins and intact proteoglycans.",
+    "files": [
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "evidence/PRIMARY_EVIDENCE.md",
+      "evidence/REVIEW_QUESTIONS.md",
+      "oxidative-tensegrity/alchemi_collagen_gag.py",
+      "oxidative-tensegrity/results/alchemi_gag/collagen_gag_pilot.json",
+      "oxidative-tensegrity/results/alchemi_gag/collagen_gag_brev_L4.json"
+    ]
+  },
+  {
+    "id": "R3_h8",
+    "name": "H8 molecular dynamics referee",
+    "task": "Prioritize chemical-identity, stereochemistry, protonation, conformer, mapped-coordinate and solvent controls. Propose a feasible nonreactive collagen/fragment dynamics pilot and state what separate validation a reactive pathway would require. Do not assert an exact wrapper defect without evidence.",
+    "files": [
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "evidence/PRIMARY_EVIDENCE.md",
+      "evidence/REVIEW_QUESTIONS.md",
+      "oxidative-tensegrity/alchemi_collagen_gag.py",
+      "oxidative-tensegrity/results/alchemi_gag/collagen_gag_pilot.json",
+      "oxidative-tensegrity/results/alchemi_gag/collagen_gag_brev_L4.json"
+    ]
+  },
+  {
+    "id": "R4_atomistic",
+    "name": "Completed Brev crosslink referee",
+    "task": "Compare the two completed model outputs using the raw energies, reference normalization and minimum locations. Test dityrosine-stiffest and glucosepane-near-pyridinoline claims. Prioritize experimental and numerical controls before using fitted stiffnesses in a tissue network.",
+    "files": [
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "evidence/PRIMARY_EVIDENCE.md",
+      "evidence/REVIEW_QUESTIONS.md",
+      "oxidative-tensegrity/alchemi_crosslinks.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_off.json",
+      "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_mp.json",
+      "derived/completed_brev_comparison.json"
+    ]
+  },
+  {
+    "id": "R5_h5",
+    "name": "H5 longitudinal inference referee",
+    "task": "Audit whether the mechanotransduction and organism-resilience literature supports individual lifespan prediction. Design age-adjusted repeated-measurement and held-out predictive tests, with a clear falsifier and no efficacy claim.",
+    "files": [
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "evidence/PRIMARY_EVIDENCE.md",
+      "evidence/REVIEW_QUESTIONS.md",
+      "oxidative-tensegrity/oxt/cell.py",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/results/cpu32/cell.csv"
+    ]
+  },
+  {
+    "id": "R6_organs",
+    "name": "Tissue scaling and organ critic",
+    "task": "Audit dose(age) documentation against implemented feedback ODE, the common modulus calibration, assumptions of incompressibility, collagen II proxy, collagen IV and VII analogies, turnover, growth-factor binding, transport uptake, PWV-to-arterial-elastance mapping and myocardial 10x scale factor. State which outputs are dimensional scenario projections.",
+    "files": [
+      "oxidative-tensegrity/README.md",
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "oxidative-tensegrity/oxt/physio.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/run_sweep.py",
+      "oxidative-tensegrity/results/cpu32/organ.csv",
+      "oxidative-tensegrity/results/cpu32/heart.csv"
+    ]
+  },
+  {
+    "id": "R7_statistics",
+    "name": "Crosslink uncertainty and study-design referee",
+    "task": "Audit disagreement, correlated model errors, minimum-basin changes and rank robustness. Choose a minimal next MD/chemical pilot with native and model controls, replicas, convergence criteria and stop criteria. Do not treat different MLIPs as independent experimental validation.",
+    "files": [
+      "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "evidence/PRIMARY_EVIDENCE.md",
+      "evidence/REVIEW_QUESTIONS.md",
+      "oxidative-tensegrity/alchemi_crosslinks.py",
+      "oxidative-tensegrity/oxt/materials.py",
+      "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_off.json",
+      "oxidative-tensegrity/results/alchemi_brev/crosslink_mace_mp.json",
+      "derived/completed_brev_comparison.json"
+    ]
+  },
+  {
+    "id": "R8_scaffold",
+    "name": "Scaffold mechanics and calibration critic",
+    "task": "Review this separate affine scaffold model on its stated constrained-strain terms. Audit topology versus material quantity, finite boundaries, porosity approximation, scale invariance, missing relaxation and buckling, and calibration circularity. Identify any legitimate within-model comparisons and the next independent experiment. Do not treat the absence of intentionally excluded physics as a coding bug.",
+    "files": [
+      "collagen-scaffold-lab/README.md",
+      "collagen-scaffold-lab/model.js",
+      "collagen-scaffold-lab/test-model.js",
+      "collagen-scaffold-lab/examples/calibration-format.json",
+      "collagen-scaffold-lab/examples/sample-design.json",
+      "collagen-scaffold-lab/examples/sweep.csv",
+      "collagen-scaffold-lab/examples/research-brief.md"
+    ]
+  }
+]

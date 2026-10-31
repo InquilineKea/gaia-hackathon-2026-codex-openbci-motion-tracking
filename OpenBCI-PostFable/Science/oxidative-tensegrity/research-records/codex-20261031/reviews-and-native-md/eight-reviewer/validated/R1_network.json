@@ -1,0 +1,75 @@
+{
+  "role": "R1_network",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_validation": "pending",
+  "review": {
+    "summary": "An audit of the fibre network mechanics reveals that the reported emergence of network brittleness is primarily hardcoded via explicit reduction of bond rupture strain, rather than purely emerging from stress concentration or locked junction rotational constraints. Furthermore, 2D planar lattice geometry shifts central force rigidity percolation from z=6 (3D) to z=4 (2D), making sub-isostatic behavior heavily dependent on ad hoc bending and GAG embedding terms. Failure testing is restricted to the single loading axis where anisotropic crosslinks were added, masking transverse weakening. Finally, coarse strain stepping during failure cascades risks missing progressive avalanche dynamics.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Network brittleness is explicitly forced via bond rupture strain scaling rather than emergent",
+        "source_file": "oxidative-tensegrity/oxt/materials.py",
+        "source_line": 118,
+        "evidence": "Crosslink damage directly scales down individual bond rupture strains (`eps_r[new] = col.eps_r * dmg.brittle` and `eps_r[chosen] *= dmg.brittle`) using fixed multiplier `dmg.brittle = 0.45`.",
+        "implication": "The drop in peak strain and network ductility under crosslinking is largely an input assumption rather than an emergent mechanical phenomenon of network geometry or rotational locking.",
+        "recommended_check": "Ablation: Set `dmg.brittle = 1.0` (keep bond failure strain constant) and run failure sweeps to test if network brittleness emerges solely from locked junctions (`kx0`) and local stress concentration.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "2D lattice geometry alters rigidity percolation threshold relative to physical 3D tissues",
+        "source_file": "oxidative-tensegrity/oxt/network.py",
+        "source_line": 25,
+        "evidence": "The network model is implemented as a 2D periodic triangular lattice with 3 outgoing directions per node.",
+        "implication": "Central-force isostaticity occurs at z=4 in 2D instead of z=6 in 3D. Mechanical stability below z=4 relies entirely on arbitrary bending rigidity (`kappa`) and background GAG/elastin springs, distorting scaling exponents.",
+        "recommended_check": "Ablation: Set fiber bending stiffness `kappa = 0` and background GAG stiffness `k_gag = 0` to quantify how much linear shear modulus G relies on non-central force stabilization.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Failure testing is restricted to on-axis loading, obscuring transverse mechanical compromise",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 83,
+        "evidence": "The failure protocol hardcodes stretch along axis 0 (`b3.failure_curve(task['fail'], axis=0)`), matching the direction along which anisotropic crosslinks are preferentially placed.",
+        "implication": "The simulation evaluates anisotropic crosslinking benefits exclusively along the preferred alignment axis, ignoring potential transverse (axis 1) stiffness loss or embrittlement.",
+        "recommended_check": "Ablation: Run `failure_curve` along `axis=1` (transverse) for anisotropic networks and compute the biaxial toughness ratio.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Coarse strain steps in failure protocol cap rupture cascade resolution",
+        "source_file": "oxidative-tensegrity/oxt/network.py",
+        "source_line": 273,
+        "evidence": "Quasi-static failure sweeps step through strain array `strains` with fixed macro-increments (e.g. 9 to 16 points up to 0.6 strain) and relax for at most `max_cascade=8` iterations per step.",
+        "implication": "Large strain steps cause multiple bonds to rupture simultaneously in a single step, overestimating instantaneous stress drops and smoothing over progressive avalanche kinetics.",
+        "recommended_check": "Ablation: Reduce strain step size by 10x (e.g. 160 steps) and increase `max_cascade` to ensure true single-bond-cascade equilibrium.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "Small lattice sizes introduce significant finite-size sample variance",
+        "source_file": "oxidative-tensegrity/oxt/network.py",
+        "source_line": 33,
+        "evidence": "Local runs use W=12 (144 nodes) and GCP runs use W=16 (256 nodes), where healthy Col I baseline peak strain shifted from 0.36 to 0.20 due to lattice size.",
+        "implication": "Sub-isostatic networks near percolation exhibit large finite-size fluctuations across seeds, requiring caution when comparing small-lattice trends to continuum tissue properties.",
+        "recommended_check": "Compare moduli variance across W=12, W=16, W=32, and W=48 to establish formal finite-size scaling extrapolation to infinite network size.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "Oxidative crosslinking below the central-force rigidity threshold causes a larger relative increase in shear modulus G and a greater loss of non-linear strain stiffening K(\u03b3)/G0 than crosslinking in dense, hyper-isostatic networks.",
+    "decisive_next_experiment": "Run a 3D diluted network sweep with unscaled bond failure strains (dmg.brittle = 1.0) and finer strain stepping to measure whether structural stress concentration at locked junctions is sufficient to produce emergent network embrittlement without built-in constituent weakening.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz MacKintosh biopolymer network triangular lattice connectivity rigidity threshold",
+        "reason": "Verify standard 2D lattice dilution formulation and non-affine to affine elasticity transitions in biopolymer networks.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "glucosepane crosslink mechanical stiffness single fibril stretch",
+        "reason": "Verify whether individual AGE crosslinks increase intrinsic collagen fibril stretch rigidity or primarily alter interfibrillar sliding resistance.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

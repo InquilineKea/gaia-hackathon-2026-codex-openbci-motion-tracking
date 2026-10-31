@@ -1,0 +1,53 @@
+{
+  "molecule": "GLU_LINKED",
+  "n_atoms": 481,
+  "n_residues": 34,
+  "net_charge_e": -1.0000009999999984,
+  "terms": {
+    "bonds": 489,
+    "angles": 887,
+    "proper": 1674,
+    "improper": 115,
+    "exceptions": 2646
+  },
+  "sources": {
+    "published Amber99/ColBuilder_bond": 489,
+    "published Amber99/ColBuilder_angle": 887,
+    "published Amber99/ColBuilder_proper": 1289,
+    "RTP_explicit_proper": 17
+  },
+  "missing_terms": [],
+  "coverage_pass": true,
+  "junctions": [
+    {
+      "atoms": [
+        129,
+        377
+      ],
+      "label": "published glucosepane C-N connection"
+    }
+  ],
+  "residue_counts": {
+    "ACE": 2,
+    "LEU": 3,
+    "PRO": 3,
+    "GLN": 3,
+    "GLU": 1,
+    "LGX": 1,
+    "SER": 1,
+    "ASP": 2,
+    "GLY": 7,
+    "ARG": 1,
+    "TYR": 1,
+    "NME": 2,
+    "HYP": 1,
+    "PHE": 1,
+    "LYS": 1,
+    "ILE": 1,
+    "AGS": 1,
+    "HIE": 1,
+    "ASN": 1
+  },
+  "adapter_engine_crossvalidated": false,
+  "biological_validation": false
+}

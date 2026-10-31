@@ -1,0 +1,277 @@
+{
+  "snapshot_date": "2026-10-31",
+  "scope": [
+    "oxidative-tensegrity",
+    "collagen-scaffold-lab"
+  ],
+  "exclusions": [
+    "credentials",
+    "AGENTS and handoff files",
+    "security incident records",
+    "raw swarm logs",
+    "Git history",
+    "other private projects"
+  ],
+  "transformations": [
+    "local absolute user paths replaced while preserving line numbers",
+    "selected CSV columns and grouped network summary explicitly labeled derived"
+  ],
+  "files": [
+    {
+      "name": "oxidative-tensegrity/README.md",
+      "original_sha256": "37d715e48f4f28fdbfc1cbab5b7796caa9f76d7bb78b3e471b733d3003bff77b",
+      "transmitted_sha256": "37d715e48f4f28fdbfc1cbab5b7796caa9f76d7bb78b3e471b733d3003bff77b",
+      "bytes": 14287,
+      "lines": 188,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+      "original_sha256": "dfbaad0625652575efe9fa8230a15574a0051fe4f4c8acd1998f4ba22f890b56",
+      "transmitted_sha256": "dfbaad0625652575efe9fa8230a15574a0051fe4f4c8acd1998f4ba22f890b56",
+      "bytes": 11468,
+      "lines": 140,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/run_sweep.py",
+      "original_sha256": "0cf6414a9f6e947a8894693e44caad8b1839507685cf1c90e2e65c6dde5ac47b",
+      "transmitted_sha256": "0cf6414a9f6e947a8894693e44caad8b1839507685cf1c90e2e65c6dde5ac47b",
+      "bytes": 12283,
+      "lines": 270,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/run_gag.py",
+      "original_sha256": "be152257d2fb9e6bcbb87986433e79394409ec91b3fcbcac44e9942d05cc770d",
+      "transmitted_sha256": "be152257d2fb9e6bcbb87986433e79394409ec91b3fcbcac44e9942d05cc770d",
+      "bytes": 4708,
+      "lines": 104,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/alchemi_crosslinks.py",
+      "original_sha256": "4cdae0d85d4b718f6669bfe31afafe01c88671a9fa42b813b41fef4c8ee248bc",
+      "transmitted_sha256": "4cdae0d85d4b718f6669bfe31afafe01c88671a9fa42b813b41fef4c8ee248bc",
+      "bytes": 12097,
+      "lines": 259,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/alchemi_collagen_gag.py",
+      "original_sha256": "f3a7b2362bde7a68beb57bb36581df930593b5dce7e910733ff3be190f8186d3",
+      "transmitted_sha256": "f3a7b2362bde7a68beb57bb36581df930593b5dce7e910733ff3be190f8186d3",
+      "bytes": 8954,
+      "lines": 200,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/tests/test_oxt.py",
+      "original_sha256": "6be19a8d611c7319cd2d3e6c5b447befe16f24256263f295baf33d2ad8bc290c",
+      "transmitted_sha256": "6be19a8d611c7319cd2d3e6c5b447befe16f24256263f295baf33d2ad8bc290c",
+      "bytes": 3881,
+      "lines": 102,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/oxt/network.py",
+      "original_sha256": "d163c66caac206618081595d2d52d4626cc9dce07b87c275d483da27546055b2",
+      "transmitted_sha256": "d163c66caac206618081595d2d52d4626cc9dce07b87c275d483da27546055b2",
+      "bytes": 12795,
+      "lines": 302,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/oxt/materials.py",
+      "original_sha256": "1af29b8c72704f2117fd48068da26730832a02860c31f7e24933d92db6208615",
+      "transmitted_sha256": "1af29b8c72704f2117fd48068da26730832a02860c31f7e24933d92db6208615",
+      "bytes": 10506,
+      "lines": 200,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/oxt/cell.py",
+      "original_sha256": "9a7e8e32b11dc2e9a14aa6632aafa2adca5b52c5335773b95a696e3e8dfc6805",
+      "transmitted_sha256": "9a7e8e32b11dc2e9a14aa6632aafa2adca5b52c5335773b95a696e3e8dfc6805",
+      "bytes": 16852,
+      "lines": 361,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/oxt/physio.py",
+      "original_sha256": "da8fbe7e73afe44b4988c8185916875c816020aa15bcb5ed86ce33dfec62df11",
+      "transmitted_sha256": "da8fbe7e73afe44b4988c8185916875c816020aa15bcb5ed86ce33dfec62df11",
+      "bytes": 5418,
+      "lines": 103,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/oxt/gag.py",
+      "original_sha256": "97ed49101c25e74b3e789c36f5a90a9c4582b0732673c2236ecb783eb991e444",
+      "transmitted_sha256": "97ed49101c25e74b3e789c36f5a90a9c4582b0732673c2236ecb783eb991e444",
+      "bytes": 6111,
+      "lines": 121,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/oxt/lammps_export.py",
+      "original_sha256": "ebd9b102e457c57810b8327e4b8b2e82b265b4d5bda1acb44e1ca136cc0f8696",
+      "transmitted_sha256": "ebd9b102e457c57810b8327e4b8b2e82b265b4d5bda1acb44e1ca136cc0f8696",
+      "bytes": 5262,
+      "lines": 119,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/cpu32/summary.json",
+      "original_sha256": "351a43e1f88508953fa83ee1d708ce649a0b65ce2555aec8d5b3466672559970",
+      "transmitted_sha256": "351a43e1f88508953fa83ee1d708ce649a0b65ce2555aec8d5b3466672559970",
+      "bytes": 1897,
+      "lines": 106,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/cpu32/gag_summary.csv",
+      "original_sha256": "71e2dee5b6244d1fab1b5e156a592b1bf79f295d63e8772b73b8592648cd4777",
+      "transmitted_sha256": "71e2dee5b6244d1fab1b5e156a592b1bf79f295d63e8772b73b8592648cd4777",
+      "bytes": 3315,
+      "lines": 25,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/cpu32/gag.csv",
+      "original_sha256": "e2da74f0a8b97beaa267da25f903448e9b72813c091f66aa74ae4991f386948d",
+      "transmitted_sha256": "e2da74f0a8b97beaa267da25f903448e9b72813c091f66aa74ae4991f386948d",
+      "bytes": 102906,
+      "lines": 97,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/cpu32/cell.csv",
+      "original_sha256": "9da3f129ee4625b8c7dbc66550fb2afc7c1722bbb371c8e6c2f2088fbb5dfb28",
+      "transmitted_sha256": "9da3f129ee4625b8c7dbc66550fb2afc7c1722bbb371c8e6c2f2088fbb5dfb28",
+      "bytes": 26302,
+      "lines": 63,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/cpu32/organ.csv",
+      "original_sha256": "42f05e97eae6b5b8733e80bb07f0591202559553daca599764c1839e5dcb8978",
+      "transmitted_sha256": "42f05e97eae6b5b8733e80bb07f0591202559553daca599764c1839e5dcb8978",
+      "bytes": 5576,
+      "lines": 36,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/cpu32/heart.csv",
+      "original_sha256": "6f4945d52d2dad7be97cf91d82a9f892e5cfcb75cd141026129cb444260e8dbc",
+      "transmitted_sha256": "6f4945d52d2dad7be97cf91d82a9f892e5cfcb75cd141026129cb444260e8dbc",
+      "bytes": 745,
+      "lines": 6,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/alchemi_gag/collagen_gag_pilot.json",
+      "original_sha256": "877da3c3a9f969fa1538d1497ce6b57a633ed51974a46606b608b25091216b13",
+      "transmitted_sha256": "877da3c3a9f969fa1538d1497ce6b57a633ed51974a46606b608b25091216b13",
+      "bytes": 6436,
+      "lines": 207,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/alchemi_gag/collagen_gag_brev_L4.json",
+      "original_sha256": "9bc071ed3ab25be9472bb476222e27cf02f60c8eff8617a7cea2e270d08c9864",
+      "transmitted_sha256": "9bc071ed3ab25be9472bb476222e27cf02f60c8eff8617a7cea2e270d08c9864",
+      "bytes": 6444,
+      "lines": 207,
+      "generated_summary": false
+    },
+    {
+      "name": "oxidative-tensegrity/results/alchemi_pilot/crosslink_params_pilot.json",
+      "original_sha256": "b5b8bd2f15c38e46903974b6693e8aa8368f504cf123c3413b6cd5064c798733",
+      "transmitted_sha256": "b5b8bd2f15c38e46903974b6693e8aa8368f504cf123c3413b6cd5064c798733",
+      "bytes": 5567,
+      "lines": 213,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/README.md",
+      "original_sha256": "d4b2363c2c1175e71fb1ce088a6e6d71a9a61403f8ea9f9b0628bb25a5372e98",
+      "transmitted_sha256": "d4b2363c2c1175e71fb1ce088a6e6d71a9a61403f8ea9f9b0628bb25a5372e98",
+      "bytes": 7751,
+      "lines": 72,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/model.js",
+      "original_sha256": "d1bd854c5f994b055dad782aaedde0efd5a184e7f68da839673773f0e5e5f794",
+      "transmitted_sha256": "d1bd854c5f994b055dad782aaedde0efd5a184e7f68da839673773f0e5e5f794",
+      "bytes": 3331,
+      "lines": 40,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/test-model.js",
+      "original_sha256": "da0975ab7ca6f0a6aca8bdbd9f4de2006bf9116509b9f7068fdd6c1e3d5ec31e",
+      "transmitted_sha256": "da0975ab7ca6f0a6aca8bdbd9f4de2006bf9116509b9f7068fdd6c1e3d5ec31e",
+      "bytes": 2131,
+      "lines": 25,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/examples/calibration-format.json",
+      "original_sha256": "09fc20355188ebed34dd7efecaf92af8f6d648bca76939405238dd5542adeb67",
+      "transmitted_sha256": "09fc20355188ebed34dd7efecaf92af8f6d648bca76939405238dd5542adeb67",
+      "bytes": 172,
+      "lines": 5,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/examples/sample-design.json",
+      "original_sha256": "fc82377be87a9357931a1a438ef3464e0beb251ae1cb7720b7f59c17f319bc29",
+      "transmitted_sha256": "fc82377be87a9357931a1a438ef3464e0beb251ae1cb7720b7f59c17f319bc29",
+      "bytes": 43249,
+      "lines": 3922,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/examples/sweep.csv",
+      "original_sha256": "30c6880df92fc06f71a3c7c916379f59817d899578d6b1e5cd21e5515033eef7",
+      "transmitted_sha256": "30c6880df92fc06f71a3c7c916379f59817d899578d6b1e5cd21e5515033eef7",
+      "bytes": 5445,
+      "lines": 45,
+      "generated_summary": false
+    },
+    {
+      "name": "collagen-scaffold-lab/examples/research-brief.md",
+      "original_sha256": "e1895579f830f845154dfa83776d476422a11b34c469edfa992ed0575f744b0e",
+      "transmitted_sha256": "e1895579f830f845154dfa83776d476422a11b34c469edfa992ed0575f744b0e",
+      "bytes": 2851,
+      "lines": 35,
+      "generated_summary": false
+    },
+    {
+      "name": "derived/failure_selected.csv",
+      "original_sha256": "542bd2d4e2eb50606fd42c07d71f1fc635957fc4fc49d758d7360a8618908877",
+      "transmitted_sha256": "780cfaf63fd902adb6cbb3b712e687ed8efb6b435f3b4dcdea832486b0a262bf",
+      "bytes": 15306,
+      "lines": 109,
+      "generated_summary": true
+    },
+    {
+      "name": "derived/gag_selected.csv",
+      "original_sha256": "e2da74f0a8b97beaa267da25f903448e9b72813c091f66aa74ae4991f386948d",
+      "transmitted_sha256": "b43edd3ded1628dc9cb9b3e39f90efa11ec60c7e1dadfbdf124eab38e5ffd881",
+      "bytes": 23038,
+      "lines": 97,
+      "generated_summary": true
+    },
+    {
+      "name": "derived/network_summary.csv",
+      "original_sha256": "9de6feef3863651bf160a83c554770506f75b5097863df4729663a6a002941a2",
+      "transmitted_sha256": "068df331df71a4c552e5f04c4a74accc1976047ce4a7fc1bc5c3068bbba068d1",
+      "bytes": 38199,
+      "lines": 217,
+      "generated_summary": true
+    }
+  ]
+}

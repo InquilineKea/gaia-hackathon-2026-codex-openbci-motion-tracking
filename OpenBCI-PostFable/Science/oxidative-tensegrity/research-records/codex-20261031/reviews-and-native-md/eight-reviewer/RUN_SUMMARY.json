@@ -1,0 +1,29 @@
+{
+  "status": "eight_review_reports_available",
+  "reviewer_count": 8,
+  "api_requests": 12,
+  "first_pass_ok": 2,
+  "filename_normalizations": 2,
+  "truncated_roles_rerun": 4,
+  "usage": {
+    "promptTokenCount": 583397,
+    "candidatesTokenCount": 15384,
+    "thoughtsTokenCount": 45764,
+    "totalTokenCount": 644545
+  },
+  "h5_table_checks": {
+    "cell_rows": 62,
+    "max_dY_dM": 0.15580665420770043,
+    "min_dY_dM": -0.004605463169945849,
+    "max_beta_times_slope": 0.23370998131155063,
+    "min_recovery_rate_per_h": 0.1251156624037955,
+    "max_recovery_rate_per_h": 0.16792356378048173,
+    "bistable_rows": 0
+  },
+  "scientific_status": "synthesis checked against sources; individual model observations may remain unverified",
+  "reviewer_observations": 42,
+  "initial_runner_sha256": "71ac5e6a6b99cc38f594ce1dbc011737a2a9ed02f63a1506e8a8dbdaf9f1a784",
+  "current_runner_sha256": "3937954408dc7fdd29ad06b87cb25bf5f54ef3903fcc2e4eb8b07362ec089ce0",
+  "shared_project_status_updated": true,
+  "all_outputs_retrieved_before_lab_expiry": true
+}

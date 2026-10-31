@@ -1,0 +1,37 @@
+{
+  "molecule": "published_glucosepane_motif",
+  "n_atoms": 80,
+  "n_residues": 6,
+  "net_charge_e": -1.0000000001675335e-06,
+  "terms": {
+    "bonds": 81,
+    "angles": 148,
+    "proper": 248,
+    "improper": 11,
+    "exceptions": 433
+  },
+  "sources": {
+    "published Amber99/ColBuilder_bond": 81,
+    "published Amber99/ColBuilder_angle": 148,
+    "published Amber99/ColBuilder_proper": 209
+  },
+  "missing_terms": [],
+  "coverage_pass": true,
+  "junctions": [
+    {
+      "atoms": [
+        19,
+        59
+      ],
+      "label": "glucosepane"
+    }
+  ],
+  "residue_counts": {
+    "ACE": 2,
+    "LGX": 1,
+    "NME": 2,
+    "AGS": 1
+  },
+  "adapter_engine_crossvalidated": false,
+  "biological_validation": false
+}

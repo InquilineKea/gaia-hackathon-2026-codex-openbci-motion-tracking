@@ -1,0 +1,13 @@
+{
+  "energy_difference_per_atom": 8.37150937840183e-06,
+  "force_rms_difference": 0.004047709080337914,
+  "cuda_energy": -492348.10808653827,
+  "cpu_energy": -492348.3581602664,
+  "PME_alpha_per_nm": 3.2893431387452243,
+  "PME_grid": [
+    96,
+    135,
+    288
+  ],
+  "pass": true
+}

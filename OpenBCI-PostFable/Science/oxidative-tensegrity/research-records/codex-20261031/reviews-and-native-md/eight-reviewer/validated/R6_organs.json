@@ -1,0 +1,85 @@
+{
+  "role": "R6_organs",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_validation": "pending",
+  "review": {
+    "summary": "Auditing the tissue scaling, transport, and organ pipelines reveals discrepancies between documented and implemented dose dynamics, arbitrary single-tissue modulus scaling across all organs, hardcoded ad-hoc tissue multipliers, and inconsistent physical mappings. Outputs such as absolute Young's modulus (Pa), ejection fraction (%), pulse-wave velocity (m/s), and transport arrival times are dimensional scenario projections relative to arbitrary calibrations rather than absolute clinical predictions.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Documentation mismatch in crosslink accumulation dose ODE",
+        "source_file": "oxidative-tensegrity/README.md",
+        "source_line": 56,
+        "evidence": "README documents dose(age) as closed-form 'r\u00b7\u03c4\u00b7(1 \u2212 e^(\u2212age/\u03c4))', but materials.py line 183 implements a non-linear ODE 'dd/dt = r - d / (tau * exp(alpha * d))' with exponential turnover slowing.",
+        "implication": "Users relying on the documented closed-form expression will miscalculate tissue dose accrual dynamics and crosslink accumulation.",
+        "recommended_check": "Update README.md line 56 to state the numerical feedback ODE dd/dt = r - d/(tau*exp(alpha*d)) or align tissue_dose in oxt/materials.py with the analytical formula.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "high",
+        "title": "Global Young's modulus calibration anchored solely to young skin dermis",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 249,
+        "evidence": "S_pa is calculated as args.E_dermis_young_pa / (3 * young['G'].mean()) from skin dermis and applied globally across all tissues.",
+        "implication": "All tissue moduli (tendon, cartilage, myocardium, basement membrane) share a single skin-dermis conversion factor, ignoring distinct collagen concentrations, fibril densities, and volume fractions across organs.",
+        "recommended_check": "Calibrate tissue-specific S_pa constants based on baseline physical modulus data for each distinct tissue type.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "medium",
+        "title": "Uncalibrated 10x arbitrary scaling factor in myocardial stiffness input to heart model",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 210,
+        "evidence": "Myocardial linear modulus is scaled as 'myo.E_lin_Pa / 1e3 * 10' when passing E_myo_kpa into heart().",
+        "implication": "The heart organ model relies on an undocumented 10x multiplier to shift myocardial modulus into the ~10 kPa range expected by Engler optimal contractility formulas.",
+        "recommended_check": "Remove arbitrary scale factors and calibrate myocardial matrix baseline stiffness explicitly in LVParams or TISSUES.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Inconsistent arterial elastance scaling relationship with PWV",
+        "source_file": "oxidative-tensegrity/oxt/physio.py",
+        "source_line": 86,
+        "evidence": "Code states 'Ea = p.Ea0 * pwv_ratio ** 2' with comment claiming Ea ~ PWV, but since pwv_ratio ~ sqrt(E_ratio), pwv_ratio**2 equals E_ratio directly.",
+        "implication": "Arterial elastance scales linearly with medial matrix modulus ratio E_ratio rather than with PWV ratio, contradicting the code comment.",
+        "recommended_check": "Clarify comment or modify function to reflect intended hemodynamic dependency of arterial elastance on characteristic impedance versus modulus.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "low",
+        "title": "Collagen II substituted by Collagen I parameters for cartilage",
+        "source_file": "oxidative-tensegrity/oxt/materials.py",
+        "source_line": 170,
+        "evidence": "TISSUES['cartilage'] specifies collagen='I' and uses Col I parameters as a proxy for the Col II network.",
+        "implication": "Cartilage mechanics neglect specific structural differences and crosslink chemistries of collagen II networks.",
+        "recommended_check": "Add a Collagen II definition to COLLAGENS with appropriate mu, z, and crosslinks.",
+        "claim_status": "assumption"
+      },
+      {
+        "severity": "low",
+        "title": "Isotropic Poisson assumption (E = 3G) applied to anisotropic 2D networks",
+        "source_file": "oxidative-tensegrity/run_sweep.py",
+        "source_line": 150,
+        "evidence": "secant_curves converts shear modulus G and stress to Young's modulus using E = 3 * G assuming ideal incompressibility.",
+        "implication": "For anisotropic or compressible 2D lattices, E = 3G introduces systematic conversion errors in local stiffness felt by cells.",
+        "recommended_check": "Calculate E directly via uniaxial stretch simulations rather than assuming 2D incompressibility (E = 3G).",
+        "claim_status": "assumption"
+      }
+    ],
+    "strongest_surviving_claim": "Qualitative non-linear mechanics trends, such as loss of strain-stiffening and relative network stiffening below the isostatic branching threshold z = 4 under crosslink accumulation.",
+    "decisive_next_experiment": "Perform direct uniaxial stretching simulations of 2D/3D networks to measure E_lin and Poisson's ratio explicitly instead of scaling via E = 3G and skin-dermis calibration constants.",
+    "literature_to_verify": [
+      {
+        "query": "collagen matrix turnover half life skin tendon myocardium cartilage",
+        "reason": "Verify whether mature crosslinked collagen turnover half-lives match the assumed values (15y skin, 200y tendon, 5y myocardium, 117y cartilage).",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "arterial elastance pulse wave velocity scaling relationship aging",
+        "reason": "Verify clinical and physical relationship between arterial elastance Ea and pulse wave velocity PWV.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

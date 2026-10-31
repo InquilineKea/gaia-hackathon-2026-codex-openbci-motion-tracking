@@ -1,0 +1,26 @@
+{
+  "source_report_sha256": "1e241ed22b0f6a9801e85b2d41fe93fc8f71a20dd907871ecb7d946dd24b6703",
+  "coverage": "scientific inputs, parameters, provenance, original raw results, both executed driver versions and additional local analyses",
+  "excluded_source_paths": [
+    "CANDIDATE_COMPARISON_RESULTS.md",
+    "CLEANUP_AND_SHUTDOWN.json",
+    "DELIVERABLE_MANIFEST.json",
+    "MANIFEST.json",
+    "SECURITY_REVIEW.md",
+    "approval.json",
+    "launch.py",
+    "retrieved/attempt-001/container-config.json",
+    "retrieved/attempt-002/container-config.json",
+    "retrieved/project/SECURITY_REVIEW.md",
+    "retrieved/project/approval.json",
+    "retrieved/project/launch.py",
+    "retrieved/project_attempt002/SECURITY_REVIEW.md",
+    "retrieved/project_attempt002/approval.json",
+    "retrieved/project_attempt002/launch.py"
+  ],
+  "adaptations": [
+    "report publication wording",
+    "replace private cleanup-record reference with observed shutdown outcome"
+  ],
+  "raw_scientific_data_modified": false
+}

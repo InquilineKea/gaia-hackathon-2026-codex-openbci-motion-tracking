@@ -1,0 +1,15 @@
+{
+  "model": "collagen_PYD_6chain_coupon",
+  "sha256": {
+    "physical_system.xml": "c4dfc68d51830a20b9d81cfd7d0a264d31b1189d78327985210e427273722af9",
+    "positions_nm.npy": "8d96b81428af2fcd1db09b5046f5536633258890ad35e5086bae45451520aeae",
+    "prepared.pdb": "1696f8799247f20b626ad970bdbb0da3572c2c8f03faf424bce8e1f8b16bc1a8",
+    "prepared.json": "e83327648292dcdff2b7b6e696fcadf9ec282c0ae15732e9c70fe6f67e1925a7",
+    "validation.json": "ecd3b4534f2a27a3d6fee6fea52832c0b50e723b1cdbad002740b64d15f6f9d7"
+  },
+  "scope": "dry restrained preparation; zero dynamics",
+  "all_preparation_checks_pass": true,
+  "solvated": false,
+  "equilibrated": false,
+  "production_validated": false
+}

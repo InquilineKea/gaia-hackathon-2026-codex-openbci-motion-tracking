@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "nonroot": true,
+    "no_new_privileges": true,
+    "no_capabilities": true,
+    "seccomp": true,
+    "network_only_loopback": true,
+    "readonly_root": true,
+    "readonly_project": true,
+    "readonly_wheels": true,
+    "executable_runtime": true,
+    "python_312": true,
+    "x86_64": true
+  },
+  "python": "3.12.7 (main, Dec  3 2024, 05:24:11) [GCC 12.2.0]",
+  "libc": [
+    "glibc",
+    "2.36"
+  ],
+  "uid": 1000
+}

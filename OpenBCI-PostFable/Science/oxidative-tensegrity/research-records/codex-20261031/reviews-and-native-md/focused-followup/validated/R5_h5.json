@@ -1,0 +1,55 @@
+{
+  "role": "R5_h5",
+  "status": "format_validated",
+  "normalizations": [],
+  "scientific_status": "reviewed synthesis will qualify unsupported assertions",
+  "review": {
+    "summary": "An audit of the mechanotransduction and organism-resilience literature and codebase indicates that individual lifespan prediction via matrix-YAP loop recovery dynamics (H5) lacks empirical literature support and suffers from model implementation artifacts. While Pyrkov et al. (2021) established systemic resilience recovery clocks in blood/activity data, transferring this concept to local ECM-YAP dynamics is an untested hypothesis. Furthermore, code audit reveals that simulated recovery rates are functionally constrained by the fixed transcriptional parameter tau_M rather than dynamic matrix slowing down.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Lit Evidentiary Gap for Mechanotransduction Individual Lifespan Prediction",
+        "source_file": "evidence/PRIMARY_EVIDENCE.md",
+        "source_line": 10,
+        "evidence": "Pyrkov et al. (2021) evaluates systemic blood and activity fluctuations, but does not measure ECM-YAP-myosin recovery kinetics or establish individual remaining-lifespan prediction from mechanotransduction dynamics.",
+        "implication": "Extrapolating systemic physiological resilience clocks to single-cell or tissue mechanotransduction recovery dynamics remains an unvalidated hypothesis.",
+        "recommended_check": "Conduct longitudinal tracking of single-organism mechanotransduction reporter dynamics alongside lifespan measurement to test predictive power beyond chronological age.",
+        "claim_status": "hypothesis"
+      },
+      {
+        "severity": "high",
+        "title": "Model Recovery Rate Invariance Driven by Fixed Parameter tau_M",
+        "source_file": "oxidative-tensegrity/oxt/cell.py",
+        "source_line": 358,
+        "evidence": "The Jacobian matrix J uses -1/tau_M (-0.167/h) on the diagonal, and empirical dY/dM values in results/cpu32/cell.csv are near zero (ranging -0.004 to 0.005), making the calculated eigenvalue invariant to matrix stiffness changes.",
+        "implication": "The simulated 'recovery rate slowing' is an artifact of fixed parameterization rather than emergent physical critical slowing down of matrix mechanosensing.",
+        "recommended_check": "Inspect matrix sensitivity derivatives across a wider range of non-saturated contractilities and report analytical eigenvalue dependencies on tau_Y, tau_M, and dY/dM.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Absence of Direct Literature Linking YAP Recovery Kinetics to Lifespan",
+        "source_file": "oxidative-tensegrity/HYPOTHESES_EWALD.md",
+        "source_line": 120,
+        "evidence": "Literature searches in swarm round 2 identified upstream regulatory components (YAP export, AMPK, cofilin) but no empirical evidence connecting mechanotransduction recovery kinetics to individual organismal lifespan.",
+        "implication": "H5 rests entirely on theoretical analogy rather than established biological mechanisms.",
+        "recommended_check": "Validate whether mechanical perturbation recovery in vivo (e.g. pressure pulse recovery in C. elegans) exhibits age-dependent slowing before claiming clock utility.",
+        "claim_status": "hypothesis"
+      }
+    ],
+    "strongest_surviving_claim": "Mechanosensing loops and strain-stiffening ECM networks exhibit age-related changes in baseline stiffness and YAP nuclear localization, but recovery kinetics do not currently support individual lifespan prediction.",
+    "decisive_next_experiment": "Perform age-adjusted longitudinal repeated-measurement pressure-pulse assays on individually housed C. elegans expressing a YAP-1/collagen reporter (WorMotel setup), comparing remaining-lifespan prediction variance explained by recovery rate versus chronological age alone. Falsifier: recovery time provides no statistically significant gain in hazard model log-likelihood over chronological age.",
+    "literature_to_verify": [
+      {
+        "query": "Pyrkov 2021 dynamic organism level resilience remaining lifespan prediction",
+        "reason": "Verify the empirical boundaries of systemic resilience decay timescales and whether local tissue/matrix dynamics were evaluated.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Teuscher 2024 C. elegans hemidesmosome YAP-1 mechanotransduction aging",
+        "reason": "Confirm whether mechanotransduction reporter kinetics under mechanical challenge correlate with lifespan interventions.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

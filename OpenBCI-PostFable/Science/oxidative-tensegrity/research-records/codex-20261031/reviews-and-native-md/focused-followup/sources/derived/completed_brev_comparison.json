@@ -1,0 +1,118 @@
+{
+  "source_files": [
+    "crosslink_mace_off.json",
+    "crosslink_mace_mp.json"
+  ],
+  "off_final_fmax": 0.019735862658841613,
+  "mp_final_fmax": 0.01936194510594663,
+  "definitions": {
+    "ratio_max_min": "larger normalized stiffness / smaller normalized stiffness; not a statistical uncertainty",
+    "minimum_strain": "grid location of global minimum relative to initial anchor separation"
+  },
+  "rows": [
+    {
+      "chemistry": "HLNL",
+      "off_k_rel": 16.290484085696328,
+      "mp_k_rel": 2.90882225579379,
+      "ratio_max_min": 5.600371096325653,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 16,
+      "off_minimum_strain_relative_to_initial_L0": 0.18799999999999994,
+      "off_k_eV_A2": 1.577668456256599,
+      "mp_global_min_index": 4,
+      "mp_minimum_strain_relative_to_initial_L0": 0.0020000000000000018,
+      "mp_k_eV_A2": 0.14780453422546555
+    },
+    {
+      "chemistry": "pyridinoline",
+      "off_k_rel": 1.0,
+      "mp_k_rel": 1.0,
+      "ratio_max_min": 1.0,
+      "over_30_percent_by_max_min": false,
+      "off_global_min_index": 3,
+      "off_minimum_strain_relative_to_initial_L0": -0.013499999999999956,
+      "off_k_eV_A2": 0.09684601439449259,
+      "mp_global_min_index": 0,
+      "mp_minimum_strain_relative_to_initial_L0": -0.06000000000000005,
+      "mp_k_eV_A2": 0.050812501152680815
+    },
+    {
+      "chemistry": "pentosidine",
+      "off_k_rel": 0.527649524358293,
+      "mp_k_rel": 1.4446605122505933,
+      "ratio_max_min": 2.737916828424196,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 4,
+      "off_minimum_strain_relative_to_initial_L0": 0.0020000000000000018,
+      "off_k_eV_A2": 0.05110075343125041,
+      "mp_global_min_index": 5,
+      "mp_minimum_strain_relative_to_initial_L0": 0.01750000000000007,
+      "mp_k_eV_A2": 0.07340681394396573
+    },
+    {
+      "chemistry": "glucosepane",
+      "off_k_rel": 1.039592050218879,
+      "mp_k_rel": 1.5503479768737332,
+      "ratio_max_min": 1.4913041866252421,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 5,
+      "off_minimum_strain_relative_to_initial_L0": 0.01750000000000007,
+      "off_k_eV_A2": 0.1006803466598976,
+      "mp_global_min_index": 8,
+      "mp_minimum_strain_relative_to_initial_L0": 0.06400000000000006,
+      "mp_k_eV_A2": 0.07877705836195294
+    },
+    {
+      "chemistry": "dityrosine",
+      "off_k_rel": 4.309474738865203,
+      "mp_k_rel": 6.799552905554432,
+      "ratio_max_min": 1.577814772698942,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 3,
+      "off_minimum_strain_relative_to_initial_L0": -0.013499999999999956,
+      "off_k_eV_A2": 0.4173554525928416,
+      "mp_global_min_index": 1,
+      "mp_minimum_strain_relative_to_initial_L0": -0.044499999999999984,
+      "mp_k_eV_A2": 0.34550228985119874
+    },
+    {
+      "chemistry": "disulfide",
+      "off_k_rel": 2.149906302515629,
+      "mp_k_rel": 1.0484267198033062,
+      "ratio_max_min": 2.0506023567569605,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 4,
+      "off_minimum_strain_relative_to_initial_L0": 0.0020000000000000018,
+      "off_k_eV_A2": 0.20820985672023895,
+      "mp_global_min_index": 4,
+      "mp_minimum_strain_relative_to_initial_L0": 0.0020000000000000018,
+      "mp_k_eV_A2": 0.053273183908506855
+    },
+    {
+      "chemistry": "isopeptide_TG2",
+      "off_k_rel": 0.6027563988769944,
+      "mp_k_rel": 0.8017064145833677,
+      "ratio_max_min": 1.330067032182554,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 5,
+      "off_minimum_strain_relative_to_initial_L0": 0.01750000000000007,
+      "off_k_eV_A2": 0.058374554882013915,
+      "mp_global_min_index": 6,
+      "mp_minimum_strain_relative_to_initial_L0": 0.03299999999999992,
+      "mp_k_eV_A2": 0.04073670811512897
+    },
+    {
+      "chemistry": "sulfilimine",
+      "off_k_rel": 0.6045910619294533,
+      "mp_k_rel": 3.4875924209816036,
+      "ratio_max_min": 5.768514688013289,
+      "over_30_percent_by_max_min": true,
+      "off_global_min_index": 0,
+      "off_minimum_strain_relative_to_initial_L0": -0.06000000000000005,
+      "off_k_eV_A2": 0.058552234686401396,
+      "mp_global_min_index": 4,
+      "mp_minimum_strain_relative_to_initial_L0": 0.0020000000000000018,
+      "mp_k_eV_A2": 0.1772132939112086
+    }
+  ]
+}
