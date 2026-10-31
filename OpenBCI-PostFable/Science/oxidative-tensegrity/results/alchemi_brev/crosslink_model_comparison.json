@@ -1,0 +1,171 @@
+{
+  "spearman": {
+    "k_rel": {
+      "MACE-OFF vs MACE-MP": 0.4761904761904762,
+      "PM7 vs MACE-OFF": 0.4285714285714286,
+      "PM7 vs MACE-MP": 0.4047619047619048
+    },
+    "peak_force": {
+      "MACE-OFF vs MACE-MP": 0.9523809523809524,
+      "PM7 vs MACE-OFF": 0.9761904761904763,
+      "PM7 vs MACE-MP": 0.9761904761904763
+    }
+  },
+  "pm7_seed_vs_seed7_spearman": {
+    "k_rel": {
+      "11": 0.7142857142857144,
+      "23": 0.5714285714285715
+    },
+    "peak_force": {
+      "11": 0.4761904761904762,
+      "23": 0.4761904761904762
+    }
+  },
+  "chemistries": [
+    {
+      "chemistry": "HLNL",
+      "k_rel_MACE-OFF": 16.290484085696328,
+      "k_rel_MACE-MP": 2.90882225579379,
+      "k_rel_PM7": 0.11100658015888858,
+      "peak_force_MACE-OFF": 1.2847857490736525,
+      "peak_force_MACE-MP": 0.9458906858577236,
+      "peak_force_PM7": 1.3778018153966556,
+      "k_rel_seed_mean": 0.6799830997116424,
+      "k_rel_seed_sd": 0.8222295033057021,
+      "peak_force_seed_mean": 2.297909158627577,
+      "peak_force_seed_sd": 1.8896857724901805,
+      "E_min_index": {
+        "MACE-OFF": 16,
+        "MACE-MP": 4,
+        "PM7": 14
+      }
+    },
+    {
+      "chemistry": "pyridinoline",
+      "k_rel_MACE-OFF": 1.0,
+      "k_rel_MACE-MP": 1.0,
+      "k_rel_PM7": 1.0,
+      "peak_force_MACE-OFF": 0.2104329608159869,
+      "peak_force_MACE-MP": 0.1051541376650405,
+      "peak_force_PM7": 0.14861600990322446,
+      "k_rel_seed_mean": 1.0,
+      "k_rel_seed_sd": 0.0,
+      "peak_force_seed_mean": 2.1838268457058714,
+      "peak_force_seed_sd": 1.6345561765228982,
+      "E_min_index": {
+        "MACE-OFF": 3,
+        "MACE-MP": 0,
+        "PM7": 15
+      }
+    },
+    {
+      "chemistry": "pentosidine",
+      "k_rel_MACE-OFF": 0.527649524358293,
+      "k_rel_MACE-MP": 1.4446605122505933,
+      "k_rel_PM7": 0.01672771977779186,
+      "peak_force_MACE-OFF": 0.32996102419896256,
+      "peak_force_MACE-MP": 0.26587833932708144,
+      "peak_force_PM7": 0.5705767359170768,
+      "k_rel_seed_mean": 0.17984928794523,
+      "k_rel_seed_sd": 0.2308570647679046,
+      "peak_force_seed_mean": 0.3569758298760972,
+      "peak_force_seed_sd": 0.21462691416434693,
+      "E_min_index": {
+        "MACE-OFF": 4,
+        "MACE-MP": 5,
+        "PM7": 5
+      }
+    },
+    {
+      "chemistry": "glucosepane",
+      "k_rel_MACE-OFF": 1.039592050218879,
+      "k_rel_MACE-MP": 1.5503479768737332,
+      "k_rel_PM7": 0.191127628878247,
+      "peak_force_MACE-OFF": 0.9538538355157486,
+      "peak_force_MACE-MP": 0.6609824259003646,
+      "peak_force_PM7": 0.9037568254560775,
+      "k_rel_seed_mean": 0.26878707037277305,
+      "k_rel_seed_sd": 0.23794249247878246,
+      "peak_force_seed_mean": 0.4710014056084657,
+      "peak_force_seed_sd": 0.3069814407812168,
+      "E_min_index": {
+        "MACE-OFF": 5,
+        "MACE-MP": 8,
+        "PM7": 7
+      }
+    },
+    {
+      "chemistry": "dityrosine",
+      "k_rel_MACE-OFF": 4.309474738865203,
+      "k_rel_MACE-MP": 6.799552905554432,
+      "k_rel_PM7": 0.31617606436587536,
+      "peak_force_MACE-OFF": 1.5212073560794135,
+      "peak_force_MACE-MP": 1.4213443189846002,
+      "peak_force_PM7": 1.8127836135133026,
+      "k_rel_seed_mean": 0.33074046331252177,
+      "k_rel_seed_sd": 0.059332607463099735,
+      "peak_force_seed_mean": 1.854065031920255,
+      "peak_force_seed_sd": 0.029195472004906017,
+      "E_min_index": {
+        "MACE-OFF": 3,
+        "MACE-MP": 1,
+        "PM7": 3
+      }
+    },
+    {
+      "chemistry": "disulfide",
+      "k_rel_MACE-OFF": 2.149906302515629,
+      "k_rel_MACE-MP": 1.0484267198033062,
+      "k_rel_PM7": 0.039013252665575336,
+      "peak_force_MACE-OFF": 0.13388727894525404,
+      "peak_force_MACE-MP": 0.023826114275586827,
+      "peak_force_PM7": 0.059989354585119975,
+      "k_rel_seed_mean": 0.0539000308344276,
+      "k_rel_seed_sd": 0.011477287141097556,
+      "peak_force_seed_mean": 0.06482727146666113,
+      "peak_force_seed_sd": 0.0072010066074214086,
+      "E_min_index": {
+        "MACE-OFF": 4,
+        "MACE-MP": 4,
+        "PM7": 7
+      }
+    },
+    {
+      "chemistry": "isopeptide_TG2",
+      "k_rel_MACE-OFF": 0.6027563988769944,
+      "k_rel_MACE-MP": 0.8017064145833677,
+      "k_rel_PM7": 0.011977496010129452,
+      "peak_force_MACE-OFF": 0.20545237327367005,
+      "peak_force_MACE-MP": 0.1432132843612478,
+      "peak_force_PM7": 0.06914326477785787,
+      "k_rel_seed_mean": -0.1712327329361002,
+      "k_rel_seed_sd": 0.2517077004350106,
+      "peak_force_seed_mean": 0.09583670707591292,
+      "peak_force_seed_sd": 0.048037056757419885,
+      "E_min_index": {
+        "MACE-OFF": 5,
+        "MACE-MP": 6,
+        "PM7": 0
+      }
+    },
+    {
+      "chemistry": "sulfilimine",
+      "k_rel_MACE-OFF": 0.6045910619294533,
+      "k_rel_MACE-MP": 3.4875924209816036,
+      "k_rel_PM7": 0.1573195269653648,
+      "peak_force_MACE-OFF": 0.38186199058130144,
+      "peak_force_MACE-MP": 0.16379342035414018,
+      "peak_force_PM7": 0.3580684451946367,
+      "k_rel_seed_mean": 1.075187668982834,
+      "k_rel_seed_sd": 0.7929573842795005,
+      "peak_force_seed_mean": 0.18711411922743948,
+      "peak_force_seed_sd": 0.1269211553121894,
+      "E_min_index": {
+        "MACE-OFF": 0,
+        "MACE-MP": 4,
+        "PM7": 13
+      }
+    }
+  ],
+  "note": "k_rel relative to pyridinoline in every method; seed spread is PM7 over RDKit conformer seeds"
+}

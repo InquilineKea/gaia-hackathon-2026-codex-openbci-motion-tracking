@@ -65,3 +65,17 @@ Cloned to a scratch folder and read; nothing installed or run. Apache-2.0 (packa
 | Info | Endpoints seen in core code: Infinite, PubMed/NCBI, doi.org, arXiv, generativelanguage.googleapis.com (Gemini), imgur. No reads of `.ssh`, `.aws`, keychain, gcloud or browser stores found by grep. | — |
 
 **Not verified:** the 300+ skills individually, `tooluniverse` and its dependency tree, transitive pins. Grep-level review only.
+
+## MOPAC (openmopac) v23.2.5 — review 2026-10-31, executed on Brev (user: "Yes, review then run")
+
+Used for the PM7 tie-breaker (`pm7_crosslinks.py`, `remote/brev_pm7.sh`). The ScienceClaw `mopac` skill was read
+but not used: it is a thin ASE wrapper and passes an `scf=` keyword ASE's MOPAC calculator does not accept.
+
+| Severity | Finding | Mitigation |
+|---|---|---|
+| Low | Prebuilt binaries (`bin/mopac`, `lib/libmopac.so.2`, Intel `libiomp5.so`, MKL statically linked); source not rebuilt. | Official `openmopac/mopac` release, Apache-2.0, published 2026-05-03 by the MOPAC maintainer (passes the 7-day rule). Tarball sha256 `bc1a814a…9377` matches GitHub's recorded asset digest and is re-checked by `brev_pm7.sh` before every run. |
+| Info | Tarball has no install scripts (the `.run` installer was not used). `strings` shows only citation URLs; no socket, curl, `system`/`popen` or shell strings. Dynamic deps: libc, libm, libgcc_s, libiomp5. | — |
+
+Execution: Brev L4 box, `python:3.12.7-bookworm` container with `--network none`, MOPAC tarball mounted read-only,
+the existing `oxt-alchemi-venv` (rdkit 2024.9.6, ase 3.24.0, already reviewed) mounted read-only. No new Python
+packages. Nothing ran on the Mac.

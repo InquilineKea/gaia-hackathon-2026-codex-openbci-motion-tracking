@@ -50,7 +50,10 @@ vs linear (PA) gels at matched G₀, ± glycation; predict YAP and COL1A1 track 
 cuticle and basement membrane. Harm comes from the same chemistry continuing on adult matrix that is no longer
 replaced. The time window, not the chemistry, decides.
 **SIMULATED (pilot, not converged).** ALCHEMI/MACE-OFF stretch scans rank dityrosine (3.2×) and sulfilimine (2.9×)
-the stiffest linkages relative to pyridinoline; glucosepane ≈ pyridinoline.
+the stiffest linkages relative to pyridinoline; glucosepane ≈ pyridinoline. *Update 2026-10-31: a PM7 check over
+three conformers shows these stiffness ranks are set by the fragment's starting conformer. Only "dityrosine is
+stiff" survives; sulfilimine (0.05–0.36 eV/Å peak force) and glucosepane vs pyridinoline are undetermined (README,
+PM7 section).*
 **PROPOSED test.** Auxin-inducible degradation of BLI-3 or PXN-2 started after the L4 molt vs from hatching: predict
 developmental loss blisters and shortens life, while adult-onset partial loss slows cuticle stiffening (AFM) and
 extends lifespan in a *yap-1*-dependent way.

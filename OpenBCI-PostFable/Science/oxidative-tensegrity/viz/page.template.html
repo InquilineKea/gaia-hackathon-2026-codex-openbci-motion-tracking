@@ -112,7 +112,7 @@ footer { color: var(--muted); font-size: 0.82rem }
     <figure class="fig" style="margin:0"><div class="chart" id="cgag"></div>
       <figcaption>Best contact energy, residue + dermatan-sulfate disaccharide (0, 1 or 2 sulfates). AIMNet2 via ALCHEMI; filled = Brev L4, 24 orientations; open = laptop CPU, 6. Rigid gas-phase fragments: ranks, not binding free energies.</figcaption></figure>
     <figure class="fig" style="margin:0"><div class="chart" id="xl"></div>
-      <figcaption>Stretch stiffness relative to pyridinoline, MACE-OFF via ALCHEMI batched FIRE2. <span id="xlsrc"></span></figcaption></figure>
+      <figcaption>Stretching capped crosslink fragments: two machine-learned potentials via ALCHEMI batched FIRE2, plus PM7 as an independent check. <span id="xlsrc"></span></figcaption></figure>
   </div>
 </section>
 
@@ -325,24 +325,35 @@ function drawMolecules() {
   });
   chart(document.getElementById("cgag"), { series, xticks: [0, 1, 2], xfmt: v => pairs[v] || "", xdom: [-0.2, 2.6], ydom: [0, 3.4], right: 90,
     title: "GAG contact energy (−eV, higher = tighter)", ylabel: "−E contact (eV)", xname: "GAG", yname: "−E", w: 520, h: 300 });
-  const xl = D.crosslink_converged || D.crosslink_pilot;
-  document.getElementById("xlsrc").textContent = D.crosslink_converged ? "Converged run on Brev." : `CPU pilot, not converged (final force ${(+D.crosslink_pilot._fmax).toFixed(2)} eV/Å): ranks only.`;
-  const names = Object.keys(xl).filter(k => !k.startsWith("_")).sort((a, b) => xl[b].k_rel - xl[a].k_rel);
+  const off = D.crosslink_off, mp = D.crosslink_mp, pm7 = D.crosslink_pm7, pil = D.crosslink_pilot;
+  const two = off && mp;
+  document.getElementById("xlsrc").textContent = two && pm7
+    ? `Converged on the Brev L4 (MACE final force ${(+off._fmax).toFixed(3)} / ${(+mp._fmax).toFixed(3)} eV/Å); PM7 is semi-empirical quantum chemistry (MOPAC) on the same fragments. From one shared starting conformer the three methods rank peak force almost identically (rank correlation 0.95–0.98), but PM7 from two other RDKit conformers (whiskers: range over 3 conformers) reorders it (0.48): the scan mostly measures how much slack each fragment's conformer has. Only conformer-proof: dityrosine is stiff; disulfide and TG2 isopeptide are soft. Glucosepane vs pyridinoline is undetermined.`
+    : two ? `Converged on the Brev L4 (final force ${(+off._fmax).toFixed(3)} and ${(+mp._fmax).toFixed(3)} eV/Å).`
+    : `CPU pilot, not converged (final force ${(+pil._fmax).toFixed(2)} eV/Å): ranks only.`;
+  const A = two ? off : pil;
+  const xseries = two ? [["MACE-OFF", off, "--iso"], ["MACE-MP", mp, "--aniso"]].concat(pm7 ? [["PM7", pm7, "--gag"]] : []) : [["pilot", pil, "--iso"]];
+  const names = Object.keys(A).filter(k => !k.startsWith("_")).sort((x, y) => (pm7 || A)[y].Fpk - (pm7 || A)[x].Fpk);
   const host = document.getElementById("xl"); host.innerHTML = "";
-  const W = 520, H = 300, l = 120, r = 40, top = 26, rowH = (H - top - 10) / names.length;
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Crosslink stretch stiffness" }, host);
-  el("text", { x: 0, y: 14, class: "ttl" }, svg).textContent = "Relative stretch stiffness (pyridinoline = 1)";
-  const max = Math.max(...names.map(n => xl[n].k_rel)) * 1.1, X = v => l + v / max * (W - l - r);
-  const oxid = { "pentosidine": 1, "glucosepane": 1, "dityrosine": 1, "disulfide": 1, "sulfilimine": 1 };
-  el("line", { x1: X(1), x2: X(1), y1: top, y2: H - 6, stroke: css("--rule"), "stroke-dasharray": "3 3" }, svg);
+  const W = 520, H = 340, l = 120, r = 46, top = 26, rowH = (H - top - 18) / names.length;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Crosslink peak force by method" }, host);
+  el("text", { x: 0, y: 14, class: "ttl" }, svg).textContent = "Peak force over 0–25% extension (eV/Å)";
+  const vals = names.flatMap(n => xseries.flatMap(([, src]) => [src[n].Fpk, ...(src[n].Fpk_seeds || [])]));
+  const hi = Math.max(...vals) * 1.08, X = v => l + v / hi * (W - l - r);
+  [0, 1, 2, 3, 4, 5].filter(v => v < hi).forEach(v => { el("line", { x1: X(v), x2: X(v), y1: top, y2: H - 14, stroke: css(v === 0 ? "--rule" : "--grid") }, svg); el("text", { x: X(v), y: H - 2, "text-anchor": "middle" }, svg).textContent = v; });
   names.forEach((n, i) => {
-    const y = top + i * rowH + 4, col = css(oxid[n] ? "--iso" : "--healthy");
-    el("text", { x: l - 8, y: y + rowH / 2 + 2, "text-anchor": "end" }, svg).textContent = n.replace("_", " ");
-    const rct = el("rect", { x: l, y, width: Math.max(1, X(xl[n].k_rel) - l), height: rowH - 8, rx: 3, fill: col }, svg);
-    rct.addEventListener("pointermove", ev => showTip(ev, `${n}: k_rel ${xl[n].k_rel}, peak force ${xl[n].Fpk} eV/Å`)); rct.addEventListener("pointerleave", hideTip);
-    el("text", { x: X(xl[n].k_rel) + 5, y: y + rowH / 2 + 2 }, svg).textContent = xl[n].k_rel.toFixed(2);
+    const y = top + i * rowH + 3;
+    el("text", { x: l - 8, y: y + rowH / 2, "text-anchor": "end" }, svg).textContent = n.replace("_", " ");
+    xseries.forEach(([lab, src, cc], j) => {
+      const h = (rowH - 8) / xseries.length, yy = y + j * h, v = src[n].Fpk, sd = src[n].Fpk_seeds;
+      const rct = el("rect", { x: l, y: yy, width: Math.max(1, X(v) - l), height: h - 1, rx: 2, fill: css(cc) }, svg);
+      const tip = `${n}, ${lab}: peak force ${v} eV/Å` + (sd ? ` (conformers: ${sd.join(", ")})` : "") + `, k_rel ${src[n].k_rel}`;
+      rct.addEventListener("pointermove", ev => showTip(ev, tip)); rct.addEventListener("pointerleave", hideTip);
+      if (sd) el("line", { x1: X(Math.min(...sd)), x2: X(Math.max(...sd)), y1: yy + h / 2, y2: yy + h / 2, stroke: css("--ink2"), "stroke-width": 1.5 }, svg);
+      el("text", { x: X(Math.max(v, ...(sd || []))) + 4, y: yy + h - 2, style: "font-size:10px" }, svg).textContent = v.toFixed(2);
+    });
   });
-  legend(host, [["oxidative / glycation", "--iso"], ["enzymatic (LOX, TG2)", "--healthy"]]);
+  legend(host, xseries.map(([lab, , cc]) => [lab, cc]));
 }
 
 // ---------- network animation ----------

@@ -107,14 +107,18 @@ out["gag"] = gag.round(5).to_dict(orient="records")
 for name, path in [("collagen_gag_cpu", ROOT / "results/alchemi_gag/collagen_gag_pilot.json"),
                    ("collagen_gag_l4", ROOT / "results/alchemi_gag/collagen_gag_brev_L4.json"),
                    ("crosslink_pilot", ROOT / "results/alchemi_pilot/crosslink_params_pilot.json"),
-                   ("crosslink_converged", ROOT / "results/crosslink_params.json")]:
+                   ("crosslink_off", ROOT / "results/alchemi_brev/crosslink_mace_off.json"),
+                   ("crosslink_mp", ROOT / "results/alchemi_brev/crosslink_mace_mp.json"),
+                   ("crosslink_pm7", ROOT / "results/alchemi_brev/crosslink_pm7.json")]:
     if path.exists():
         d = json.loads(path.read_text())
         if "pairs" in d:
             out[name] = {k: round(v["min_total_eV"], 3) for k, v in d["pairs"].items()} | \
                         {"_dist": {k: v["d_at_min"] for k, v in d["pairs"].items()}}
         else:
-            out[name] = {k: dict(k_rel=round(v["k_rel"], 2), Fpk=round(v["peak_force_eV_A"], 3))
+            out[name] = {k: dict(k_rel=round(v["k_rel"], 2), Fpk=round(v["peak_force_eV_A"], 3),
+                                 **({"Fpk_seeds": R(list(v["peak_force_by_seed"].values()), 3)}
+                                    if "peak_force_by_seed" in v else {}))
                          for k, v in d["crosslinks"].items()} | {"_source": d["source"], "_fmax": d.get("final_fmax")}
 
 (ROOT / "viz").mkdir(exist_ok=True)

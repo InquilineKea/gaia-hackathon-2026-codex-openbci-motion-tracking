@@ -176,7 +176,37 @@ Peak resisting force is lowest for the disulfide (0.18 eV/Å), the weak link. Tw
 relaxation overestimates stiffness (likely why the long HLNL chain ranks high), and fragments differ in length,
 so k_rel mixes linker geometry with chemistry. The pilot is therefore **not** fed into the network
 (`results/crosslink_params.json` is absent, so placeholders stay in use). It already contradicts one
-placeholder: glucosepane comes out no stiffer than pyridinoline, not 1.8×.
+placeholder: glucosepane comes out no stiffer than pyridinoline, not 1.8× (later shown to depend on the starting
+conformer; see the PM7 section).
+
+## Converged crosslink scan on Brev (`results/alchemi_brev/`)
+
+Both machine-learned potentials converged on the NVIDIA L4 (final force 0.020 and 0.019 eV/Å; ~45 min each, 168
+systems in two-chemistry GPU batches). Stretch stiffness relative to pyridinoline, MACE-OFF / MACE-MP: dityrosine
+4.3 / 6.8, glucosepane 1.0 / 1.55, TG2 isopeptide 0.6 / 0.8, disulfide 2.2 / 1.05, pentosidine 0.5 / 1.4,
+sulfilimine 0.6 / 3.5, HLNL 16.3 / 2.9. Rank correlation between the models is only 0.48. These values are **not**
+fed into the network model. *Superseded by the PM7 check below: the disagreement comes from the measure and the
+starting conformer, not from the potentials.*
+
+## PM7 tie-breaker and conformer check (`pm7_crosslinks.py`, `compare_crosslink_models.py`)
+
+Same fragments, anchors and 21 strains, relaxed with semi-empirical PM7 (MOPAC 23.2.5, reviewed in
+`SECURITY-REVIEW.md`) on the Brev box in a no-network container: 504 optimisations (3 RDKit conformer seeds),
+none failed, ~15 min on 4 CPUs. Full tables: `results/alchemi_brev/crosslink_model_comparison.md`.
+
+- **Curvature at the energy minimum (`k_rel`) is not a usable measure.** All three methods disagree on it
+  (Spearman 0.40–0.48), and the energy minimum often sits far from the unstrained length (HLNL: step 16 of 21 in
+  MACE-OFF, 14 in PM7), so the quadratic fit tracks conformational rearrangements, not bond stiffness.
+- **Peak force agrees across methods from a shared start** (Spearman 0.95–0.98 between MACE-OFF, MACE-MP and PM7,
+  all from seed 7), **but not across conformers**: PM7 from two other conformers ranks it with Spearman 0.48
+  against seed 7. Pyridinoline's anchor distance ranges 6.8–10.3 Å by conformer and its peak force 0.15–4.15
+  eV/Å. The scan mostly measures how much slack the fragment's starting conformer has.
+- **Robust across methods and conformers:** dityrosine is stiff (1.81–1.88 eV/Å, rigid biaryl, same length in
+  every conformer); disulfide (0.06–0.08) and TG2 isopeptide (0.06–0.16) are soft. **Not determined:**
+  glucosepane vs pyridinoline, HLNL, pentosidine, sulfilimine. The earlier claims "dityrosine is the stiffest" and
+  "glucosepane is no stiffer than pyridinoline" are withdrawn.
+- Next: conformer ensembles (≥20 seeds) or pre-extended fragments, so the covalent regime is measured
+  separately from unfolding; ultimately crosslinks inside a triple helix (Brev job B6).
 
 ## Caveats
 
