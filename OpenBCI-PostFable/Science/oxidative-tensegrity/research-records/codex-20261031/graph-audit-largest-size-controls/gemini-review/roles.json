@@ -1,0 +1,68 @@
+[
+  {
+    "id": "R1_graphs",
+    "name": "Graph structure and reconstruction referee",
+    "task": "Audit exact reconstructed hashes, component rank, isolated-node/degrees/giant-edge counts and motif covariation. Is the stronger graph audit correcting unsupported prior interpretations? Per-component torus winding rank is not biconnectivity or mechanical rigidity. Return up to five findings with exact supplied filename and line; do not invent a computation or demand cryptographic seeds.",
+    "files": [
+      "PROTOCOL.md",
+      "PRELIMINARY_FINDINGS.md",
+      "SOURCE_CHECK_NOTES.md",
+      "analysis/RUN_SUMMARY.json",
+      "analysis/BASELINE_REPRODUCTION.json",
+      "analysis/TIME_STEP_SUMMARY.json",
+      "analysis/GRAPH_AUDIT_SUMMARY.json",
+      "analysis/RATE_SUMMARY.json",
+      "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+      "analysis/SOURCE_COMPARISON.json",
+      "RETRIEVAL_VERIFICATION.json",
+      "source/model.py",
+      "source/audit.py",
+      "source/controls.py",
+      "source/analyze.py"
+    ]
+  },
+  {
+    "id": "R2_numerics",
+    "name": "Time-step and rate-control referee",
+    "task": "Audit unchanged model, baseline reproduction,384case matrix, .05->.025 predeclared .0001 retention tolerance, rate cap logging, conditioning and retained stress differences. Distinguish numerical adequacy for chosen observable from physical accuracy. Return up to five findings with exact supplied filename and line; do not invent a computation or demand cryptographic seeds.",
+    "files": [
+      "PROTOCOL.md",
+      "PRELIMINARY_FINDINGS.md",
+      "SOURCE_CHECK_NOTES.md",
+      "analysis/RUN_SUMMARY.json",
+      "analysis/BASELINE_REPRODUCTION.json",
+      "analysis/TIME_STEP_SUMMARY.json",
+      "analysis/GRAPH_AUDIT_SUMMARY.json",
+      "analysis/RATE_SUMMARY.json",
+      "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+      "analysis/SOURCE_COMPARISON.json",
+      "RETRIEVAL_VERIFICATION.json",
+      "source/model.py",
+      "source/audit.py",
+      "source/controls.py",
+      "source/analyze.py"
+    ]
+  },
+  {
+    "id": "R3_inference",
+    "name": "Inference and next-study referee",
+    "task": "Audit raw four paired differences, correlated old seeds, conditional G0 eligibility, topology covariates and claims about rate controls. Prioritize the next simulation that best separates mechanisms without requiring unmotivated GPU expansion. No statistical significance, physical phase boundary, or biological aging claim from these toy networks. Return up to five findings with exact supplied filename and line; do not invent a computation or demand cryptographic seeds.",
+    "files": [
+      "PROTOCOL.md",
+      "PRELIMINARY_FINDINGS.md",
+      "SOURCE_CHECK_NOTES.md",
+      "analysis/RUN_SUMMARY.json",
+      "analysis/BASELINE_REPRODUCTION.json",
+      "analysis/TIME_STEP_SUMMARY.json",
+      "analysis/GRAPH_AUDIT_SUMMARY.json",
+      "analysis/RATE_SUMMARY.json",
+      "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+      "analysis/SOURCE_COMPARISON.json",
+      "RETRIEVAL_VERIFICATION.json",
+      "source/model.py",
+      "source/audit.py",
+      "source/controls.py",
+      "source/analyze.py"
+    ]
+  }
+]

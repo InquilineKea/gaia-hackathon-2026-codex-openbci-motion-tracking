@@ -1,0 +1,10 @@
+{
+  "graph_function_AST_identical_to_prior_rate_controls": true,
+  "prior_source_sha256": "4677f1093af945c459e4c18f192d46128d55661d8d5afd94425a7d1e21ce0b9d",
+  "new_model_sha256": "982a99e209983d454f0347cec316633c27c4c7f6fe6bf7a489fc4120437bf1ad",
+  "mechanics_changes": [
+    "log maximum uncapped rate argument and activation counts",
+    "extend bounded deadline from1800 to2350seconds"
+  ],
+  "generator_changes": []
+}

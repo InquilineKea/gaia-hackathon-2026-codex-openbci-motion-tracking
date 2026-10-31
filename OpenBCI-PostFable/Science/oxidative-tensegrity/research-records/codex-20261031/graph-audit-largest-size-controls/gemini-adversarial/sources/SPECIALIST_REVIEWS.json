@@ -1,0 +1,209 @@
+{
+  "R3_inference": {
+    "summary": "The audit confirms exact hash and invariant reconstruction of all 336 prior graphs and exact baseline reproduction of 128 unique prior mechanical cases, while verifying that all 96 eligible L=24 time-step refinement triples (dt=0.1, 0.05, 0.025 at rate_beta=10) pass the predeclared |retention(0.05)-retention(0.025)| <= 1e-4 gate (max 9.61e-5). Descriptive within-seed hub-minus-uniform retention contrasts are numerically stable across dt and persist nearly unchanged at constant relaxation rate (rate_beta=0), falsifying nonlinear strain-accelerated relaxation (rate_beta=10) as the primary driver when kappa > 0. However, mechanistic attribution of the hub-minus-uniform contrast remains confounded: the Arm 3 generator strips 13.4% to 47.5% of vertices into isolated nodes while holding total edges fixed, compressing the giant component into a hyper-dense cluster (giant_mean_degree 5.00 to 5.55 vs 3.24 to 4.80 in uniform) with elevated collinear bends and occasional loss of rank-2 periodic winding. Furthermore, rate-control retention comparisons at z=3.2, kappa=0 are undefined because all 4 uniform graphs fail the G0 > 1e-6 shear-rigidity gate, and the raw 4 paired differences for the triangle contrast (Arm 1 vs Arm 2) reverse sign across seeds in every tested (z, kappa) cell.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Conditional G0 eligibility excludes z=3.2 uniform networks at kappa=0 and restricts topology retention contrasts to bending-coupled (kappa>0) regimes",
+        "source_file": "analysis/RATE_SUMMARY.json",
+        "source_line": 6,
+        "evidence": "At z_target=3.2 and kappa=0.0 (for both rate_beta=0.0 and 10.0, lines 3-25), eligible_uniform is 0 while eligible_hub is 4 (eligible_pairs: 0) due to the G0 > 1e-6 gate in source/analyze.py line 27. At z_target=4.0 and 4.8 with kappa=0.0 and rate_beta=0.0 (lines 175-183, 397-405), both uniform and hub networks relax identically to the homogeneous limit 0.5033689734995427 (paired_delta_mean = 5.55e-17 and 0.0).",
+        "implication": "The rate-control retention result does not generalize unconditionally across all z and kappa values. At z=3.2 and kappa=0.0, the topology difference between hub and uniform graphs is a discrete change in initial shear-bearing eligibility (0/4 vs 4/4 with G0 > 1e-6) rather than a paired retention contrast. Moreover, at kappa=0.0 and rate_beta=0.0, network topology has zero effect on retention for any shear-eligible graph; the large negative hub-minus-uniform retention contrast requires kappa > 0 so that non-relaxing bending modes (kap * D.T @ D in source/model.py line 81) couple to relaxing axial bonds.",
+        "recommended_check": "Report paired G0 values alongside conditional retention counts in rate-control summaries for z=3.2, kappa=0.0, and explicitly qualify all retention-contrast claims as conditional on both G0 > 1e-6 and non-zero bending stiffness (kappa > 0).",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Hub generator (Arm 3) confounds degree variance with node isolation, giant-component densification, bend proliferation, and winding-rank reduction",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 292,
+        "evidence": "At L=24, z_target=3.2, comparing Arm 0 (lines 199-228) to Arm 3 (lines 292-321) shows that maximizing sum(deg^2) in source/model.py lines 42-44 increases isolated_fraction_mean from 0.00998 to 0.35417, shrinks giant_nodes_mean from 567.5 to 367.5, raises giant_mean_degree_mean from 3.2379 to 4.9968, increases giant_bends_mean from 497.0 to 815.0, and reduces giant_winding_rank_mean from 2.0 to 1.5 (with 9/336 graphs overall having both directional wrap flags but no rank-2 component, line 72).",
+        "implication": "Because isolating 35.4% (at z=3.2) to 13.4% (at z=4.8) of nodes forces the fixed edge budget into a much smaller, over-constrained giant component (giant_mean_degree ~ 5.00 to 5.55), the large negative hub-minus-uniform retention contrast cannot be attributed uniquely to hub degree heterogeneity. Indeed, uniform networks at z=4.8 (where giant_mean_degree = 4.8021) exhibit a mean retention of 0.52288 at kappa=0.003, rate_beta=10 (analysis/RATE_SUMMARY.json line 514) that already approaches the z=3.2 hub retention of 0.50498 (where giant_mean_degree = 4.9968, line 71).",
+        "recommended_check": "Run a constrained CPU edge-swap control in source/model.py that rejects swaps creating degree-0/1 nodes or altering giant_nodes (preserving giant_mean_degree = z_actual), and compare existing Arm 3 networks against Arm 0 uniform networks generated at matching giant_mean_degree (e.g., z_target = 5.0).",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Raw four paired differences in triangle controls (Arm 1 vs Arm 2) reverse sign across seeds in every condition under a weak clustering intervention",
+        "source_file": "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+        "source_line": 54,
+        "evidence": "Across all six (z_target, kappa) cells in analysis/PAIRED_TIME_STEP_SUMMARY.json, the four paired_values_dt0.025 for triangle_high_minus_low contain both positive and negative values across the 4 seeds (e.g., [-0.00529, 0.00600, 0.02746, -0.00961] at z=3.2, kappa=0.003, lines 54-59; [-0.01285, -0.00196, -0.01227, 0.00802] at z=4.0, kappa=0.003, lines 174-179). In analysis/GRAPH_AUDIT_SUMMARY.json, Arm 1 vs Arm 2 changes triangles_mean by only 181.25 vs 170.25 at z=3.2 (lines 235, 266) and 593.5 vs 589.0 at z=4.8 (lines 481, 514), while shifting giant_bends_mean in the opposite direction (492.75 vs 501.5 at z=3.2).",
+        "implication": "While time-step refinement confirms that the solver tracks each graph's trajectory accurately (max_paired_fine_change <= 1.10e-5), the alternating 6-ring flip achieves too small a triangle separation\u2014and induces an opposing perturbation in collinear bends\u2014to produce even a descriptively consistent sign across the 4 seed blocks.",
+        "recommended_check": "Classify the triangle_high_minus_low mechanical contrast as descriptively inconclusive/null across all tested z and kappa settings rather than interpreting its small nonzero 4-seed mean as a clustering effect.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Rate controls (rate_beta=0 vs 10) show linear viscoelastic mode partitioning dominates the hub contrast, but beta=0 lacks fine-step gating",
+        "source_file": "analysis/RATE_SUMMARY.json",
+        "source_line": 35,
+        "evidence": "For all eligible kappa > 0 cells in analysis/RATE_SUMMARY.json, paired_delta_mean at rate_beta=0.0 is nearly indistinguishable from rate_beta=10.0 (-0.42548 vs -0.42640 at z=3.2, kappa=0.003, lines 35 and 72; -0.15352 vs -0.15375 at z=4.0, kappa=0.003, lines 257 and 294; -0.03918 vs -0.03916 at z=4.8, kappa=0.03, lines 553 and 590), and maximum_uncapped_rate_argument is 1.0460 with 0 cap activations (analysis/RUN_SUMMARY.json line 7). However, rate_beta=0.0 cases were only executed at dt=0.1 (source/controls.py line 11).",
+        "implication": "For kappa > 0, the persistence of the full hub-minus-uniform contrast at rate_beta=0.0 demonstrates that the difference is driven by linear viscoelastic partitioning between relaxing stretching modes and non-relaxing bending modes rather than nonlinear strain-dependent rate acceleration. However, because rate_beta=0.0 was only run at coarse step dt=0.1, its discretization error is not directly bounded by the dt=0.05 vs 0.025 gate.",
+        "recommended_check": "Qualify rate_beta=0.0 numbers as dt=0.1 evaluations and include dt=0.05 and 0.025 refinement runs for rate_beta=0.0 in the next CPU control pass.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "Reusing identical seed integers (74000..74003) across coordination targets and arms couples initial edge realizations across z_target levels",
+        "source_file": "source/model.py",
+        "source_line": 12,
+        "evidence": "In source/model.py lines 12 and 17, graph(L, z, seed, arm) initializes rng = np.random.default_rng(seed) and draws rng.choice(np.arange(d, 3*N, 3), min(N, round(z*N/6)), replace=False) per direction d. In source/controls.py lines 6-8, the same four seed integers (74000..74003) are reused across z in [3.2, 4.0, 4.8] and arm in range(4).",
+        "implication": "Within each (L, z, seed), Arms 1-3 are correlated MCMC perturbations of the same Arm 0 realization (forming 4 descriptive paired blocks as noted in PROTOCOL.md line 9). In addition, reusing the exact same seed integer across z=3.2, 4.0, and 4.8 samples initial active edges from the identical per-direction random permutation stream across coordination levels, so cross-z trends share underlying edge placement realizations rather than representing 12 independent networks.",
+        "recommended_check": "Retain the strict descriptive-only interpretation of the 4 paired seed blocks without inferential p-values or phase-boundary claims, and in future graph generation pass a tuple seed such as (L, round(z*10), seed_id) to default_rng so realizations across z are independent.",
+        "claim_status": "implementation_fact"
+      }
+    ],
+    "strongest_surviving_claim": "Across the four reconstructed L=24 seed blocks at kappa in {0.003, 0.03} and z_target in {3.2, 4.0, 4.8}, the descriptive paired retention contrast between the hub-rewired (Arm 3) and uniform (Arm 0) networks is numerically well-resolved with respect to time-step refinement (maximum paired change 1.07e-4 between dt=0.05 and 0.025 at beta=10) and persists with virtually identical magnitude under constant-rate linear viscoelastic relaxation (rate_beta=0 at dt=0.1), ruling out rate-cap clipping and nonlinear strain-dependent rate acceleration as the primary drivers of the Arm 3 vs Arm 0 difference in these shear-eligible, bending-stabilized toy networks.",
+    "decisive_next_experiment": "Execute a fast CPU-only mechanism-separation study at L=24 (using dt=0.025 and both rate_beta=0 and 10) that adds two targeted controls to the existing 4-seed design: (1) an 'isolation-free hub' arm in graph() that maximizes sum(deg^2) via direction-preserving edge swaps while rejecting any move that creates degree < 2 nodes or changes giant_nodes (thereby varying degree_variance while holding giant_mean_degree exactly equal to z_actual), and (2) an unmodified Uniform (Arm 0) control run at z_target = 5.0 and 5.3 to match the actual giant_mean_degree (4.997 and 5.294) produced by the current Arm 3 hub generator at z_target = 3.2 and 4.0. Comparing these two CPU controls against Arm 0 and Arm 3 will directly separate whether the hub-minus-uniform retention drop is caused by giant-component coordination densification from node isolation or by degree heterogeneity within a fixed-density giant component.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz MacKintosh 2014 Reviews of Modern Physics mechanics semiflexible polymer networks diluted triangular lattice bending stretching",
+        "reason": "Verify standard theoretical scaling of non-affine bending versus affine stretching regimes as a function of coordination number z on 2D diluted triangular lattices.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "viscoelastic relaxation subisostatic central force bending network standard linear solid Maxwell",
+        "reason": "Check prior literature on linear viscoelastic networks where axial stretching bonds relax while angular bending stiffness remains elastic.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "R2_numerics": {
+    "summary": "The unchanged model implementation exactly reproduces all 336 prior graph hashes and 144 baseline mechanical reference rows (zero difference in G0 and retention). Across the 384-case L=24 control matrix, all solves converged (max force residual 3.72e-10), the exponential rate cap (>=30) was never triggered (max uncapped argument 1.046), and all 96 eligible individual time-step refinements met the predeclared |retention(dt=0.05) - retention(dt=0.025)| <= 0.0001 gate (max 9.61e-5). However, numerical adequacy for t=5 retention must be distinguished from physical mechanism and asymptotic accuracy: (1) evaluating retention at t=5 (where baseline stretching relaxation exp(-5)=0.00674 is >99% complete) under small strain (gamma=0.1) structurally bounds the impact of strain-dependent rate acceleration (beta=10 vs 0); (2) the beta=0 rate-control contrast requires bending stiffness (kappa>0), as pure central-force networks (kappa=0) are ineligible (floppy, G0<=1e-6) in the uniform arm at z=3.2 and yield identically zero topology contrast at beta=0 for z=4.0 and 4.8; and (3) first-order O(dt) operator splitting leaves a max paired contrast drift of 1.07e-4 at z=3.2, kappa=0.03, which slightly exceeds 0.0001 but is >2,000x smaller than the hub-minus-uniform effect.",
+    "findings": [
+      {
+        "severity": "medium",
+        "title": "Late-time observable (t=5) and small strain (gamma=0.1) structurally bound rate_beta sensitivity",
+        "source_file": "source/model.py",
+        "source_line": 99,
+        "evidence": "Stretching memory q relaxes at rate exp(min(30, beta*abs(e-q))) >= 1 over t=5 under gamma=0.1, yielding max_raw_rate_argument=1.046 (rate factor <= 2.85) and zero cap activations across all 384 cases.",
+        "implication": "Because baseline stretching relaxation at beta=0 already decays to exp(-5)=0.00674 by t=5, accelerating the bond rate with beta=10 can at most trim the remaining ~0.0034 relaxable stretching tail. The persistence of the hub-minus-uniform contrast at beta=0 reflects static partitioning between relaxing stretching modes and non-relaxing bending modes (kap*(D.T@D)) at late time, rather than proving rate acceleration is negligible during transient relaxation (t ~ 0.2 to 1.5).",
+        "recommended_check": "Tabulate paired hub-minus-uniform and beta=10 vs beta=0 retention contrasts at intermediate times (e.g., t=0.5 and t=1.0) from the existing trace arrays saved in raw/controls.json.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Rate-control topology contrast vanishes at kappa=0, beta=0 for z>=4.0 and is undefined at z=3.2",
+        "source_file": "analysis/RATE_SUMMARY.json",
+        "source_line": 6,
+        "evidence": "At z_target=3.2 and kappa=0.0, eligible_uniform=0 and eligible_pairs=0 for both beta=0.0 and 10.0; at z_target=4.0 and 4.8 with kappa=0.0 and beta=0.0, paired_delta_mean is 5.55e-17 and 0.0, respectively (lines 183, 405).",
+        "implication": "The rate-control finding does not generalize to pure central-force (kappa=0) networks: below the central-force isostatic threshold (z=3.2 < 4.0), uniform graphs lack shear rigidity (G0<=1e-6), while above it (z=4.0, 4.8), setting kappa=0 and beta=0 produces spatially homogeneous viscoelastic decay (retention = 0.5 + 0.5*exp(-5) = 0.503369) that is completely independent of graph topology. The beta=0 topology effect is strictly conditional on kappa > 0 (stretching-bending stiffness heterogeneity).",
+        "recommended_check": "Qualify all rate-control claims to state that the beta=0 hub-minus-uniform contrast requires non-relaxing bending stiffness (kappa > 0) and vanishes identically on shear-bearing central-force networks (kappa=0, beta=0).",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "First-order time integration yields 1.07e-4 max paired contrast drift at dt=0.05->0.025",
+        "source_file": "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+        "source_line": 90,
+        "evidence": "At z_target=3.2, kappa=0.03, hub_minus_uniform has max_paired_fine_change = 0.00010695 between dt=0.05 and dt=0.025, and the ~3:1 ratio between coarse (dt=0.1->0.025) and fine (dt=0.05->0.025) differences confirms first-order O(dt) convergence.",
+        "implication": "Although every individual run satisfies the 0.0001 refinement gate (max 9.61e-5), opposite-signed discretization drift in paired arms can push a contrast change slightly above 0.0001, and Richardson extrapolation implies dt=0.025 remains ~9.6e-5 from the dt->0 limit. Practically, this ~1e-4 numerical error is negligible compared to the -0.2552 hub contrast and well below the seed-to-seed scatter of the weak triangle contrast (max paired fine change <= 1.10e-5).",
+        "recommended_check": "Report first-order Richardson-extrapolated dt->0 estimates alongside dt=0.025 contrasts and explicitly note that beta=0 rate controls were only evaluated at dt=0.1.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "Linear initial elasticity makes matched_final_stress an exact scalar multiple (0.1x) of retention",
+        "source_file": "source/model.py",
+        "source_line": 101,
+        "evidence": "G0 is evaluated at gamma=0.001 and s0 at gamma=0.1 with q=0 on the linear system H@u = -gamma*B.T@aff (lines 92-95), so s0/G0 = 0.1 identically and matched_final_stress = s/G0 = 0.1 * retention.",
+        "implication": "matched_final_stress provides no independent mechanical corroboration beyond retention, and normalizing by G0 rescales the entire microscopic Hamiltonian to compensate for large baseline stiffness differences (including an L=24, z=3.2, seed=74000 hub graph whose giant component has winding rank 1).",
+        "recommended_check": "Report G0 and retention as the primary mechanical metrics and avoid treating matched_final_stress as an independent observable.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Exact graph audit confirms inseparable density, isolation, and bending covariates in hub networks",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 305,
+        "evidence": "At L=24, the hub arm (arm=3) simultaneously shifts isolated node fraction (0.354 vs 0.010 at z=3.2; 0.134 vs 0.0 at z=4.8), giant-component mean degree (4.997 vs 3.238 at z=3.2; 5.546 vs 4.802 at z=4.8), and giant bending counts (815.0 vs 497.0 at z=3.2; 1310.75 vs 1108.75 at z=4.8).",
+        "implication": "While numerical discretization and rate-cap artifacts are ruled out as explanations for the L=24 hub-minus-uniform retention contrast, the mechanical difference cannot be attributed to a single topological metric (such as degree variance or clustering alone) because giant-component coordination, node isolation, and collinear bending hinges co-vary strongly.",
+        "recommended_check": "Attribute the surviving mechanical contrast to the joint structural reorganization produced by the degree-squared hub proposal rather than an isolated clustering or hub-node mechanism.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "Across the four paired L=24 graph blocks at z=3.2, 4.0, and 4.8 with bending stiffness kappa in {0.003, 0.03}, the negative hub-minus-uniform t=5 stress-retention contrast (-0.426 to -0.019) is exactly reproducible, free of exponential rate-cap clipping (max argument 1.046 < 30), numerically stable under time-step refinement from dt=0.1 to 0.025 (within 1.07e-4), and persists when strain-dependent rate acceleration is turned off (rate_beta=0), demonstrating that the effect in this model is driven by static stretching-bending stiffness partitioning (kappa > 0) across reorganized network topologies rather than nonlinear rate-acceleration artifacts.",
+    "decisive_next_experiment": "Without running new simulations, extract the full time-series traces (t in [0, 5]) already saved in raw/controls.json to compute paired hub-minus-uniform and (beta=10 minus beta=0) retention contrasts at intermediate relaxation times (t = 0.2, 0.5, 1.0, 2.0) and conditioning-stratified by giant-component winding rank (separating seed 74000 at z=3.2 where the hub giant component has rank 1 from the rank-2 seeds); if new runs are permitted later, add a degree-preserving rewiring control that varies collinear bending-hinge count (nb) at fixed degree sequence to separate bending-chain continuity from degree heterogeneity.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz Mao Lubensky MacKintosh 2011 rigidity percolation bending stretching triangular lattice",
+        "reason": "Verify standard central-force and bending-stabilized rigidity thresholds and stretching-to-bending crossover scaling on diluted 2D triangular lattices.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Prony series Maxwell viscoelastic network homogeneous relaxation proportional damping",
+        "reason": "Confirm standard analytical result that linear viscoelastic networks with uniform relaxation time constants exhibit topology-independent normalized stress relaxation.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "R1_graphs": {
+    "summary": "The graph reconstruction and largest-size control audit succeeds in its primary technical objectives: all 336 prior graph masks reconstruct with exact SHA256 agreement, degree sequences in the triangle arms (arms 1 and 2) are strictly identical to their paired uniform graphs (arm 0), and all 96 eligible largest-size (L=24) time-step refinement comparisons pass the predeclared |retention(dt=0.05) - retention(dt=0.025)| <= 0.0001 gate (maximum observed fine difference 9.61e-5). Crucially, the stronger component-level audit corrects three unsupported prior interpretations: (1) old directional wrap flags (wrap_basis_1 and wrap_basis_2) do not imply 2D torus-spanning percolation (rank 2), as 9 variants satisfy both flags via diagonal (1,-1) cycles of winding rank 1; (2) per-component winding rank is neither graph biconnectivity nor mechanical shear rigidity, as demonstrated at L=24, z=3.2, kappa=0 where 4/4 rank-2 uniform graphs are mechanically floppy (G0 <= 1e-6) while 4/4 hub graphs (two of which have winding rank 1) are shear-bearing; and (3) the hub generator (arm 3) neither produces a pure bimodal 0/6-only degree distribution nor isolates degree heterogeneity, as it simultaneously shifts isolated-node fractions, giant-component mean degree, triangle counts, and collinear bending triples.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Per-component torus winding rank corrects directional-flag conflation and is neither necessary nor sufficient for mechanical shear rigidity",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 64,
+        "evidence": "Nine audited graphs (7 unique masks), including L=24, z_target=3.2, seed=74000, arm=3 (line 64), set both wrap_basis_1 and wrap_basis_2 true via primitive winding vector (1,-1) while having giant_winding_rank == 1. Moreover, comparing lines 218 and 311 with analysis/RATE_SUMMARY.json (lines 6-7) at L=24, z=3.2, kappa=0.0 shows that 4/4 uniform (arm=0) graphs have giant_winding_rank == 2 yet 0/4 are shear-eligible (G0 <= 1e-6), whereas 2/4 hub (arm=3) graphs have giant_winding_rank == 1 yet 4/4 are shear-eligible (G0 > 1e-6).",
+        "implication": "The audit corrects the prior assumption that setting both coordinate wrap flags implies 2D torus-spanning topology. It also proves empirically in these networks that integer cycle winding rank is a topological homology metric rather than biconnectivity or Maxwell mechanical rigidity: under periodic node displacements, a dense triangulated rank-1 ribbon wrapping a 1D torus cycle resists macroscopic affine shear even at kappa=0, whereas a sub-isostatic rank-2 uniform graph at z=3.2 does not.",
+        "recommended_check": "Cross-tabulate mechanical eligibility (G0 > 1e-6) against giant_winding_rank in summary tables, and check whether the two rank-1 hub seeds at L=24, z=3.2 differ in viscoelastic retention from the two rank-2 hub seeds.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Severe motif covariation in the hub arm confounds degree variance with fragmentation, giant-component densification, and collinear bends",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 540,
+        "evidence": "Comparing arm=3 (lines 540-569) with arm=0 (lines 447-476) at L=24, z=4.8 shows that maximizing sum(k_i^2) at fixed total edge count (1383.0) simultaneously increases isolated_fraction_mean from 0.0 to 0.1341, shrinks giant_nodes_mean from 576.0 to 498.75, raises exact giant_mean_degree_mean from 4.8021 to 5.5463, increases triangles_mean from 591.25 to 872.75, and increases giant_bends_mean from 1108.75 to 1310.75. Across the full 336-graph audit, 200 graphs also contain edges outside the giant component (line 6).",
+        "implication": "First, estimating giant-component coordination as z_actual / giant_fraction is invalid whenever edges_outside_giant > 0 (200/336 graphs), which the audit corrects by computing exact 2*giant_edges/giant_nodes. Second, the large negative hub_minus_uniform retention contrast cannot be attributed specifically to hub degree heterogeneity because isolation, local giant-component density, triangle clustering, and collinear fiber bends covary strongly in arm=3.",
+        "recommended_check": "Treat the arm=3 vs arm=0 mechanical difference as a composite structural contrast rather than a pure degree-heterogeneity effect, and report giant_mean_degree and giant_bends alongside retention deltas.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Audited degree histograms in arm=3 refute idealized 0/6-only bimodal condensation and reflect finite-step MCMC sampling",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 562,
+        "evidence": "At L=24, z=4.8, arm=3 (lines 562-568; PRELIMINARY_FINDINGS.md line 184), the mean degree fractions for k=0..6 are [0.1341, 0.0204, 0.0269, 0.0234, 0.0278, 0.0577, 0.7096], corresponding to [77.25, 11.75, 15.5, 13.5, 16.0, 33.25, 408.75] nodes. Across z=2.4, 3.2, 4.0, and 4.8 at L=24, intermediate degrees k=1..5 constitute 23.18%, 22.83%, 20.01%, and 15.63% of all nodes after the fixed 100*N proposal budget.",
+        "implication": "The audit falsifies any prior interpretation that the hub generator produces a pure two-point (k in {0, 6}) condensed graph or a stationary thermodynamic phase. A substantial population of intermediate-degree boundary and bridge nodes (15.6% to 23.2%) persists in all tested L=24 hub networks.",
+        "recommended_check": "Inspect whether mechanical strain energy and relaxation dissipation in arm=3 localize on the k=1..5 interface nodes connecting dense k=6 cores.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Triangle-arm rewiring preserves exact node degrees but weakly co-modulates collinear bends and suffers severe acceptance drop at high coordination",
+        "source_file": "source/audit.py",
+        "source_line": 52,
+        "evidence": "Line 52 verifies that arm=1 and arm=2 preserve the exact node-by-node degree sequence of arm=0 across all 336 graphs. However, in analysis/GRAPH_AUDIT_SUMMARY.json, alternating 6-ring flips inversely perturb collinear bend counts (at L=24, z=3.2, giant_bends_mean is 492.75 in arm=1 vs 501.5 in arm=2, lines 244 and 275) and experience an acceptance drop at L=24, z=4.8 to 114.75 (arm=1, line 495) and 112.0 (arm=2, line 526) out of 57,600 proposals, shifting clustering_mean by only 0.00366 (0.3192 vs 0.3156).",
+        "implication": "Although arm=1 vs arm=2 eliminates degree-sequence and component-size confounding, the topological intervention becomes extremely weak at z=4.8 and slightly couples triangle count to collinear bend count. Consequently, the small, sign-inconsistent triangle_high_minus_low retention contrasts (analysis/PAIRED_TIME_STEP_SUMMARY.json lines 38-360) reflect a weak motif perturbation across only 4 seeds rather than definitive mechanical insensitivity to clustering.",
+        "recommended_check": "Scale or compare triangle_high_minus_low retention contrasts relative to the achieved delta-triangles and delta-bends per seed, and qualify z=4.8 clustering conclusions by the 0.00366 achieved clustering spread.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Sub-isostatic z=3.2 topological contrasts require kappa > 0 for uniform-arm eligibility, whereas rate-control invariance generalizes across all eligible (z, kappa) cells",
+        "source_file": "analysis/RATE_SUMMARY.json",
+        "source_line": 6,
+        "evidence": "At z=3.2, kappa=0.0 (lines 6, 18), 0/4 uniform graphs meet the G0 > 1e-6 eligibility gate, leaving 0 eligible paired contrasts. At z=4.0 and 4.8 with kappa=0.0, beta=0.0 (lines 183, 405), all 4 pairs are eligible and both arms match the homogeneous analytical retention r+(1-r)*exp(-5) = 0.5033689735 (paired_delta_mean ~ 0). For kappa in {0.003, 0.03}, all 4 pairs are eligible across z=3.2, 4.0, and 4.8, and paired_delta_mean at beta=0.0 matches beta=10.0 within 0.001 (e.g., -0.4255 vs -0.4264 at z=3.2, kappa=0.003, lines 35 and 70).",
+        "implication": "Claims regarding hub_minus_uniform retention differences at z=3.2 are strictly conditional on bending stiffness (kappa > 0) stabilizing the uniform network. Across all shear-bearing (kappa > 0) regimes at z=3.2, 4.0, and 4.8, the rate-control result generalizes cleanly: the topological retention gap is driven by the static/quasi-static partition between stretching (relaxing) and bending (non-relaxing) energy, not by strain-dependent rate acceleration (beta=10).",
+        "recommended_check": "Explicitly state that z=3.2 uniform-vs-hub retention contrasts are conditional on kappa > 0, while highlighting that beta=0 vs beta=10 invariance holds across every eligible kappa > 0 cell.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "All 336 prior graph topologies reconstruct with exact SHA256 mask agreement and verified degree invariants, and across all eligible largest-size (L=24) bending-stabilized networks (z in {3.2, 4.0, 4.8}, kappa in {0.003, 0.03}), the large negative hub-minus-uniform viscoelastic retention contrast is numerically stable under time-step refinement (dt=0.1, 0.05, 0.025; max fine-step case difference 9.61e-5 <= 1e-4) and persists nearly unchanged when strain-dependent rate acceleration is turned off (beta=0 vs beta=10), demonstrating that the contrast arises from the structural partition between stretching and non-relaxing bending modes rather than rate-cap saturation or nonlinear rate acceleration.",
+    "decisive_next_experiment": "To separate the confounded structural mechanisms in the hub arm (degree heterogeneity vs. giant-component densification vs. collinear bend count), perform a degree-preserving Maslov-Sneppen edge-swap control initialized from the arm=3 giant component (or a 2-switch degree-matched rewiring restricted to the giant component that varies collinear bends `nb` at fixed degree sequence and fixed component size) and measure viscoelastic retention at L=24, kappa in {0.003, 0.03}, beta=0.",
+    "literature_to_verify": [
+      {
+        "query": "Maxwell isostaticity central-force rigidity percolation triangular lattice bending stabilization",
+        "reason": "Verify theoretical expectations for why random diluted triangular lattices at z=3.2 are central-force floppy (G0=0 at kappa=0) despite spanning the torus (winding rank 2) and require bending stiffness (kappa > 0) or local cluster condensation to bear shear.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "periodic boundary conditions affine shear strain cycle winding vector homology rigidity percolation",
+        "reason": "Verify the distinction between integer cycle winding rank on a flat torus and pebble-game biconnectivity / redundant rigidity in periodic spring networks.",
+        "verification_status": "unverified"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "graphs_audited": 336,
+  "mechanical_cases": 384,
+  "all_converged": true,
+  "eligible_cases": 376,
+  "max_force_residual": 3.717536851272074e-10,
+  "maximum_uncapped_rate_argument": 1.0460191265713112,
+  "total_cap_steps": 0,
+  "total_cap_edge_updates": 0,
+  "elapsed_graph_audit": 503.57369901399943,
+  "elapsed_controls": 857.4447686720014,
+  "four_seeds_not_new_replication": true
+}

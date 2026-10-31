@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "finding": 1,
+      "title": "Unsupported analytic 0.5*exp(-5) rate-sensitivity bound and overstated rate-law / energy-partition claims in R1, R2, and R3",
+      "disposition": "accepted_with_qualifications",
+      "source_check": "Accepted transient-versus-final distinction and rejection of unsupported homogeneous bound; retain dt.1-only qualification and do not claim unique stress/energy mechanism."
+    },
+    {
+      "finding": 2,
+      "title": "Flawed topological identities and unverified ensemble constraints in R1 and R3 rewiring proposals",
+      "disposition": "accepted_with_qualifications",
+      "source_check": "Accepted graph identities and need to specify constraints; generic symmetric2-switches do not necessarily require a nontrivial correction, and density matching alone is not causal isolation."
+    },
+    {
+      "finding": 3,
+      "title": "Enforcement of the predeclared per-case time-step gate (<= 1e-4) versus paired-contrast drift and surviving effect sizes",
+      "disposition": "accepted_with_qualifications",
+      "source_check": "Accepted measured per-case and contrast drift; no asymptotic-error, exact zero-step or null-equivalence claim."
+    },
+    {
+      "finding": 4,
+      "title": "Torus cycle winding rank versus directional wrap flags and positive-G0 conditioning versus solver failure",
+      "disposition": "accepted_with_qualifications",
+      "source_check": "Accepted metric and conditioning distinctions; no universal phase threshold or full-rigidity conclusion."
+    },
+    {
+      "finding": 5,
+      "title": "Unsupported RNG permutation-nesting claim in R3 versus intentional paired-seed blocking and non-independent model review",
+      "disposition": "accepted_with_qualifications",
+      "source_check": "Accepted dependence and unsupported nesting correction; variance reduction is possible rather than guaranteed."
+    }
+  ],
+  "next_study_corrections": [
+    "No saved displacement/memory trajectory for retrospective exact energy decomposition; replay required.",
+    "Beta0 fine-step matrix has96 additional cases, not48.",
+    "Density-matched uniform graph changes other properties; no automatic causal isolation."
+  ]
+}

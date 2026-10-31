@@ -1,0 +1,96 @@
+{
+  "role": "R2_numerics",
+  "model": "gemini-4-argon",
+  "started_at": "2026-10-31T18:29:25.871381+00:00",
+  "packet_sha256": "bada5e0648ed70913e92fe7513b4e84cd32fe0325c49243f58f5e9376dd03147",
+  "status": "ok",
+  "usage": {
+    "promptTokenCount": 70106,
+    "candidatesTokenCount": 2663,
+    "totalTokenCount": 78915,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 70106
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 2663
+      }
+    ],
+    "thoughtsTokenCount": 6146
+  },
+  "finish_reason": "STOP",
+  "review": {
+    "summary": "The unchanged model implementation exactly reproduces all 336 prior graph hashes and 144 baseline mechanical reference rows (zero difference in G0 and retention). Across the 384-case L=24 control matrix, all solves converged (max force residual 3.72e-10), the exponential rate cap (>=30) was never triggered (max uncapped argument 1.046), and all 96 eligible individual time-step refinements met the predeclared |retention(dt=0.05) - retention(dt=0.025)| <= 0.0001 gate (max 9.61e-5). However, numerical adequacy for t=5 retention must be distinguished from physical mechanism and asymptotic accuracy: (1) evaluating retention at t=5 (where baseline stretching relaxation exp(-5)=0.00674 is >99% complete) under small strain (gamma=0.1) structurally bounds the impact of strain-dependent rate acceleration (beta=10 vs 0); (2) the beta=0 rate-control contrast requires bending stiffness (kappa>0), as pure central-force networks (kappa=0) are ineligible (floppy, G0<=1e-6) in the uniform arm at z=3.2 and yield identically zero topology contrast at beta=0 for z=4.0 and 4.8; and (3) first-order O(dt) operator splitting leaves a max paired contrast drift of 1.07e-4 at z=3.2, kappa=0.03, which slightly exceeds 0.0001 but is >2,000x smaller than the hub-minus-uniform effect.",
+    "findings": [
+      {
+        "severity": "medium",
+        "title": "Late-time observable (t=5) and small strain (gamma=0.1) structurally bound rate_beta sensitivity",
+        "source_file": "source/model.py",
+        "source_line": 99,
+        "evidence": "Stretching memory q relaxes at rate exp(min(30, beta*abs(e-q))) >= 1 over t=5 under gamma=0.1, yielding max_raw_rate_argument=1.046 (rate factor <= 2.85) and zero cap activations across all 384 cases.",
+        "implication": "Because baseline stretching relaxation at beta=0 already decays to exp(-5)=0.00674 by t=5, accelerating the bond rate with beta=10 can at most trim the remaining ~0.0034 relaxable stretching tail. The persistence of the hub-minus-uniform contrast at beta=0 reflects static partitioning between relaxing stretching modes and non-relaxing bending modes (kap*(D.T@D)) at late time, rather than proving rate acceleration is negligible during transient relaxation (t ~ 0.2 to 1.5).",
+        "recommended_check": "Tabulate paired hub-minus-uniform and beta=10 vs beta=0 retention contrasts at intermediate times (e.g., t=0.5 and t=1.0) from the existing trace arrays saved in raw/controls.json.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Rate-control topology contrast vanishes at kappa=0, beta=0 for z>=4.0 and is undefined at z=3.2",
+        "source_file": "analysis/RATE_SUMMARY.json",
+        "source_line": 6,
+        "evidence": "At z_target=3.2 and kappa=0.0, eligible_uniform=0 and eligible_pairs=0 for both beta=0.0 and 10.0; at z_target=4.0 and 4.8 with kappa=0.0 and beta=0.0, paired_delta_mean is 5.55e-17 and 0.0, respectively (lines 183, 405).",
+        "implication": "The rate-control finding does not generalize to pure central-force (kappa=0) networks: below the central-force isostatic threshold (z=3.2 < 4.0), uniform graphs lack shear rigidity (G0<=1e-6), while above it (z=4.0, 4.8), setting kappa=0 and beta=0 produces spatially homogeneous viscoelastic decay (retention = 0.5 + 0.5*exp(-5) = 0.503369) that is completely independent of graph topology. The beta=0 topology effect is strictly conditional on kappa > 0 (stretching-bending stiffness heterogeneity).",
+        "recommended_check": "Qualify all rate-control claims to state that the beta=0 hub-minus-uniform contrast requires non-relaxing bending stiffness (kappa > 0) and vanishes identically on shear-bearing central-force networks (kappa=0, beta=0).",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "First-order time integration yields 1.07e-4 max paired contrast drift at dt=0.05->0.025",
+        "source_file": "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+        "source_line": 90,
+        "evidence": "At z_target=3.2, kappa=0.03, hub_minus_uniform has max_paired_fine_change = 0.00010695 between dt=0.05 and dt=0.025, and the ~3:1 ratio between coarse (dt=0.1->0.025) and fine (dt=0.05->0.025) differences confirms first-order O(dt) convergence.",
+        "implication": "Although every individual run satisfies the 0.0001 refinement gate (max 9.61e-5), opposite-signed discretization drift in paired arms can push a contrast change slightly above 0.0001, and Richardson extrapolation implies dt=0.025 remains ~9.6e-5 from the dt->0 limit. Practically, this ~1e-4 numerical error is negligible compared to the -0.2552 hub contrast and well below the seed-to-seed scatter of the weak triangle contrast (max paired fine change <= 1.10e-5).",
+        "recommended_check": "Report first-order Richardson-extrapolated dt->0 estimates alongside dt=0.025 contrasts and explicitly note that beta=0 rate controls were only evaluated at dt=0.1.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "low",
+        "title": "Linear initial elasticity makes matched_final_stress an exact scalar multiple (0.1x) of retention",
+        "source_file": "source/model.py",
+        "source_line": 101,
+        "evidence": "G0 is evaluated at gamma=0.001 and s0 at gamma=0.1 with q=0 on the linear system H@u = -gamma*B.T@aff (lines 92-95), so s0/G0 = 0.1 identically and matched_final_stress = s/G0 = 0.1 * retention.",
+        "implication": "matched_final_stress provides no independent mechanical corroboration beyond retention, and normalizing by G0 rescales the entire microscopic Hamiltonian to compensate for large baseline stiffness differences (including an L=24, z=3.2, seed=74000 hub graph whose giant component has winding rank 1).",
+        "recommended_check": "Report G0 and retention as the primary mechanical metrics and avoid treating matched_final_stress as an independent observable.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Exact graph audit confirms inseparable density, isolation, and bending covariates in hub networks",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 305,
+        "evidence": "At L=24, the hub arm (arm=3) simultaneously shifts isolated node fraction (0.354 vs 0.010 at z=3.2; 0.134 vs 0.0 at z=4.8), giant-component mean degree (4.997 vs 3.238 at z=3.2; 5.546 vs 4.802 at z=4.8), and giant bending counts (815.0 vs 497.0 at z=3.2; 1310.75 vs 1108.75 at z=4.8).",
+        "implication": "While numerical discretization and rate-cap artifacts are ruled out as explanations for the L=24 hub-minus-uniform retention contrast, the mechanical difference cannot be attributed to a single topological metric (such as degree variance or clustering alone) because giant-component coordination, node isolation, and collinear bending hinges co-vary strongly.",
+        "recommended_check": "Attribute the surviving mechanical contrast to the joint structural reorganization produced by the degree-squared hub proposal rather than an isolated clustering or hub-node mechanism.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "Across the four paired L=24 graph blocks at z=3.2, 4.0, and 4.8 with bending stiffness kappa in {0.003, 0.03}, the negative hub-minus-uniform t=5 stress-retention contrast (-0.426 to -0.019) is exactly reproducible, free of exponential rate-cap clipping (max argument 1.046 < 30), numerically stable under time-step refinement from dt=0.1 to 0.025 (within 1.07e-4), and persists when strain-dependent rate acceleration is turned off (rate_beta=0), demonstrating that the effect in this model is driven by static stretching-bending stiffness partitioning (kappa > 0) across reorganized network topologies rather than nonlinear rate-acceleration artifacts.",
+    "decisive_next_experiment": "Without running new simulations, extract the full time-series traces (t in [0, 5]) already saved in raw/controls.json to compute paired hub-minus-uniform and (beta=10 minus beta=0) retention contrasts at intermediate relaxation times (t = 0.2, 0.5, 1.0, 2.0) and conditioning-stratified by giant-component winding rank (separating seed 74000 at z=3.2 where the hub giant component has rank 1 from the rank-2 seeds); if new runs are permitted later, add a degree-preserving rewiring control that varies collinear bending-hinge count (nb) at fixed degree sequence to separate bending-chain continuity from degree heterogeneity.",
+    "literature_to_verify": [
+      {
+        "query": "Broedersz Mao Lubensky MacKintosh 2011 rigidity percolation bending stretching triangular lattice",
+        "reason": "Verify standard central-force and bending-stabilized rigidity thresholds and stretching-to-bending crossover scaling on diluted 2D triangular lattices.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "Prony series Maxwell viscoelastic network homogeneous relaxation proportional damping",
+        "reason": "Confirm standard analytical result that linear viscoelastic networks with uniform relaxation time constants exhibit topology-independent normalized stress relaxation.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "finished_at": "2026-10-31T18:31:09.048218+00:00"
+}

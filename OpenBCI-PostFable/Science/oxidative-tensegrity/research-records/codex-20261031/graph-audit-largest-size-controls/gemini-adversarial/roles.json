@@ -1,0 +1,26 @@
+[
+  {
+    "id": "A_adversarial",
+    "name": "Adversarial graph-audit and controls referee",
+    "task": "Review the three specialist critiques against supplied source and completed audit tables. Reject unsupported flaws or causal/phase-transition claims, enforce the predeclared time-step gate, distinguish conditioning from solver failure, and separate finite-graph observations from stationary or thermodynamic ensembles. The new deterministic graph audit adds information, not replicas. Same-model review is not independent validation. Give up to five actionable findings and a ranked bounded next experiment. Prioritize surviving effects versus observed integration error, exact reconstruction, actual winding rank versus old flags, rate caps and composite topology interventions.",
+    "files": [
+      "PROTOCOL.md",
+      "SOURCE_CHECK_NOTES.md",
+      "analysis/RUN_SUMMARY.json",
+      "analysis/BASELINE_REPRODUCTION.json",
+      "analysis/TIME_STEP_SUMMARY.json",
+      "analysis/GRAPH_AUDIT_SUMMARY.json",
+      "analysis/RATE_SUMMARY.json",
+      "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+      "analysis/SOURCE_COMPARISON.json",
+      "RETRIEVAL_VERIFICATION.json",
+      "source/model.py",
+      "source/audit.py",
+      "source/controls.py",
+      "SWARM_FINDINGS.md",
+      "source/transient_analysis.py",
+      "SPECIALIST_REVIEWS.json",
+      "analysis/TRANSIENT_RATE_AGGREGATES.json"
+    ]
+  }
+]

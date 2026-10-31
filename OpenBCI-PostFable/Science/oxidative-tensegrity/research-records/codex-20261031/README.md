@@ -14,3 +14,5 @@ The MD work establishes bounded numerical setup/integration checks. It does not 
 Original runtime data, paired restart records, inputs, driver versions, source attribution and numerical summaries are included. Credentials, software wheels, private account notes and human approval records are excluded. Inclusion of code is not authorization to execute it. Upstream source licenses and notices remain applicable.
 
 - [Controlled topology CPU sweeps and Gemini 4 Argon review](controlled-topology-cpu/README.md): 1,344 production cases, 400 control/refinement cases, eight CPU benchmark cases, six specialist and two adversarial reviews, targeted rate controls and source-checked limitations.
+
+- [Graph audit and largest-size time-step/rate controls](graph-audit-largest-size-controls/README.md): exact reconstruction of336 prior graphs,384 largest-size controls, Gemini4Argon specialist/adversarial review and source-checked numerical limits.

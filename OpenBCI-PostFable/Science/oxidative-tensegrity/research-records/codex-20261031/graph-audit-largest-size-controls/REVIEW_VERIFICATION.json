@@ -1,0 +1,103 @@
+{
+  "successful_calls": 4,
+  "calls": [
+    {
+      "role": "R2_numerics",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 70106,
+        "candidatesTokenCount": 2663,
+        "totalTokenCount": 78915,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 70106
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2663
+          }
+        ],
+        "thoughtsTokenCount": 6146
+      },
+      "findings": 5
+    },
+    {
+      "role": "R1_graphs",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 70101,
+        "candidatesTokenCount": 3198,
+        "totalTokenCount": 80095,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 70101
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3198
+          }
+        ],
+        "thoughtsTokenCount": 6796
+      },
+      "findings": 5
+    },
+    {
+      "role": "R3_inference",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 70108,
+        "candidatesTokenCount": 3499,
+        "totalTokenCount": 85963,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 70108
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3499
+          }
+        ],
+        "thoughtsTokenCount": 12356
+      },
+      "findings": 5
+    },
+    {
+      "role": "A_adversarial",
+      "model": "gemini-4-argon",
+      "usage": {
+        "promptTokenCount": 65607,
+        "candidatesTokenCount": 4223,
+        "totalTokenCount": 75393,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 65607
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 4223
+          }
+        ],
+        "thoughtsTokenCount": 5563
+      },
+      "findings": 5
+    }
+  ],
+  "remote_review_files_hash_verified": 12,
+  "all_frozen_source_and_packet_hashes_match": true,
+  "input_tokens": 275922,
+  "visible_output_tokens": 13583,
+  "thinking_tokens": 30861,
+  "same_model_consensus_not_independent_validation": true
+}

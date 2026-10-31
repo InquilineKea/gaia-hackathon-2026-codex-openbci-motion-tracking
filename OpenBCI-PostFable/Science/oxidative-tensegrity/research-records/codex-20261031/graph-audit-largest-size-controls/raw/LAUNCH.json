@@ -1,0 +1,18 @@
+{
+  "started": "2026-10-31T18:14:15.134723+00:00",
+  "jobs": [
+    {
+      "job": "audit",
+      "pid": 39437,
+      "cpu": 0
+    },
+    {
+      "job": "controls",
+      "pid": 39438,
+      "cpu": 1
+    }
+  ],
+  "source_hashes_verified": 6,
+  "dependency_files_hashed": 2293,
+  "host_network_namespace": "net:[4026531840]"
+}

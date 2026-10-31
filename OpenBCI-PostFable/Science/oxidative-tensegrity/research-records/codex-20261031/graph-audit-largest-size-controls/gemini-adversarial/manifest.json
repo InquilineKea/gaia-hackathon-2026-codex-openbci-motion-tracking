@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "name": "PROTOCOL.md",
+      "transmitted_sha256": "4d0cd60d62a4a0ae8fb71b3aa37b411f3f22f304ecd9799a17817aac96cc46d0",
+      "bytes": 2993,
+      "lines": 11
+    },
+    {
+      "name": "RETRIEVAL_VERIFICATION.json",
+      "transmitted_sha256": "9447ed2fdb5050f4ec28b5db7848f618250ae2623eaf6811524886887eed0306",
+      "bytes": 230,
+      "lines": 6
+    },
+    {
+      "name": "SOURCE_CHECK_NOTES.md",
+      "transmitted_sha256": "a13edd7e37a1090a1fdc708e60d2aef622223b4396242b9046d62a3d49a46f76",
+      "bytes": 9351,
+      "lines": 37
+    },
+    {
+      "name": "SPECIALIST_REVIEWS.json",
+      "transmitted_sha256": "a2e2d644c282a038e3cb70d238c58fc44e7b2cd07b40e71ebdb5e9236dbaf875",
+      "bytes": 32496,
+      "lines": 209
+    },
+    {
+      "name": "SWARM_FINDINGS.md",
+      "transmitted_sha256": "4163e8c736fada07905800658eba4313e6cd1f347ef42b150405720e3224cada",
+      "bytes": 14367,
+      "lines": 100
+    },
+    {
+      "name": "analysis/BASELINE_REPRODUCTION.json",
+      "transmitted_sha256": "904a26b34b06117ff97dc588c536b32c5d753537432e88a551f39870acdd6a4d",
+      "bytes": 134,
+      "lines": 6
+    },
+    {
+      "name": "analysis/GRAPH_AUDIT_SUMMARY.json",
+      "transmitted_sha256": "b754610b2b0b5ed9fa5cd754429f639c8817a8b542fe5d5bce0ea5ca38039197",
+      "bytes": 20051,
+      "lines": 572
+    },
+    {
+      "name": "analysis/PAIRED_TIME_STEP_SUMMARY.json",
+      "transmitted_sha256": "521d59858ee87360326b7450c482fdf4053399153cb37aec05cf6bb620b6324c",
+      "bytes": 9248,
+      "lines": 362
+    },
+    {
+      "name": "analysis/RATE_SUMMARY.json",
+      "transmitted_sha256": "e441d00c22d24c84abf52d9abef8b2b203db9f2767c96d5a7a532a514b00f666",
+      "bytes": 15058,
+      "lines": 618
+    },
+    {
+      "name": "analysis/RUN_SUMMARY.json",
+      "transmitted_sha256": "f5ddcb829b224a8ba80df6435059d55ef4fbaa48adb2b519a38f5a49f34bedca",
+      "bytes": 391,
+      "lines": 13
+    },
+    {
+      "name": "analysis/SOURCE_COMPARISON.json",
+      "transmitted_sha256": "53b82b419cf08dccde7563e9ed62bb4012e5e8ce037589d7ba2d2232bda1228a",
+      "bytes": 423,
+      "lines": 10
+    },
+    {
+      "name": "analysis/TIME_STEP_SUMMARY.json",
+      "transmitted_sha256": "630c18cfef5cee62e6c82764c2b2b5b7b0ebf0fb91d477c673d3370bfcc3b131",
+      "bytes": 4070,
+      "lines": 147
+    },
+    {
+      "name": "analysis/TRANSIENT_RATE_AGGREGATES.json",
+      "transmitted_sha256": "d69c271f792608304cb1dabf093f39a3d6c15b77a2fb394ecf63af7291a82130",
+      "bytes": 9205,
+      "lines": 305
+    },
+    {
+      "name": "analysis/TRANSIENT_RATE_SUMMARY.json",
+      "transmitted_sha256": "5b2549e3ac86483134f458a75fd8437ccb0e7614f013c4898237dfcc93e50a61",
+      "bytes": 40420,
+      "lines": 1205
+    },
+    {
+      "name": "source/analyze.py",
+      "transmitted_sha256": "cae607ed79390bed752641712f0e4d4b904ffbc9c7ec65219f56a3c30c6852b7",
+      "bytes": 8654,
+      "lines": 93
+    },
+    {
+      "name": "source/audit.py",
+      "transmitted_sha256": "bfb18dae2fb151be83d9a893e4db35a37d6a1e359d3296fce58048b000337391",
+      "bytes": 3654,
+      "lines": 53
+    },
+    {
+      "name": "source/controls.py",
+      "transmitted_sha256": "ca51eb7ad3a964e7b82a0eef855870a7a32154cc69a30ed819cddd8c4057eaf4",
+      "bytes": 1173,
+      "lines": 19
+    },
+    {
+      "name": "source/model.py",
+      "transmitted_sha256": "982a99e209983d454f0347cec316633c27c4c7f6fe6bf7a489fc4120437bf1ad",
+      "bytes": 6905,
+      "lines": 102
+    },
+    {
+      "name": "source/transient_analysis.py",
+      "transmitted_sha256": "da6f30799c18562775005d7e40e6e1cd4719f3617d8c72be08387cf8d6f88f2d",
+      "bytes": 1589,
+      "lines": 20
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "role": "R1_graphs",
+  "model": "gemini-4-argon",
+  "started_at": "2026-10-31T18:29:25.868696+00:00",
+  "packet_sha256": "80022ca156709f97a8f9a1596fa87faa97900d77fd6a98cf20ea411f422042ae",
+  "status": "ok",
+  "usage": {
+    "promptTokenCount": 70101,
+    "candidatesTokenCount": 3198,
+    "totalTokenCount": 80095,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 70101
+      }
+    ],
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 3198
+      }
+    ],
+    "thoughtsTokenCount": 6796
+  },
+  "finish_reason": "STOP",
+  "review": {
+    "summary": "The graph reconstruction and largest-size control audit succeeds in its primary technical objectives: all 336 prior graph masks reconstruct with exact SHA256 agreement, degree sequences in the triangle arms (arms 1 and 2) are strictly identical to their paired uniform graphs (arm 0), and all 96 eligible largest-size (L=24) time-step refinement comparisons pass the predeclared |retention(dt=0.05) - retention(dt=0.025)| <= 0.0001 gate (maximum observed fine difference 9.61e-5). Crucially, the stronger component-level audit corrects three unsupported prior interpretations: (1) old directional wrap flags (wrap_basis_1 and wrap_basis_2) do not imply 2D torus-spanning percolation (rank 2), as 9 variants satisfy both flags via diagonal (1,-1) cycles of winding rank 1; (2) per-component winding rank is neither graph biconnectivity nor mechanical shear rigidity, as demonstrated at L=24, z=3.2, kappa=0 where 4/4 rank-2 uniform graphs are mechanically floppy (G0 <= 1e-6) while 4/4 hub graphs (two of which have winding rank 1) are shear-bearing; and (3) the hub generator (arm 3) neither produces a pure bimodal 0/6-only degree distribution nor isolates degree heterogeneity, as it simultaneously shifts isolated-node fractions, giant-component mean degree, triangle counts, and collinear bending triples.",
+    "findings": [
+      {
+        "severity": "high",
+        "title": "Per-component torus winding rank corrects directional-flag conflation and is neither necessary nor sufficient for mechanical shear rigidity",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 64,
+        "evidence": "Nine audited graphs (7 unique masks), including L=24, z_target=3.2, seed=74000, arm=3 (line 64), set both wrap_basis_1 and wrap_basis_2 true via primitive winding vector (1,-1) while having giant_winding_rank == 1. Moreover, comparing lines 218 and 311 with analysis/RATE_SUMMARY.json (lines 6-7) at L=24, z=3.2, kappa=0.0 shows that 4/4 uniform (arm=0) graphs have giant_winding_rank == 2 yet 0/4 are shear-eligible (G0 <= 1e-6), whereas 2/4 hub (arm=3) graphs have giant_winding_rank == 1 yet 4/4 are shear-eligible (G0 > 1e-6).",
+        "implication": "The audit corrects the prior assumption that setting both coordinate wrap flags implies 2D torus-spanning topology. It also proves empirically in these networks that integer cycle winding rank is a topological homology metric rather than biconnectivity or Maxwell mechanical rigidity: under periodic node displacements, a dense triangulated rank-1 ribbon wrapping a 1D torus cycle resists macroscopic affine shear even at kappa=0, whereas a sub-isostatic rank-2 uniform graph at z=3.2 does not.",
+        "recommended_check": "Cross-tabulate mechanical eligibility (G0 > 1e-6) against giant_winding_rank in summary tables, and check whether the two rank-1 hub seeds at L=24, z=3.2 differ in viscoelastic retention from the two rank-2 hub seeds.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "high",
+        "title": "Severe motif covariation in the hub arm confounds degree variance with fragmentation, giant-component densification, and collinear bends",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 540,
+        "evidence": "Comparing arm=3 (lines 540-569) with arm=0 (lines 447-476) at L=24, z=4.8 shows that maximizing sum(k_i^2) at fixed total edge count (1383.0) simultaneously increases isolated_fraction_mean from 0.0 to 0.1341, shrinks giant_nodes_mean from 576.0 to 498.75, raises exact giant_mean_degree_mean from 4.8021 to 5.5463, increases triangles_mean from 591.25 to 872.75, and increases giant_bends_mean from 1108.75 to 1310.75. Across the full 336-graph audit, 200 graphs also contain edges outside the giant component (line 6).",
+        "implication": "First, estimating giant-component coordination as z_actual / giant_fraction is invalid whenever edges_outside_giant > 0 (200/336 graphs), which the audit corrects by computing exact 2*giant_edges/giant_nodes. Second, the large negative hub_minus_uniform retention contrast cannot be attributed specifically to hub degree heterogeneity because isolation, local giant-component density, triangle clustering, and collinear fiber bends covary strongly in arm=3.",
+        "recommended_check": "Treat the arm=3 vs arm=0 mechanical difference as a composite structural contrast rather than a pure degree-heterogeneity effect, and report giant_mean_degree and giant_bends alongside retention deltas.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Audited degree histograms in arm=3 refute idealized 0/6-only bimodal condensation and reflect finite-step MCMC sampling",
+        "source_file": "analysis/GRAPH_AUDIT_SUMMARY.json",
+        "source_line": 562,
+        "evidence": "At L=24, z=4.8, arm=3 (lines 562-568; PRELIMINARY_FINDINGS.md line 184), the mean degree fractions for k=0..6 are [0.1341, 0.0204, 0.0269, 0.0234, 0.0278, 0.0577, 0.7096], corresponding to [77.25, 11.75, 15.5, 13.5, 16.0, 33.25, 408.75] nodes. Across z=2.4, 3.2, 4.0, and 4.8 at L=24, intermediate degrees k=1..5 constitute 23.18%, 22.83%, 20.01%, and 15.63% of all nodes after the fixed 100*N proposal budget.",
+        "implication": "The audit falsifies any prior interpretation that the hub generator produces a pure two-point (k in {0, 6}) condensed graph or a stationary thermodynamic phase. A substantial population of intermediate-degree boundary and bridge nodes (15.6% to 23.2%) persists in all tested L=24 hub networks.",
+        "recommended_check": "Inspect whether mechanical strain energy and relaxation dissipation in arm=3 localize on the k=1..5 interface nodes connecting dense k=6 cores.",
+        "claim_status": "simulation_result"
+      },
+      {
+        "severity": "medium",
+        "title": "Triangle-arm rewiring preserves exact node degrees but weakly co-modulates collinear bends and suffers severe acceptance drop at high coordination",
+        "source_file": "source/audit.py",
+        "source_line": 52,
+        "evidence": "Line 52 verifies that arm=1 and arm=2 preserve the exact node-by-node degree sequence of arm=0 across all 336 graphs. However, in analysis/GRAPH_AUDIT_SUMMARY.json, alternating 6-ring flips inversely perturb collinear bend counts (at L=24, z=3.2, giant_bends_mean is 492.75 in arm=1 vs 501.5 in arm=2, lines 244 and 275) and experience an acceptance drop at L=24, z=4.8 to 114.75 (arm=1, line 495) and 112.0 (arm=2, line 526) out of 57,600 proposals, shifting clustering_mean by only 0.00366 (0.3192 vs 0.3156).",
+        "implication": "Although arm=1 vs arm=2 eliminates degree-sequence and component-size confounding, the topological intervention becomes extremely weak at z=4.8 and slightly couples triangle count to collinear bend count. Consequently, the small, sign-inconsistent triangle_high_minus_low retention contrasts (analysis/PAIRED_TIME_STEP_SUMMARY.json lines 38-360) reflect a weak motif perturbation across only 4 seeds rather than definitive mechanical insensitivity to clustering.",
+        "recommended_check": "Scale or compare triangle_high_minus_low retention contrasts relative to the achieved delta-triangles and delta-bends per seed, and qualify z=4.8 clustering conclusions by the 0.00366 achieved clustering spread.",
+        "claim_status": "implementation_fact"
+      },
+      {
+        "severity": "medium",
+        "title": "Sub-isostatic z=3.2 topological contrasts require kappa > 0 for uniform-arm eligibility, whereas rate-control invariance generalizes across all eligible (z, kappa) cells",
+        "source_file": "analysis/RATE_SUMMARY.json",
+        "source_line": 6,
+        "evidence": "At z=3.2, kappa=0.0 (lines 6, 18), 0/4 uniform graphs meet the G0 > 1e-6 eligibility gate, leaving 0 eligible paired contrasts. At z=4.0 and 4.8 with kappa=0.0, beta=0.0 (lines 183, 405), all 4 pairs are eligible and both arms match the homogeneous analytical retention r+(1-r)*exp(-5) = 0.5033689735 (paired_delta_mean ~ 0). For kappa in {0.003, 0.03}, all 4 pairs are eligible across z=3.2, 4.0, and 4.8, and paired_delta_mean at beta=0.0 matches beta=10.0 within 0.001 (e.g., -0.4255 vs -0.4264 at z=3.2, kappa=0.003, lines 35 and 70).",
+        "implication": "Claims regarding hub_minus_uniform retention differences at z=3.2 are strictly conditional on bending stiffness (kappa > 0) stabilizing the uniform network. Across all shear-bearing (kappa > 0) regimes at z=3.2, 4.0, and 4.8, the rate-control result generalizes cleanly: the topological retention gap is driven by the static/quasi-static partition between stretching (relaxing) and bending (non-relaxing) energy, not by strain-dependent rate acceleration (beta=10).",
+        "recommended_check": "Explicitly state that z=3.2 uniform-vs-hub retention contrasts are conditional on kappa > 0, while highlighting that beta=0 vs beta=10 invariance holds across every eligible kappa > 0 cell.",
+        "claim_status": "simulation_result"
+      }
+    ],
+    "strongest_surviving_claim": "All 336 prior graph topologies reconstruct with exact SHA256 mask agreement and verified degree invariants, and across all eligible largest-size (L=24) bending-stabilized networks (z in {3.2, 4.0, 4.8}, kappa in {0.003, 0.03}), the large negative hub-minus-uniform viscoelastic retention contrast is numerically stable under time-step refinement (dt=0.1, 0.05, 0.025; max fine-step case difference 9.61e-5 <= 1e-4) and persists nearly unchanged when strain-dependent rate acceleration is turned off (beta=0 vs beta=10), demonstrating that the contrast arises from the structural partition between stretching and non-relaxing bending modes rather than rate-cap saturation or nonlinear rate acceleration.",
+    "decisive_next_experiment": "To separate the confounded structural mechanisms in the hub arm (degree heterogeneity vs. giant-component densification vs. collinear bend count), perform a degree-preserving Maslov-Sneppen edge-swap control initialized from the arm=3 giant component (or a 2-switch degree-matched rewiring restricted to the giant component that varies collinear bends `nb` at fixed degree sequence and fixed component size) and measure viscoelastic retention at L=24, kappa in {0.003, 0.03}, beta=0.",
+    "literature_to_verify": [
+      {
+        "query": "Maxwell isostaticity central-force rigidity percolation triangular lattice bending stabilization",
+        "reason": "Verify theoretical expectations for why random diluted triangular lattices at z=3.2 are central-force floppy (G0=0 at kappa=0) despite spanning the torus (winding rank 2) and require bending stiffness (kappa > 0) or local cluster condensation to bear shear.",
+        "verification_status": "unverified"
+      },
+      {
+        "query": "periodic boundary conditions affine shear strain cycle winding vector homology rigidity percolation",
+        "reason": "Verify the distinction between integer cycle winding rank on a flat torus and pebble-game biconnectivity / redundant rigidity in periodic spring networks.",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "finished_at": "2026-10-31T18:31:21.529008+00:00"
+}

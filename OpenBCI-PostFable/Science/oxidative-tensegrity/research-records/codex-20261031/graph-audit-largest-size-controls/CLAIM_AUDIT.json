@@ -1,0 +1,107 @@
+[
+  {
+    "role": "R1_graphs",
+    "finding": 1,
+    "title": "Per-component torus winding rank corrects directional-flag conflation and is neither necessary nor sufficient for mechanical shear rigidity",
+    "disposition": "qualified",
+    "source_check": "Winding rank and single-mode shear eligibility are distinct; aggregate geometry does not establish a dense triangulated ribbon or universal necessity/sufficiency theorem."
+  },
+  {
+    "role": "R1_graphs",
+    "finding": 2,
+    "title": "Severe motif covariation in the hub arm confounds degree variance with fragmentation, giant-component densification, and collinear bends",
+    "disposition": "accepted",
+    "source_check": "Exact giant degree/edges/bends demonstrate composite covariation; giant-degree shortcut requires all edges in giant."
+  },
+  {
+    "role": "R1_graphs",
+    "finding": 3,
+    "title": "Audited degree histograms in arm=3 refute idealized 0/6-only bimodal condensation and reflect finite-step MCMC sampling",
+    "disposition": "qualified",
+    "source_check": "Intermediate degrees refute pure0/6 support in these finite graphs; stationarity and thermodynamic phase remain untested."
+  },
+  {
+    "role": "R1_graphs",
+    "finding": 4,
+    "title": "Triangle-arm rewiring preserves exact node degrees but weakly co-modulates collinear bends and suffers severe acceptance drop at high coordination",
+    "disposition": "qualified",
+    "source_check": "Degree invariance and weak achieved motif contrast accepted; component-size invariance and causal ratios per tiny motif change rejected."
+  },
+  {
+    "role": "R1_graphs",
+    "finding": 5,
+    "title": "Sub-isostatic z=3.2 topological contrasts require kappa > 0 for uniform-arm eligibility, whereas rate-control invariance generalizes across all eligible (z, kappa) cells",
+    "disposition": "qualified",
+    "source_check": "Final negative contrast persists with beta0 at dt.1; exact invariance and uniquely proven partition mechanism rejected."
+  },
+  {
+    "role": "R2_numerics",
+    "finding": 1,
+    "title": "Late-time observable (t=5) and small strain (gamma=0.1) structurally bound rate_beta sensitivity",
+    "disposition": "partly_rejected",
+    "source_check": "Transient-versus-final distinction accepted and analyzed from saved traces; homogeneous exp(-5) tail bound is not established for coupled network modes."
+  },
+  {
+    "role": "R2_numerics",
+    "finding": 2,
+    "title": "Rate-control topology contrast vanishes at kappa=0, beta=0 for z>=4.0 and is undefined at z=3.2",
+    "disposition": "qualified",
+    "source_check": "Undefined kappa0 pair atz3.2 and zero beta0 central-force contrast in eligible tested slices accepted; no universal threshold inferred."
+  },
+  {
+    "role": "R2_numerics",
+    "finding": 3,
+    "title": "First-order time integration yields 1.07e-4 max paired contrast drift at dt=0.05->0.025",
+    "disposition": "qualified",
+    "source_check": "Measured paired drift accepted; first-order/asymptotic proof and unconditional Richardson limit estimate rejected."
+  },
+  {
+    "role": "R2_numerics",
+    "finding": 4,
+    "title": "Linear initial elasticity makes matched_final_stress an exact scalar multiple (0.1x) of retention",
+    "disposition": "accepted",
+    "source_check": "Matched final stress is algebraically .1 times retention; not independent evidence."
+  },
+  {
+    "role": "R2_numerics",
+    "finding": 5,
+    "title": "Exact graph audit confirms inseparable density, isolation, and bending covariates in hub networks",
+    "disposition": "qualified",
+    "source_check": "Structural covariation accepted; cap inactivity and bounded numerical stability do not prove an exact unique mechanism."
+  },
+  {
+    "role": "R3_inference",
+    "finding": 1,
+    "title": "Conditional G0 eligibility excludes z=3.2 uniform networks at kappa=0 and restricts topology retention contrasts to bending-coupled (kappa>0) regimes",
+    "disposition": "accepted",
+    "source_check": "G0 eligibility and missing zero-bending comparison atz3.2 must be explicit."
+  },
+  {
+    "role": "R3_inference",
+    "finding": 2,
+    "title": "Hub generator (Arm 3) confounds degree variance with node isolation, giant-component densification, bend proliferation, and winding-rank reduction",
+    "disposition": "qualified",
+    "source_check": "Composite structural contrast accepted; fixed giant node count alone does not fix giant degree, and density-matched controls do not automatically isolate all mechanisms."
+  },
+  {
+    "role": "R3_inference",
+    "finding": 3,
+    "title": "Raw four paired differences in triangle controls (Arm 1 vs Arm 2) reverse sign across seeds in every condition under a weak clustering intervention",
+    "disposition": "qualified",
+    "source_check": "Mixed seed signs and weak clustering intervention accepted; null/equivalence not demonstrated and trajectory correctness not established by final-retention gate."
+  },
+  {
+    "role": "R3_inference",
+    "finding": 4,
+    "title": "Rate controls (rate_beta=0 vs 10) show linear viscoelastic mode partitioning dominates the hub contrast, but beta=0 lacks fine-step gating",
+    "disposition": "qualified",
+    "source_check": "Beta0 lacks refinement; negative final contrast persists but unique partition dominance and rate-law equivalence are not proved."
+  },
+  {
+    "role": "R3_inference",
+    "finding": 5,
+    "title": "Reusing identical seed integers (74000..74003) across coordination targets and arms couples initial edge realizations across z_target levels",
+    "disposition": "qualified",
+    "source_check": "Shared seeds imply dependence and must be blocked; exact same permutations/nested edge sets and a mandatory independent-seed repair are unsupported."
+  }
+]

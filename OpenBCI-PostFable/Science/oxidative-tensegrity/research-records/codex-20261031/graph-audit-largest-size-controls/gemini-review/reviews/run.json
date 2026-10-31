@@ -1,0 +1,97 @@
+{
+  "started_at": "2026-10-31T18:29:25.865984+00:00",
+  "status": "complete",
+  "model": "gemini-4-argon",
+  "manifest_sha256": "ced2b54a3c2abc68bdcf7807067ff2a3eac4822e977e85a564bb3eab62c2059c",
+  "total_input_characters": 377465,
+  "max_requests": 3,
+  "automatic_retries": 0,
+  "runner_sha256": "0d11e358719b6e7314114535800c0b68454fab07ea6bd563648c0f1eb3dbd7c6",
+  "system_prompt_sha256": "bc35fb0318e8eabdb6af97f91c69636d267f598f518acba1e0be16afb8a5fa24",
+  "thinking_level": "high",
+  "max_output_tokens_per_request": 24576,
+  "results": [
+    {
+      "role": "R2_numerics",
+      "model": "gemini-4-argon",
+      "started_at": "2026-10-31T18:29:25.871381+00:00",
+      "packet_sha256": "bada5e0648ed70913e92fe7513b4e84cd32fe0325c49243f58f5e9376dd03147",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 70106,
+        "candidatesTokenCount": 2663,
+        "totalTokenCount": 78915,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 70106
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 2663
+          }
+        ],
+        "thoughtsTokenCount": 6146
+      },
+      "finish_reason": "STOP",
+      "finished_at": "2026-10-31T18:31:09.048218+00:00"
+    },
+    {
+      "role": "R1_graphs",
+      "model": "gemini-4-argon",
+      "started_at": "2026-10-31T18:29:25.868696+00:00",
+      "packet_sha256": "80022ca156709f97a8f9a1596fa87faa97900d77fd6a98cf20ea411f422042ae",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 70101,
+        "candidatesTokenCount": 3198,
+        "totalTokenCount": 80095,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 70101
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3198
+          }
+        ],
+        "thoughtsTokenCount": 6796
+      },
+      "finish_reason": "STOP",
+      "finished_at": "2026-10-31T18:31:21.529008+00:00"
+    },
+    {
+      "role": "R3_inference",
+      "model": "gemini-4-argon",
+      "started_at": "2026-10-31T18:31:09.048741+00:00",
+      "packet_sha256": "a8d48066e6e88b6660449c40faf6ba418749dafff6d3343d9213b5934b94b96d",
+      "status": "ok",
+      "usage": {
+        "promptTokenCount": 70108,
+        "candidatesTokenCount": 3499,
+        "totalTokenCount": 85963,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 70108
+          }
+        ],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 3499
+          }
+        ],
+        "thoughtsTokenCount": 12356
+      },
+      "finish_reason": "STOP",
+      "finished_at": "2026-10-31T18:33:54.730177+00:00"
+    }
+  ],
+  "finished_at": "2026-10-31T18:33:54.731797+00:00"
+}
