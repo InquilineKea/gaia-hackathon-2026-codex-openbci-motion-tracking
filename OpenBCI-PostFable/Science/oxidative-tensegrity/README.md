@@ -122,6 +122,46 @@ Known artefacts: the basement-membrane modulus moves within seed noise; myocardi
 ~0.11 because of the assumed 5-year turnover; the "self-supporting" and "torn" thresholds are judgment calls.
 The 48×48, 8-seed GPU profile is what to trust.
 
+## Results — GCP 32-vCPU run, 2026-10-31 (`results/cpu32/`, 16×16 lattices, 4 seeds, 8 branching values)
+
+Confirms the local trends with tighter error bars; one local number was a small-lattice artefact.
+
+- **Branching:** healthy Col I G rises ~260× from z = 2.8 to 5.0. Dose-1 oxidative crosslinks multiply G ~14×
+  at z = 2.8 but only 1.4–2.2× above z = 4.
+- **Strain stiffening erased:** K(γ=0.4)/G₀ in healthy sub-isostatic networks is 8.8 (Col I), 14.7 (Col VII),
+  12.8 (Col IV) at z = 2.8. It falls to 3–4.6 with dose-1 crosslinks and to ~1.1 for every network at z = 5.
+- **Anisotropy:** anisotropic crosslinks give Cx/Cy = 1.2–3.6, rising with branching; isotropic stay 0.68–0.94.
+- **Brittleness, corrected:** Col I strain-at-peak falls 0.20 → 0.08 (aniso) / 0.11 (iso). The local run's
+  0.36 baseline was a 12×12 artefact. Strength rises slightly (0.0167 → 0.018–0.021); toughness is unchanged.
+  Col VII: +25% strength, +23% toughness, strain-at-peak halves (0.51 → 0.26–0.28). Col IV: 0.31 → 0.14–0.17.
+- **Cells:** healthy Col VII holds 14% prestress, YAP N/C 0.75, not self-supporting; isotropic dose-1
+  crosslinks make it self-supporting. Recovery is slowest (0.125–0.14 /h) in the soft transition zone.
+- **Heart:** EF 51.7% → 49.3% from age 20 to 80, mostly from arterial elastance.
+
+## GAG sliding vs crosslinks (`run_gag.py`, GCP, 12×12, 4 seeds; `results/cpu32/gag*.csv`, fig6)
+
+Question (from a ChatGPT design session): can crosslinking stiffen collagen yet cost it resilience by blocking
+GAG-mediated fibril sliding? Three GAG models at matched collagen and GAG count, three load cycles below fibre
+rupture (6% tension, 12% shear).
+
+- **Sliding GAGs + crosslinks:** stiffness rises ~6× from dose 0 to 1, while the dissipated fraction per cycle
+  falls from 0.54–0.56 to 0.09–0.10 (dose 0.5) and 0.02–0.08 (dose 1); slip events fall ~3×.
+- **Partly by construction, partly emergent.** Slip is assumed blocked at crosslink-locked junctions. At dose 0.5
+  only ~44% of links are pinned, which alone predicts a loss ratio near 0.31; the observed 0.09 means the stiffer
+  network also starves free links of strain.
+- **Which GAG model fits tendon data.** Removing sliding GAGs barely changes stiffness (0.053 → 0.042 in
+  tension) but abolishes dissipation, as tendon GAG-removal experiments report. Bridge GAGs instead predict a 2.8×
+  modulus drop on removal, contradicting that data.
+- **Polyelectrolyte GAGs** dissipate only by fibre rupture at dose 1 (damage, not resilience).
+
+## Collagen–GAG interface vs glycation (ALCHEMI + AIMNet2; `results/alchemi_gag/`)
+
+Rigid gas-phase contact energies of capped Lys/Arg and their glycated forms with dermatan-sulfate disaccharides
+(0/1/2 sulfates), on CPU (6 orientations) and the Brev L4 (24 orientations). Robust across both: **MG-H1-Arg is the
+weakest binder and the only one pushed out of contact (4.0–4.5 Å)**; Arg binds more strongly than Lys; CML-Lys stays
+bound. Magnitudes moved by up to ~0.5 eV between machines (RDKit conformers differ across CPU architectures;
+batch effects were ruled out), so averaging over conformers is the next step. See H8 in `HYPOTHESES_EWALD.md`.
+
 ## ALCHEMI status
 
 The ALCHEMI 101 multistage pipeline ran in an isolated Docker container (CPU). The crosslink scan runs through

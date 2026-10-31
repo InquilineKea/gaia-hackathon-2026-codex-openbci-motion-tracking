@@ -120,5 +120,21 @@ cysteine positions and effect sizes below were **not** independently verified.
 | H5 recovery clock | Mechanisms only (YAP-1 export kinetics, AMPK/AAK-2 gating, cofilin): **no evidence** found linking mechanotransduction recovery time to individual lifespan | Genuine gap: H5 is novel, not refuted. Worth running as stated. |
 | H6 YAP→LOX lock-in | Claims YAP/TEAD binds MCAT motifs in *LOX*/*LOXL2* promoters and suggests TEAD-palmitoylation inhibitors as a lever | Needs verification against primary ChIP data before the model gets a YAP→crosslink term. |
 
+## H8. Arginine glycation, not lysine glycation, decouples GAGs from collagen
+
+**Claim.** Dermatan/chondroitin sulfate binds collagen mainly through arginine. Methylglyoxal converts arginine to
+MG-H1 (the most abundant protein AGE) and removes that contact, so the proteoglycan interface that lets fibrils
+slide is lost. CML on lysine leaves the interface largely intact.
+**SIMULATED (ALCHEMI + AIMNet2, rigid gas-phase fragments, 6 orientations; `results/alchemi_gag/`).**
+Arg–DS contact −2.3 to −3.1 eV vs MG-H1-Arg −1.1 to −1.6 eV, with the minimum pushed from 2.8 Å to 4–4.5 Å
+(contact lost). CML-Lys stays as bound as Lys (−1.9 to −2.4 vs −1.6 to −1.9 eV). Contact energies, not free
+energies: explicit-solvent OpenMM/GROMACS free energies are needed before trusting magnitudes.
+**PROPOSED test.** Decorin/DS binding to collagen I films pre-treated with methylglyoxal (MG-H1) vs glyoxylate
+(CML) at matched AGE load, by SPR or pull-down; in worms, cuticle collagen arginine glycation (MG) vs lifespan
+with *glod-4* (glyoxalase) mutants, which accumulate methylglyoxal.
+**Falsifier.** MG-treated and CML-treated collagen lose GAG binding equally.
+
+---
+
 **Net.** H1, H2, H4 have supporting literature; H3 gained a competing hypothesis that sharpens the experiment;
 H5 is an open gap; H6 hinges on an unverified regulatory claim.

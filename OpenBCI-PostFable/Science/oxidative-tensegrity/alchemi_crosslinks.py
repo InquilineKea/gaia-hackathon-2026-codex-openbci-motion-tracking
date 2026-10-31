@@ -218,6 +218,7 @@ def main():
     ap.add_argument("--max-strain", type=float, default=0.25)
     ap.add_argument("--n-strain", type=int, default=21)
     ap.add_argument("--out", default=str(ROOT / "results" / "crosslink_params.json"))
+    ap.add_argument("--chem-per-batch", type=int, default=0, help="chemistries per batch; 0 = all in one")
     args = ap.parse_args()
 
     strains = np.linspace(args.min_strain, args.max_strain, args.n_strain)
@@ -227,12 +228,18 @@ def main():
         imgs, L0 = stretched_images(atoms, anchors, strains)
         jobs.append(dict(name=name, images=imgs, anchors=anchors, L0=L0))
     n_img = sum(len(j["images"]) for j in jobs)
-    print(f"{len(jobs)} chemistries x {len(strains)} strains = {n_img} systems in one batch")
+    per = args.chem_per_batch or len(jobs)
+    print(f"{len(jobs)} chemistries x {len(strains)} strains = {n_img} systems, {per} chemistries per GPU batch")
     t0 = time.time()
-    if args.backend == "alchemi":
-        E, steps, fmax = run_alchemi(jobs, args.model, args.device, args.steps, args.fmax)
-    else:
-        E, steps, fmax = run_ase_mace_off(jobs, args.device, args.steps, args.fmax)
+    E, steps, fmax = [], 0, 0.0
+    for k in range(0, len(jobs), per):  # chunks bound GPU memory (all 168 systems at float64 overflow a 24 GB L4)
+        group = jobs[k:k + per]
+        if args.backend == "alchemi":
+            e, s, f = run_alchemi(group, args.model, args.device, args.steps, args.fmax)
+        else:
+            e, s, f = run_ase_mace_off(group, args.device, args.steps, args.fmax)
+        E = np.concatenate([E, e])
+        steps, fmax = max(steps, s), max(fmax, f)
     res = analyse(jobs, E, strains)
     payload = dict(
         source=f"{args.backend}:{args.model}", seconds=time.time() - t0, steps=steps, final_fmax=fmax,
