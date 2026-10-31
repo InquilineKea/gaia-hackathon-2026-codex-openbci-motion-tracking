@@ -1,0 +1,21 @@
+{
+  "source_sha256": "3860aa1dcc607d9803ed11947d4b07204fc7c6e73bde10aa75a227aceede39de",
+  "scaled_fields": [
+    "mu",
+    "rigid_node",
+    "kappa",
+    "k_gag"
+  ],
+  "mu_el_scaled": false,
+  "default_elastin": 0.0,
+  "counterexample": {
+    "mu": 1.0,
+    "mu_el": 0.1,
+    "s": 2.3,
+    "observed_modulus_ratio": 2.1818181818181817,
+    "required_ratio": 2.3,
+    "relative_shortfall": 0.0513833992094862,
+    "corrected_ratio": 2.3
+  },
+  "conclusion": "Exact global rescaling holds for zero background, but not general nonzero mu_el with the inspected helper. This is an analytic/static audit, not a full FCC solver rerun."
+}

@@ -1,0 +1,6 @@
+{
+  "excluded": [
+    "raw/out/liboxt_cpu.so"
+  ],
+  "reason": "Original compiled platform-specific CPU binary retained locally; source and its remote SHA256 are published. Credentials, wheels and private account artifacts were never copied into this packet."
+}

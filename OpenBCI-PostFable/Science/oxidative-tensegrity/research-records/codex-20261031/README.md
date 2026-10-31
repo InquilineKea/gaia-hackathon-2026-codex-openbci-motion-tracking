@@ -16,3 +16,5 @@ Original runtime data, paired restart records, inputs, driver versions, source a
 - [Controlled topology CPU sweeps and Gemini 4 Argon review](controlled-topology-cpu/README.md): 1,344 production cases, 400 control/refinement cases, eight CPU benchmark cases, six specialist and two adversarial reviews, targeted rate controls and source-checked limitations.
 
 - [Graph audit and largest-size time-step/rate controls](graph-audit-largest-size-controls/README.md): exact reconstruction of336 prior graphs,384 largest-size controls, Gemini4Argon specialist/adversarial review and source-checked numerical limits.
+
+- [GPU angular parity and 3D atlas design review](gpu-angular-parity/README.md): 20/20 Nebius CPU/GPU checks, 24 reference states, timing limits, matched-stiffness audit and an unexecuted 360-record architecture screening plan.

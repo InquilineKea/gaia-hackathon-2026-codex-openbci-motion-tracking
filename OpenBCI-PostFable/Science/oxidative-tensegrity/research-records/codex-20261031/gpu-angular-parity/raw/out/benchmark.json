@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "informational": true,
+  "records": [
+    {
+      "terms": 1024,
+      "nodes": 4096,
+      "term_parity_max_scaled": 4.345514486893332e-15,
+      "cpu_host_adapter_seconds": 0.0025961080000342918,
+      "gpu_host_adapter_seconds": 0.0074178750001010485,
+      "gpu_resident_kernel_chain_seconds": 0.00011837779998131736,
+      "resident_repeats": 10
+    },
+    {
+      "terms": 16384,
+      "nodes": 4096,
+      "term_parity_max_scaled": 4.345514486893332e-15,
+      "cpu_host_adapter_seconds": 0.03971560799982399,
+      "gpu_host_adapter_seconds": 0.0734514929999932,
+      "gpu_resident_kernel_chain_seconds": 0.00036472510000749023,
+      "resident_repeats": 10
+    },
+    {
+      "terms": 65536,
+      "nodes": 4096,
+      "term_parity_max_scaled": 4.345514486893332e-15,
+      "cpu_host_adapter_seconds": 0.19119191300023886,
+      "gpu_host_adapter_seconds": 0.3011386980001589,
+      "gpu_resident_kernel_chain_seconds": 0.0008947736999743938,
+      "resident_repeats": 10
+    },
+    {
+      "terms": 262144,
+      "nodes": 4096,
+      "term_parity_max_scaled": 4.345514486893332e-15,
+      "cpu_host_adapter_seconds": 0.880085144000077,
+      "gpu_host_adapter_seconds": 1.5716108230003556,
+      "gpu_resident_kernel_chain_seconds": 0.004626893299973745,
+      "resident_repeats": 10
+    }
+  ]
+}

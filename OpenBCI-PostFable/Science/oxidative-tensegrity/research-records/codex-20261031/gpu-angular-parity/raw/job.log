@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "case_count": 818,
+  "checks": [
+    {
+      "name": "all legal terms accepted",
+      "passed": true
+    },
+    {
+      "name": "independent scalar reference",
+      "passed": true
+    },
+    {
+      "name": "force finite differences",
+      "passed": true
+    },
+    {
+      "name": "affine virial finite differences",
+      "passed": true
+    },
+    {
+      "name": "translation conservation",
+      "passed": true
+    },
+    {
+      "name": "rotation conservation",
+      "passed": true
+    },
+    {
+      "name": "broken terms exactly zero",
+      "passed": true
+    },
+    {
+      "name": "small bending force has no sine floor",
+      "passed": true
+    },
+    {
+      "name": "invalid geometry and branch rejection",
+      "passed": true
+    },
+    {
+      "name": "NVRTC CUDA compile",
+      "passed": true
+    },
+    {
+      "name": "GPU per-term CPU parity",
+      "passed": true,
+      "max_scaled": 4.345514486893332e-15
+    },
+    {
+      "name": "GPU CSR force assembly",
+      "passed": true
+    },
+    {
+      "name": "GPU energy and full virial reductions",
+      "passed": true
+    },
+    {
+      "name": "GPU deterministic repeat",
+      "passed": true
+    },
+    {
+      "name": "GPU frozen-damage mask parity",
+      "passed": true
+    },
+    {
+      "name": "GPU invalid terms counted",
+      "passed": true
+    },
+    {
+      "name": "GPU empty topology",
+      "passed": true
+    },
+    {
+      "name": "GPU periodic arm construction",
+      "passed": true
+    },
+    {
+      "name": "GPU built-geometry angular parity",
+      "passed": true
+    },
+    {
+      "name": "GPU fixed-coordinate deformation derivative",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "metrics": {
+    "independent_reference_max_scaled": 2.607308692136056e-14,
+    "force_fd_max_scaled": 4.150026294311443e-11,
+    "virial_fd_max_scaled": 2.395146416740119e-10,
+    "net_force_max_abs": 5.684341886080802e-14,
+    "net_torque_max_abs": 8.526512829121202e-14,
+    "ptx_sha256": "d7aa02c32bb155a26b34f735dc25e36d654d9b5584dd94b836373a15e9803114",
+    "compiler_log": ""
+  },
+  "gpu_executed": true
+}
+{"passed": true, "frames": 24, "terms": 23330, "gpu_executed": true}
