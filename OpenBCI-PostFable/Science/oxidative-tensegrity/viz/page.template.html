@@ -1,0 +1,525 @@
+<title>Oxidative Tensegrity</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column that descends the length scale (Å → nm → µm → mm → organ),
+   each section headed by its scale on a ruler; figures break slightly wider than the text. */
+:root {
+  --bg: #f4f6f8; --surface: #ffffff; --ink: #14181c; --ink2: #4a535c; --muted: #7d868e; --grid: #dfe4e8; --rule: #c9d1d8;
+  /* stain palette: picrosirius red (collagen), AGE autofluorescence violet, polarised amber, alcian blue (GAG), teal */
+  --healthy: #c43a2f; --iso: #6b4fd6; --aniso: #d98a1c; --gag: #1f6fb8; --teal: #13917c;
+  --ok: #0c8a3c; --warn: #b26b00; --bad: #c0362f;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1114; --surface: #161b20; --ink: #e9edf0; --ink2: #b4bdc5; --muted: #7d8790; --grid: #262d34; --rule: #343c44;
+  --healthy: #e3584b; --iso: #8a74e8; --aniso: #b87a20; --gag: #4c97e0; --teal: #1f9e7c;
+  --ok: #3fbf6a; --warn: #e0a033; --bad: #ec6a5f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1114; --surface: #161b20; --ink: #e9edf0; --ink2: #b4bdc5; --muted: #7d8790; --grid: #262d34; --rule: #343c44;
+  --healthy: #e3584b; --iso: #8a74e8; --aniso: #b87a20; --gag: #4c97e0; --teal: #1f9e7c;
+  --ok: #3fbf6a; --warn: #e0a033; --bad: #ec6a5f; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px }
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 56px }
+.prose { max-width: 66ch }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em }
+h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.02; font-weight: 700 }
+h2 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.1; font-weight: 700 }
+h3 { font-size: 1.1rem; font-weight: 500 }
+p { margin: 0 }
+.lede { font-size: 1.15rem; color: var(--ink2); max-width: 60ch }
+.stack { display: grid; gap: 14px }
+.scale { display: flex; align-items: center; gap: 12px; font: 500 0.78rem var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase }
+.scale::after { content: ""; flex: 1; height: 9px; background:
+  repeating-linear-gradient(90deg, var(--rule) 0 1px, transparent 1px 10px) bottom/100% 5px no-repeat,
+  linear-gradient(var(--rule), var(--rule)) bottom/100% 1px no-repeat }
+.fig { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0 }
+.fig figcaption, .cap { font-size: 0.86rem; color: var(--ink2) }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+button.seg { font: 500 0.85rem var(--body); color: var(--ink2); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer }
+button.seg[aria-pressed="true"] { color: var(--surface); background: var(--ink); border-color: var(--ink) }
+button.seg:focus-visible, input:focus-visible { outline: 2px solid var(--gag); outline-offset: 2px }
+input[type=range] { width: min(320px, 100%); accent-color: var(--healthy) }
+.readout { font: 0.85rem var(--mono); color: var(--ink2); font-variant-numeric: tabular-nums }
+canvas { width: 100%; display: block; border-radius: 6px }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible }
+.chart text { fill: var(--ink2); font: 11px var(--body) }
+.chart .ttl { fill: var(--ink); font-weight: 600; font-size: 12px }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.8rem; color: var(--ink2) }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font: 0.78rem var(--mono); padding: 4px 8px; border-radius: 4px; z-index: 20 }
+.hyp { display: grid; gap: 10px }
+.hyp li { list-style: none; display: grid; grid-template-columns: 2.6rem 1fr auto; gap: 12px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--grid) }
+.hyp b { font: 600 0.9rem var(--mono); color: var(--muted) }
+.hyp ul { padding: 0; margin: 0 }
+.chip { font: 600 0.72rem var(--body); letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap }
+.chip.ok { color: var(--ok) } .chip.warn { color: var(--warn) } .chip.bad { color: var(--bad) } .chip.neu { color: var(--muted) }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px }
+.stat { border-left: 2px solid var(--rule); padding-left: 10px }
+.stat strong { display: block; font: 700 1.6rem var(--display); color: var(--ink) }
+.stat span { font-size: 0.82rem; color: var(--ink2) }
+.scroll { overflow-x: auto }
+table { border-collapse: collapse; font-size: 0.85rem; font-variant-numeric: tabular-nums; min-width: 520px }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--grid) }
+th { font-weight: 600; color: var(--ink2) }
+header.hero { padding-top: 40px; display: grid; gap: 18px }
+.where { display: flex; flex-wrap: wrap; gap: 8px }
+.where span { font: 0.78rem var(--mono); color: var(--ink2); border: 1px solid var(--grid); border-radius: 6px; padding: 3px 8px; background: var(--surface) }
+footer { color: var(--muted); font-size: 0.82rem }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto } }
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <div class="scale">ScienceClaw hackathon · MIT Media Lab · 30 Oct – 1 Nov 2026</div>
+  <h1>Oxidative Tensegrity</h1>
+  <p class="lede">What happens to tissue when oxidative crosslinks (glycation products such as glucosepane and pentosidine,
+    dityrosine, disulfide scrambling) pile up on top of a healthy, enzymatically crosslinked collagen matrix. One question,
+    followed from single bonds to the heart, with every number below coming from a simulation that actually ran.</p>
+  <div class="stats" id="heroStats"></div>
+  <div class="where" aria-label="Where the computations ran">
+    <span>MacBook · Python/SciPy/PyTorch</span><span>GCP · 32 vCPU sweeps</span><span>Brev · NVIDIA L4 + ALCHEMI</span>
+    <span>Docker · ALCHEMI 101, AIMNet2</span><span>ScienceClaw · Gemini agent swarm</span>
+  </div>
+</header>
+
+<section class="stack" id="pipeline">
+  <div class="scale">The pipeline</div>
+  <h2>Five scales, one chain of evidence</h2>
+  <p class="prose">Each scale hands a measured quantity to the next. Crosslink chemistry sets how rigid a junction is; the
+    fibre network turns that into stiffness, strain-stiffening and failure; a tensegrity cell pulls on that network and
+    decides whether YAP enters the nucleus; tissues accumulate crosslinks with age, which sets transport and heart function.</p>
+  <figure class="fig" style="margin:0"><div class="scroll"><svg id="pipe" viewBox="0 0 960 250" role="img" aria-label="Pipeline diagram from atomistic crosslinks to organ function" style="min-width:720px;width:100%"></svg></div>
+    <figcaption>Solid boxes ran; the dashed box is queued. Tool and machine under each step.</figcaption></figure>
+</section>
+
+<section class="stack" id="molecules">
+  <div class="scale">Ångström · crosslink chemistry</div>
+  <h2>Glycated arginine lets go of GAGs</h2>
+  <p class="prose">Two atomistic questions run through NVIDIA ALCHEMI with machine-learned potentials. How stiff is each crosslink
+    when you pull on it, and does glycation damage the collagen surface that proteoglycans (decorin's dermatan sulfate) grip?
+    The second gave the clearer answer: arginine is the strong GAG binder, and turning it into MG-H1, the most common protein AGE,
+    halves the contact energy and pushes the sugar out of contact. CML on lysine does not.</p>
+  <div class="grid2">
+    <figure class="fig" style="margin:0"><div class="chart" id="cgag"></div>
+      <figcaption>Best contact energy, residue + dermatan-sulfate disaccharide (0, 1 or 2 sulfates). AIMNet2 via ALCHEMI; filled = Brev L4, 24 orientations; open = laptop CPU, 6. Rigid gas-phase fragments: ranks, not binding free energies.</figcaption></figure>
+    <figure class="fig" style="margin:0"><div class="chart" id="xl"></div>
+      <figcaption>Stretch stiffness relative to pyridinoline, MACE-OFF via ALCHEMI batched FIRE2. <span id="xlsrc"></span></figcaption></figure>
+  </div>
+</section>
+
+<section class="stack" id="network">
+  <div class="scale">Micrometre · fibre network</div>
+  <h2>Branching sets the stiffness; oxidative crosslinks erase the slack</h2>
+  <p class="prose">Collagen networks are sub-isostatic: with fewer than four fibres per junction (in 2D) they are floppy until stretched,
+    which is why they stiffen so steeply under strain. Oxidative crosslinks lock junctions, bridge neighbouring fibres and stiffen
+    the fibres themselves. Below, the same 12×12 network is sheared to 40%; segments glow red in tension and the violet dots are
+    junctions locked by oxidative crosslinks.</p>
+  <figure class="fig" style="margin:0">
+    <div class="controls" role="group" aria-label="Network condition">
+      <button class="seg" data-net="0" aria-pressed="true">Healthy</button>
+      <button class="seg" data-net="1" aria-pressed="false">Oxidative, isotropic</button>
+      <button class="seg" data-net="2" aria-pressed="false">Oxidative, anisotropic</button>
+      <button class="seg" id="netPlay" aria-pressed="true">Pause</button>
+    </div>
+    <canvas id="netCanvas" height="420" aria-label="Animated fibre network under shear"></canvas>
+    <div class="readout" id="netRead"></div>
+    <figcaption>Equilibrium configurations from the quasi-static solver (L-BFGS, Lees–Edwards periodic box), collagen I, mean connectivity 3.4, dose 1. Frames are interpolated between six solved strains.</figcaption>
+  </figure>
+  <div class="grid2">
+    <figure class="fig" style="margin:0"><div class="controls" role="group" aria-label="Collagen type">
+        <button class="seg" data-col="I" aria-pressed="true">Collagen I</button><button class="seg" data-col="VII" aria-pressed="false">Collagen VII</button><button class="seg" data-col="IV" aria-pressed="false">Collagen IV</button></div>
+      <div class="chart" id="branch"></div>
+      <figcaption>Linear shear modulus vs connectivity (the branching factor). GCP sweep, 16×16 networks, 4 seeds.</figcaption></figure>
+    <figure class="fig" style="margin:0"><div class="chart" id="kg"></div>
+      <figcaption>Strain-stiffening, K(γ=0.4)/G₀: the stiffness range a cell can feel by pulling. Same collagen as the left panel.</figcaption></figure>
+  </div>
+  <figure class="fig" style="margin:0"><div class="grid2"><div class="chart" id="failI"></div><div class="chart" id="failVII"></div></div>
+    <figcaption>Stretch to failure with bond rupture. Collagen I keeps its strength but fails at less than half the strain; collagen VII gains strength and toughness but loses extensibility.</figcaption></figure>
+</section>
+
+<section class="stack" id="gag">
+  <div class="scale">10–100 nanometre · fibril interface</div>
+  <h2>Crosslinks shut down GAG sliding</h2>
+  <p class="prose">Proteoglycans let neighbouring fibrils slide past each other under load, which dissipates energy without damage.
+    In the model, a sliding GAG link slips once it is stretched past 1%; a link anchored at a crosslink-locked junction cannot.
+    Toggle crosslinks in the schematic to see the hysteresis loop collapse.</p>
+  <div class="grid2">
+    <figure class="fig" style="margin:0">
+      <div class="controls"><button class="seg" id="gagXL" aria-pressed="false">Add oxidative crosslinks</button></div>
+      <canvas id="gagCanvas" height="300" aria-label="Schematic of GAG links between two fibrils"></canvas>
+      <div class="readout" id="gagRead"></div>
+      <figcaption>Schematic, not simulation output: two fibrils, alcian-blue GAG links, cyclic shear of the top fibril. Force–displacement loop drawn live.</figcaption></figure>
+    <figure class="fig" style="margin:0"><div class="chart" id="gagChart"></div>
+      <figcaption>Simulation: fraction of elastic energy dissipated per cycle (tension), four GAG models, GCP, 12×12, 4 seeds. Only sliding GAGs dissipate, and crosslinks remove most of it while stiffness rises ~6×.</figcaption></figure>
+  </div>
+</section>
+
+<section class="stack" id="cell">
+  <div class="scale">10 micrometre · the cell</div>
+  <h2>A tensegrity cell needs the matrix to hold its tension</h2>
+  <p class="prose">The cell body is a six-strut tensegrity: microtubule struts in compression, actomyosin cables in tension. Its
+    bottom face has no cables, so the matrix, through adhesions, closes the tension loop. On soft matrix the cell cannot hold its
+    prestress and sags; the nucleus feels little force and YAP stays out.</p>
+  <div class="grid2">
+    <figure class="fig" style="margin:0">
+      <label class="cap" for="tensK">Matrix stiffness at the adhesions</label>
+      <input type="range" id="tensK" min="0" max="7" step="1" value="5">
+      <canvas id="tensCanvas" height="340" aria-label="Rotating tensegrity cell"></canvas>
+      <div class="readout" id="tensRead"></div>
+      <figcaption>Black struts: microtubules. Red cables: actomyosin (fainter = less prestress). Green dots: adhesions on the collagen floor. Equilibrium shapes from the tensegrity solver (SciPy L-BFGS), contractility 6%.</figcaption></figure>
+    <figure class="fig" style="margin:0"><div class="chart" id="yap"></div>
+      <figcaption>YAP nuclear/cytoplasmic ratio vs oxidative dose (isotropic), from motor-clutch adhesions + tensegrity + YAP→myosin feedback. Hollow markers: the cell cannot support itself (holds under half its prestress or tears the matrix).</figcaption></figure>
+  </div>
+  <figure class="fig" style="margin:0"><div class="chart" id="rec"></div>
+    <figcaption>Recovery rate of the YAP–myosin loop (Fedichev-style resilience). It dips where YAP is most sensitive to the matrix, the critical slowing down that marks a tipping point.</figcaption></figure>
+</section>
+
+<section class="stack" id="tissue">
+  <div class="scale">Millimetre → organ · aging tissue</div>
+  <h2>Long-lived collagen ages fastest</h2>
+  <p class="prose">Crosslinked collagen resists the enzymes that would replace it, so crosslinks accumulate fastest where turnover
+    is slowest. Tendon and cartilage reach the highest dose by 80; myocardium, renewed within years, plateaus.</p>
+  <div class="grid3" id="tissueGrid"></div>
+  <div class="grid2">
+    <figure class="fig" style="margin:0"><div class="chart" id="transport"></div>
+      <figcaption>Effective diffusivity at age 80 relative to 20. Matrix-binding growth factors slow by up to ~44%; oxygen and glucose do not.</figcaption></figure>
+    <figure class="fig" style="margin:0"><div class="chart" id="heart"></div>
+      <figcaption>Left ventricle as a time-varying elastance with myocardial and arterial stiffening from the tissue model.</figcaption></figure>
+  </div>
+</section>
+
+<section class="stack" id="hypotheses">
+  <div class="scale">What to test next</div>
+  <h2>Eight hypotheses, checked by an agent swarm</h2>
+  <p class="prose">Written in the spirit of Colin Ewald's matrisome work and checked against the literature by ScienceClaw agent
+    collectives on Gemini (dry run, nothing posted). Status reflects that check, not experiments.</p>
+  <ul class="hyp" id="hyps"></ul>
+</section>
+
+<section class="stack" id="caveats">
+  <div class="scale">Limits</div>
+  <h2>What this does not show</h2>
+  <div class="prose stack">
+    <p>Networks are two-dimensional and small (12×12 to 16×16); every parameter is a literature-informed assumption, not a fit.
+      The cell is a single tensegrity unit. Atomistic numbers come from rigid fragments in vacuum with non-reactive potentials,
+      so they rank chemistries rather than predict forces, and the crosslink-stiffness pilot did not fully converge (a converged
+      two-model run is in progress on Brev). The swarm's literature syntheses are leads; several specifics could not be verified.</p>
+  </div>
+</section>
+<footer>Code and data: branch <code>claude/oxidative-tensegrity</code> of InquilineKea/gaia-hackathon-2026-codex-openbci-motion-tracking on GitHub.</footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById("data").textContent);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const tip = document.getElementById("tip");
+function showTip(ev, text) { tip.textContent = text; tip.hidden = false; tip.style.left = (ev.clientX + 12) + "px"; tip.style.top = (ev.clientY - 28) + "px"; }
+function hideTip() { tip.hidden = true; }
+
+// ---------- generic SVG chart ----------
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= n) || mag * 10;
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(10)); return t;
+}
+function fmt(v) { const a = Math.abs(v); return a === 0 ? "0" : a >= 100 ? v.toFixed(0) : a >= 1 ? +v.toFixed(2) + "" : a >= 0.01 ? +v.toFixed(3) + "" : v.toExponential(0); }
+function chart(host, o) {
+  host.innerHTML = "";
+  const W = o.w || 520, H = o.h || 300, m = { l: 54, r: o.right || 16, t: o.title ? 26 : 10, b: 40 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.title || "chart" }, host);
+  const xs = o.series.flatMap(s => s.pts.map(p => p[0])), ys = o.series.flatMap(s => s.pts.map(p => p[1])).filter(v => !o.ylog || v > 0);
+  let [x0, x1] = o.xdom || [Math.min(...xs), Math.max(...xs)], [y0, y1] = o.ydom || [Math.min(0, ...ys), Math.max(...ys) * 1.08];
+  if (o.ylog) { y0 = Math.pow(10, Math.floor(Math.log10(Math.min(...ys)))); y1 = Math.pow(10, Math.ceil(Math.log10(Math.max(...ys)))); }
+  const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+  const Y = v => o.ylog ? H - m.b - (Math.log10(v) - Math.log10(y0)) / (Math.log10(y1) - Math.log10(y0)) * (H - m.t - m.b) : H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
+  const grid = css("--grid"), rule = css("--rule");
+  const yt = o.ylog ? (() => { const t = []; for (let e = Math.log10(y0); e <= Math.log10(y1) + 1e-9; e++) t.push(Math.pow(10, e)); return t; })() : niceTicks(y0, y1, 5);
+  yt.forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: grid, "stroke-width": 1 }, svg); el("text", { x: m.l - 6, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v); });
+  (o.xticks || niceTicks(x0, x1, 6)).forEach(v => { el("text", { x: X(v), y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = o.xfmt ? o.xfmt(v) : fmt(v); });
+  el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, stroke: rule, "stroke-width": 1 }, svg);
+  if (o.xlabel) el("text", { x: (m.l + W - m.r) / 2, y: H - 6, "text-anchor": "middle" }, svg).textContent = o.xlabel;
+  if (o.ylabel) { const t = el("text", { x: 12, y: (m.t + H - m.b) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(m.t + H - m.b) / 2})` }, svg); t.textContent = o.ylabel; }
+  if (o.title) el("text", { x: m.l, y: 14, class: "ttl" }, svg).textContent = o.title;
+  (o.vlines || []).forEach(v => { el("line", { x1: X(v.x), x2: X(v.x), y1: m.t, y2: H - m.b, stroke: rule, "stroke-dasharray": "3 3" }, svg); el("text", { x: X(v.x) + 4, y: m.t + 10 }, svg).textContent = v.label; });
+  for (const s of o.series) {
+    const col = css(s.color);
+    if (s.line !== false && s.pts.length > 1) el("path", { d: s.pts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join(""), fill: "none", stroke: col, "stroke-width": 2, "stroke-dasharray": s.dash || "", "stroke-linejoin": "round" }, svg);
+    s.pts.forEach((p, i) => {
+      const hollow = s.hollow && s.hollow[i];
+      const c = el("circle", { cx: X(p[0]), cy: Y(p[1]), r: s.r || 4, fill: hollow || s.open ? css("--surface") : col, stroke: col, "stroke-width": 2 }, svg);
+      c.addEventListener("pointermove", ev => showTip(ev, `${s.name}: ${o.xname || "x"} ${fmt(p[0])}, ${o.yname || "y"} ${fmt(p[1])}`)); c.addEventListener("pointerleave", hideTip);
+    });
+    if (s.label !== false && s.pts.length) { const p = s.pts[s.pts.length - 1]; el("text", { x: X(p[0]) + 7, y: Y(p[1]) + 4 + (s.dy || 0), fill: col, style: `fill:${col};font-weight:600` }, svg).textContent = s.label || s.name; }
+  }
+  return { svg, X, Y };
+}
+function legend(host, items) {
+  const d = document.createElement("div"); d.className = "legend";
+  items.forEach(([name, color, dash]) => { const s = document.createElement("span"); s.innerHTML = `<i style="background:${css(color)};${dash ? "opacity:.6" : ""}"></i>${name}`; d.appendChild(s); });
+  host.appendChild(d);
+}
+
+// ---------- hero stats ----------
+(function () {
+  const br = D.branching["I|none"], f = D.failure;
+  const stats = [
+    [Math.round(br.G[br.G.length - 1] / br.G[0]) + "×", "stiffer as collagen I branching rises from z≈2.8 to 5"],
+    [(f["I|none"].peak / f["I|aniso"].peak).toFixed(1) + "×", "less strain to failure for collagen I with oxidative crosslinks"],
+    ["0.56 → 0.08", "energy dissipated per cycle by GAG sliding, healthy → crosslinked"],
+    [(D.heart.EF[0] * 100).toFixed(1) + "% → " + (D.heart.EF[D.heart.EF.length - 1] * 100).toFixed(1) + "%", "ejection fraction, age 20 → 80"],
+  ];
+  const h = document.getElementById("heroStats");
+  stats.forEach(([a, b]) => { const d = document.createElement("div"); d.className = "stat"; d.innerHTML = `<strong>${a}</strong><span>${b}</span>`; h.appendChild(d); });
+})();
+
+// ---------- pipeline diagram ----------
+function drawPipe() {
+  const svg = document.getElementById("pipe"); svg.innerHTML = "";
+  const steps = [
+    ["Crosslink chemistry", "Å", "ALCHEMI + MACE / AIMNet2", "Brev L4, Docker", "--iso", false],
+    ["Fibre network", "µm", "PyTorch L-BFGS, rupture", "MacBook, GCP 32 vCPU", "--healthy", false],
+    ["GAG interface", "10–100 nm", "sliding / bridge / swelling", "GCP 32 vCPU", "--gag", false],
+    ["Tensegrity cell", "10 µm", "motor-clutch + YAP", "SciPy", "--teal", false],
+    ["Tissue → organ", "mm → heart", "aging dose, transport, EF", "pandas", "--aniso", false],
+  ];
+  const w = 168, gap = 30, y = 46;
+  steps.forEach((s, i) => {
+    const x = 8 + i * (w + gap), col = css(s[4]);
+    el("rect", { x, y, width: w, height: 112, rx: 10, fill: css("--surface"), stroke: col, "stroke-width": 2 }, svg);
+    el("rect", { x, y, width: w, height: 6, rx: 3, fill: col }, svg);
+    el("text", { x: x + 12, y: y + 30, style: `fill:${css("--ink")};font:600 14px var(--display)` }, svg).textContent = s[0];
+    el("text", { x: x + 12, y: y + 50, style: `fill:${col};font:500 12px var(--mono)` }, svg).textContent = s[1];
+    el("text", { x: x + 12, y: y + 76, style: `fill:${css("--ink2")};font:12px var(--body)` }, svg).textContent = s[2];
+    el("text", { x: x + 12, y: y + 96, style: `fill:${css("--muted")};font:11px var(--mono)` }, svg).textContent = s[3];
+    if (i < steps.length - 1) { const ax = x + w + 4; el("path", { d: `M${ax} ${y + 56} L${ax + gap - 10} ${y + 56}`, stroke: css("--rule"), "stroke-width": 2 }, svg); el("path", { d: `M${ax + gap - 14} ${y + 51} L${ax + gap - 6} ${y + 56} L${ax + gap - 14} ${y + 61} Z`, fill: css("--rule") }, svg); }
+  });
+  const labels = ["junction rigidity", "stiffness, K(γ)", "dissipation", "YAP, prestress"];
+  labels.forEach((t, i) => el("text", { x: 8 + (i + 1) * (w + gap) - gap / 2, y: y + 40, "text-anchor": "middle", style: `fill:${css("--muted")};font:10px var(--mono)` }, svg).textContent = t);
+  const sx = 8, sy = 190, sw = 4 * (w + gap) + w;
+  el("rect", { x: sx, y: sy, width: sw, height: 44, rx: 10, fill: "none", stroke: css("--rule"), "stroke-dasharray": "5 4" }, svg);
+  el("text", { x: sx + 14, y: sy + 27, style: `fill:${css("--ink2")};font:13px var(--body)` }, svg).textContent = "Checked by a ScienceClaw agent swarm (Gemini, 11 collectives, dry run) · queued for Brev: converged two-model crosslink scan, LAMMPS G′/G″";
+}
+
+// ---------- molecules ----------
+function drawMolecules() {
+  const pairs = ["DS-0S", "DS-4S", "DS-2S4S"], res = ["Arg", "MG-H1-Arg", "Lys", "CML-Lys"];
+  const colors = { "Arg": "--healthy", "MG-H1-Arg": "--iso", "Lys": "--gag", "CML-Lys": "--aniso" };
+  const series = [];
+  res.forEach(r => {
+    if (D.collagen_gag_l4) series.push({ name: r + " (L4)", label: r, color: colors[r], pts: pairs.map((g, i) => [i, -D.collagen_gag_l4[`${r}|${g}`]]) });
+    if (D.collagen_gag_cpu) series.push({ name: r + " (CPU)", label: false, color: colors[r], open: true, line: false, r: 3, pts: pairs.map((g, i) => [i + 0.08, -D.collagen_gag_cpu[`${r}|${g}`]]) });
+  });
+  chart(document.getElementById("cgag"), { series, xticks: [0, 1, 2], xfmt: v => pairs[v] || "", xdom: [-0.2, 2.6], ydom: [0, 3.4], right: 90,
+    title: "GAG contact energy (−eV, higher = tighter)", ylabel: "−E contact (eV)", xname: "GAG", yname: "−E", w: 520, h: 300 });
+  const xl = D.crosslink_converged || D.crosslink_pilot;
+  document.getElementById("xlsrc").textContent = D.crosslink_converged ? "Converged run on Brev." : `CPU pilot, not converged (final force ${(+D.crosslink_pilot._fmax).toFixed(2)} eV/Å): ranks only.`;
+  const names = Object.keys(xl).filter(k => !k.startsWith("_")).sort((a, b) => xl[b].k_rel - xl[a].k_rel);
+  const host = document.getElementById("xl"); host.innerHTML = "";
+  const W = 520, H = 300, l = 120, r = 40, top = 26, rowH = (H - top - 10) / names.length;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Crosslink stretch stiffness" }, host);
+  el("text", { x: 0, y: 14, class: "ttl" }, svg).textContent = "Relative stretch stiffness (pyridinoline = 1)";
+  const max = Math.max(...names.map(n => xl[n].k_rel)) * 1.1, X = v => l + v / max * (W - l - r);
+  const oxid = { "pentosidine": 1, "glucosepane": 1, "dityrosine": 1, "disulfide": 1, "sulfilimine": 1 };
+  el("line", { x1: X(1), x2: X(1), y1: top, y2: H - 6, stroke: css("--rule"), "stroke-dasharray": "3 3" }, svg);
+  names.forEach((n, i) => {
+    const y = top + i * rowH + 4, col = css(oxid[n] ? "--iso" : "--healthy");
+    el("text", { x: l - 8, y: y + rowH / 2 + 2, "text-anchor": "end" }, svg).textContent = n.replace("_", " ");
+    const rct = el("rect", { x: l, y, width: Math.max(1, X(xl[n].k_rel) - l), height: rowH - 8, rx: 3, fill: col }, svg);
+    rct.addEventListener("pointermove", ev => showTip(ev, `${n}: k_rel ${xl[n].k_rel}, peak force ${xl[n].Fpk} eV/Å`)); rct.addEventListener("pointerleave", hideTip);
+    el("text", { x: X(xl[n].k_rel) + 5, y: y + rowH / 2 + 2 }, svg).textContent = xl[n].k_rel.toFixed(2);
+  });
+  legend(host, [["oxidative / glycation", "--iso"], ["enzymatic (LOX, TG2)", "--healthy"]]);
+}
+
+// ---------- network animation ----------
+const NET = D.network; let netCfg = 0, netT = 0, netPlaying = !reduce;
+const netCanvas = document.getElementById("netCanvas");
+function netFrame(t) {
+  const F = NET.frames, n = F.length - 1, u = Math.max(0, Math.min(n, t)), i = Math.min(n - 1, Math.floor(u)), f = u - i;
+  const A = F[i], B = F[i + 1];
+  return { gamma: A.gamma + f * (B.gamma - A.gamma), x: A.x[netCfg].map((v, k) => v + f * (B.x[netCfg][k] - v)),
+           strain: A.strain[netCfg].map((v, k) => v + f * (B.strain[netCfg][k] - v)), stress: A.stress[netCfg] + f * (B.stress[netCfg] - A.stress[netCfg]) };
+}
+function drawNet() {
+  const c = netCanvas, dpr = devicePixelRatio || 1, W = c.clientWidth, H = 420;
+  c.width = W * dpr; c.height = H * dpr; const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.fillStyle = css("--surface"); g.fillRect(0, 0, W, H);
+  const fr = netFrame(netT), L = NET.L, gm = fr.gamma;
+  const sc = Math.min((W - 30) / (L[0] * (1 + 0.42) + 1), (H - 30) / (L[1] + 1)), ox = 15 + sc * 0.5, oy = H - 15 - sc * 0.5;
+  const P = (x, y) => [ox + x * sc, oy - y * sc];
+  g.strokeStyle = css("--rule"); g.setLineDash([4, 4]); g.lineWidth = 1; g.beginPath();
+  const corners = [[0, 0], [L[0], 0], [L[0] + gm * L[1], L[1]], [gm * L[1], L[1]]].map(p => P(p[0], p[1]));
+  corners.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.stroke(); g.setLineDash([]);
+  const alive = NET.alive[netCfg], stiff = NET.stiffened[netCfg], red = css("--healthy"), ink = css("--ink2");
+  for (let b = 0; b < alive.length; b++) {
+    if (!alive[b]) continue;
+    const i = NET.bi[b], j = NET.bj[b], s = NET.shift[b];
+    const xi = fr.x[2 * i], yi = fr.x[2 * i + 1];
+    const dx = fr.x[2 * j] - xi + s[0] + gm * s[1], dy = fr.x[2 * j + 1] - yi + s[1];
+    const st = fr.strain[b], a = P(xi, yi), z = P(xi + dx, yi + dy);
+    const tens = Math.max(0, Math.min(1, st / 0.04));
+    g.strokeStyle = tens > 0.05 ? red : ink; g.globalAlpha = tens > 0.05 ? 0.35 + 0.65 * tens : 0.45;
+    g.lineWidth = (stiff[b] ? 2.6 : 1.6) + 2 * tens; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(z[0], z[1]); g.stroke();
+  }
+  g.globalAlpha = 1; const rig = NET.rigid[netCfg]; g.fillStyle = css("--iso");
+  for (let i = 0; i < rig.length; i++) if (rig[i]) { const p = P(fr.x[2 * i], fr.x[2 * i + 1]); g.beginPath(); g.arc(p[0], p[1], 3.4, 0, 7); g.fill(); }
+  document.getElementById("netRead").textContent = `${NET.labels[netCfg]} · shear γ = ${(gm * 100).toFixed(0)}% · shear stress ${fr.stress.toExponential(2)} (units of μ_I)`;
+}
+let lastTs = 0;
+function netLoop(ts) { if (netPlaying) { const dt = Math.min(0.05, (ts - lastTs) / 1000 || 0); netT = (netT + dt * 1.2) % 10; } lastTs = ts; const ph = netT <= 5 ? netT : 10 - netT; const keep = netT; netT = ph; drawNet(); netT = keep; requestAnimationFrame(netLoop); }
+document.querySelectorAll("[data-net]").forEach(b => b.addEventListener("click", () => { netCfg = +b.dataset.net; document.querySelectorAll("[data-net]").forEach(o => o.setAttribute("aria-pressed", o === b)); }));
+document.getElementById("netPlay").addEventListener("click", e => { netPlaying = !netPlaying; e.target.textContent = netPlaying ? "Pause" : "Play"; e.target.setAttribute("aria-pressed", netPlaying); });
+if (reduce) { netT = 3; document.getElementById("netPlay").textContent = "Play"; document.getElementById("netPlay").setAttribute("aria-pressed", "false"); }
+
+let col = "I";
+function drawBranch() {
+  const s = m => D.branching[`${col}|${m}`];
+  const mk = (m, name, color, key) => ({ name, color, label: name, pts: s(m).z.map((z, i) => [z, s(m)[key][i]]) });
+  chart(document.getElementById("branch"), { ylog: true, title: `Collagen ${col}: shear modulus G₀`, xlabel: "connectivity z (branching factor)", ylabel: "G₀ (units of μ_I)", xname: "z", yname: "G₀", right: 80,
+    vlines: [{ x: 4, label: "isostatic, 2D" }], series: [mk("none", "healthy", "--healthy", "G"), mk("iso", "iso", "--iso", "G"), mk("aniso", "aniso", "--aniso", "G")] });
+  chart(document.getElementById("kg"), { title: `Collagen ${col}: strain-stiffening`, xlabel: "connectivity z", ylabel: "K(γ=0.4) / G₀", xname: "z", yname: "K/G₀", right: 80, vlines: [{ x: 4, label: "isostatic" }],
+    series: [mk("none", "healthy", "--healthy", "KG"), mk("iso", "iso", "--iso", "KG"), mk("aniso", "aniso", "--aniso", "KG")] });
+}
+document.querySelectorAll("[data-col]").forEach(b => b.addEventListener("click", () => { col = b.dataset.col; document.querySelectorAll("[data-col]").forEach(o => o.setAttribute("aria-pressed", o === b)); drawBranch(); }));
+function drawFail() {
+  ["I", "VII"].forEach(c => {
+    const s = m => D.failure[`${c}|${m}`];
+    chart(document.getElementById("fail" + c), { title: `Collagen ${c}: stress–strain to failure`, xlabel: "tensile strain", ylabel: "stress (units of μ_I)", xname: "strain", yname: "stress", right: 80, h: 260,
+      series: [["none", "healthy", "--healthy"], ["iso", "iso", "--iso"], ["aniso", "aniso", "--aniso"]].map(([m, n, cc]) => ({ name: n, label: `${n} (peak at ${s(m).peak})`, color: cc, r: 2.5, pts: s(m).e.map((e, i) => [e, s(m).s[i]]) })) });
+  });
+}
+
+// ---------- GAG schematic ----------
+const gagC = document.getElementById("gagCanvas"); let gagXL = false, gagT = 0, diss = 0, loop = [];
+const links = Array.from({ length: 9 }, (_, i) => ({ x: 0.08 + i * 0.105, off: 0, pinned: i % 2 === 0 }));
+function gagStep(dt) {
+  gagT += dt; const k = 1, thr = 0.012, amp = gagXL ? 0.018 : 0.03;
+  const disp = amp * Math.sin(gagT * 1.6); let force = 0;
+  links.forEach(l => { let s = disp - l.off; const canSlip = !(gagXL && l.pinned);
+    if (canSlip && Math.abs(s) > thr) { const over = Math.abs(s) - thr; diss += k * thr * over; l.off += Math.sign(s) * over; s = Math.sign(s) * thr; }
+    l.s = s; force += k * s; });
+  loop.push([disp, force / links.length]); if (loop.length > 240) loop.shift();
+  return disp;
+}
+function drawGag(disp) {
+  const c = gagC, dpr = devicePixelRatio || 1, W = c.clientWidth, H = 300; c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = css("--surface"); g.fillRect(0, 0, W, H);
+  const fw = W * 0.62, top = 70, bot = 190, red = css("--healthy");
+  const shift = disp * fw * 4;
+  [[top, shift], [bot, 0]].forEach(([y, sh]) => { g.fillStyle = red; g.globalAlpha = 0.85; g.fillRect(14 + sh, y - 9, fw - 28, 18); g.globalAlpha = 1;
+    g.strokeStyle = css("--surface"); g.lineWidth = 1; for (let x = 24; x < fw - 30; x += 18) { g.beginPath(); g.moveTo(14 + sh + x, y - 9); g.lineTo(14 + sh + x, y + 9); g.stroke(); } });
+  links.forEach(l => { const xb = 14 + l.x * (fw - 28), xt = xb + l.s * fw * 4;   // a link leans by exactly its stretch
+    const pinned = gagXL && l.pinned, tension = Math.min(1, Math.abs(l.s) / 0.03);
+    g.strokeStyle = css("--gag"); g.lineWidth = 2 + 2.5 * tension; g.beginPath(); g.moveTo(xb, bot - 9);
+    g.bezierCurveTo(xb, bot - 50, xt, top + 50, xt, top + 9); g.stroke();
+    if (pinned) { g.fillStyle = css("--iso"); [[xb, bot - 9], [xt, top + 9]].forEach(p => { g.beginPath(); g.arc(p[0], p[1], 5, 0, 7); g.fill(); }); } });
+  g.fillStyle = css("--ink2"); g.font = "12px " + css("--body"); g.fillText("fibril (collagen)", 18, top - 16); g.fillText("GAG links", 18, (top + bot) / 2 + 4);
+  const lx = fw + 20, lw = W - lx - 12, ly = 40, lh = H - 80; g.strokeStyle = css("--grid"); g.strokeRect(lx, ly, lw, lh);
+  g.fillStyle = css("--ink2"); g.fillText("force vs shear", lx + 6, ly - 8);
+  g.strokeStyle = css("--gag"); g.lineWidth = 2; g.beginPath();
+  loop.forEach((p, i) => { const x = lx + lw / 2 + p[0] / 0.034 * (lw / 2 - 6), y = ly + lh / 2 - p[1] / 0.034 * (lh / 2 - 6); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+  document.getElementById("gagRead").textContent = `${gagXL ? "crosslinks pin half the links: stiffer, loop collapses" : "links slip past 1% stretch: an open loop is energy dissipated"} · dissipated ${diss.toFixed(4)} (arb.)`;
+}
+document.getElementById("gagXL").addEventListener("click", e => { gagXL = !gagXL; e.target.setAttribute("aria-pressed", gagXL); e.target.textContent = gagXL ? "Remove oxidative crosslinks" : "Add oxidative crosslinks"; diss = 0; loop = []; links.forEach(l => l.off = 0); });
+function drawGagChart() {
+  const rows = D.gag.filter(r => r.loading === "tension"), modes = [["sliding", "--gag"], ["bridge", "--aniso"], ["polyelectrolyte", "--teal"], ["none", "--muted"]];
+  chart(document.getElementById("gagChart"), { title: "Dissipated / elastic energy per cycle", xlabel: "oxidative crosslink dose", ylabel: "loss ratio", xname: "dose", yname: "loss", right: 100, ydom: [-0.05, 0.62],
+    series: modes.map(([m, c]) => ({ name: m, color: c, pts: rows.filter(r => r.gag_mode === m).sort((a, b) => a.dose - b.dose).map(r => [r.dose, r.loss_ratio]), dy: m === "none" ? 10 : 0 })) });
+}
+
+// ---------- tensegrity ----------
+const T = D.tensegrity, tensC = document.getElementById("tensCanvas"); let tensAng = 0.6;
+const kLabels = ["very soft", "soft", "soft", "compliant", "moderate", "stiff", "stiff", "very stiff"];
+function drawTens() {
+  const idx = +document.getElementById("tensK").value, fr = T.frames[idx], P = [];
+  for (let i = 0; i < fr.P.length; i += 3) P.push([fr.P[i], fr.P[i + 1], fr.P[i + 2]]);
+  const c = tensC, dpr = devicePixelRatio || 1, W = c.clientWidth, H = 340; c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = css("--surface"); g.fillRect(0, 0, W, H);
+  const cx = P.reduce((a, p) => a + p[0], 0) / P.length, cy = P.reduce((a, p) => a + p[1], 0) / P.length;
+  const ca = Math.cos(tensAng), sa = Math.sin(tensAng), s = Math.min(W, H) * 0.42;
+  const proj = p => { const x = (p[0] - cx) * ca - (p[1] - cy) * sa, y = (p[0] - cx) * sa + (p[1] - cy) * ca; return [W / 2 + x * s, H * 0.78 - p[2] * s * 0.95 + y * s * 0.28]; };
+  g.strokeStyle = css("--healthy"); g.globalAlpha = 0.25; g.lineWidth = 1;
+  for (let k = -5; k <= 5; k++) { const a = proj([cx + k * 0.15, cy - 0.8, 0]), b = proj([cx + k * 0.15, cy + 0.8, 0]); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke();
+    const e = proj([cx - 0.8, cy + k * 0.15, 0]), f = proj([cx + 0.8, cy + k * 0.15, 0]); g.beginPath(); g.moveTo(e[0], e[1]); g.lineTo(f[0], f[1]); g.stroke(); }
+  g.globalAlpha = 1;
+  const pr = fr.prestress / T.rigid_prestress;
+  T.cables.forEach(([a, b]) => { const p = proj(P[a]), q = proj(P[b]); g.strokeStyle = css("--healthy"); g.globalAlpha = 0.35 + 0.65 * pr; g.lineWidth = 1 + 1.5 * pr; g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke(); });
+  g.globalAlpha = 1;
+  T.struts.forEach(([a, b]) => { const p = proj(P[a]), q = proj(P[b]); g.strokeStyle = css("--ink"); g.lineWidth = 5; g.lineCap = "round"; g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke(); });
+  T.basal.forEach(i => { const p = proj(P[i]); g.fillStyle = css("--teal"); g.beginPath(); g.arc(p[0], p[1], 6, 0, 7); g.fill(); });
+  document.getElementById("tensRead").textContent = `matrix ${kLabels[idx]} (anchor ${fr.k} × cable stiffness) · prestress held ${(pr * 100).toFixed(0)}% · height ${(fr.height * 100).toFixed(1)}% of rest`;
+}
+function tensLoop() { if (!reduce) tensAng += 0.006; drawTens(); requestAnimationFrame(tensLoop); }
+document.getElementById("tensK").addEventListener("input", drawTens);
+function drawCell() {
+  const mk = (c, color) => { const s = D.cell[`${c}|iso`]; return { name: `collagen ${c}`, label: `col ${c}`, color, pts: s.dose.map((d, i) => [d, s.yap[i]]), hollow: s.self.map(v => !v) }; };
+  chart(document.getElementById("yap"), { title: "YAP nuclear / cytoplasmic", xlabel: "oxidative dose (isotropic)", ylabel: "YAP N/C", xname: "dose", yname: "N/C", right: 60, ydom: [0, 3.4],
+    series: [mk("I", "--healthy"), mk("IV", "--teal"), mk("VII", "--iso")] });
+  const mr = (c, color, m) => { const s = D.cell[`${c}|${m}`]; return { name: `collagen ${c}, ${m}`, label: `col ${c}${m === "aniso" ? " aniso" : ""}`, color, dash: m === "aniso" ? "5 4" : "", pts: s.dose.map((d, i) => [d, s.rec[i]]) }; };
+  chart(document.getElementById("rec"), { title: "Recovery rate after a perturbation", xlabel: "oxidative dose", ylabel: "slowest decay (1/h)", xname: "dose", yname: "rate", right: 90, h: 260, ydom: [0.11, 0.175],
+    series: [mr("I", "--healthy", "iso"), mr("IV", "--teal", "iso"), mr("VII", "--iso", "iso"), mr("VII", "--iso", "aniso")] });
+}
+
+// ---------- tissues ----------
+function drawTissues() {
+  const grid = document.getElementById("tissueGrid"); grid.innerHTML = "";
+  const names = { skin_dermis: "Skin dermis", skin_DEJ: "Dermal–epidermal junction", tendon: "Tendon", cartilage: "Cartilage", artery_media: "Artery wall", myocardium: "Myocardium", basement_membrane: "Basement membrane" };
+  Object.keys(names).forEach(t => { const d = D.tissues[t]; if (!d) return; const f = document.createElement("figure"); f.className = "fig"; f.style.margin = "0";
+    const h = document.createElement("div"); h.className = "chart"; f.appendChild(h); grid.appendChild(f);
+    chart(h, { w: 300, h: 190, title: names[t], xname: "age", yname: "× age 20", xticks: d.age, right: 70, ydom: [0.6, Math.max(2.3, ...d.E) * 1.05],
+      series: [{ name: "modulus", label: "modulus", color: "--healthy", pts: d.age.map((a, i) => [a, d.E[i]]) }, { name: "toughness", label: "toughness", color: "--gag", dash: "4 3", pts: d.age.map((a, i) => [a, d.tough[i]]), dy: 10 }] });
+    const cap = document.createElement("figcaption"); cap.textContent = `dose ${d.dose[0]} → ${d.dose[d.dose.length - 1]}, repair rate ×${(d.repair[d.repair.length - 1] / d.repair[0]).toFixed(2)}`; f.appendChild(cap); });
+  const mols = ["O2", "glucose", "IGF-1", "TGF-beta1", "VEGF165", "IgG", "exosome"], tis = ["tendon", "cartilage", "artery_media", "skin_dermis", "myocardium"];
+  const host = document.getElementById("transport"); host.innerHTML = "";
+  const W = 520, H = 300, l = 70, top = 26, bw = (W - l - 10) / mols.length, svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Diffusivity ratio" }, host);
+  el("text", { x: 0, y: 14, class: "ttl" }, svg).textContent = "Effective diffusivity, age 80 ÷ age 20";
+  const Y = v => H - 36 - (v - 0.4) / 0.62 * (H - 36 - top);
+  [0.4, 0.6, 0.8, 1].forEach(v => { el("line", { x1: l, x2: W - 10, y1: Y(v), y2: Y(v), stroke: css("--grid") }, svg); el("text", { x: l - 6, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = v.toFixed(1); });
+  const tc = ["--healthy", "--aniso", "--iso", "--gag", "--teal"];
+  mols.forEach((m, i) => { el("text", { x: l + i * bw + bw / 2, y: H - 18, "text-anchor": "middle" }, svg).textContent = m.replace("-beta1", "-β1").replace("165", "");
+    tis.forEach((t, j) => { const v = D.transport[t][m], w = (bw - 8) / tis.length, x = l + i * bw + 4 + j * w;
+      const r = el("rect", { x, y: Y(v), width: w - 1.5, height: Y(0.4) - Y(v), fill: css(tc[j]) }, svg);
+      r.addEventListener("pointermove", ev => showTip(ev, `${m}, ${t}: ×${v}`)); r.addEventListener("pointerleave", hideTip); }); });
+  legend(host, tis.map((t, j) => [names[t], tc[j]]));
+  const hd = D.heart;
+  chart(document.getElementById("heart"), { title: "Heart with age", xlabel: "age (years)", ylabel: "ejection fraction (%)", xname: "age", yname: "EF %", right: 70, ydom: [46, 53], xticks: hd.age,
+    series: [{ name: "ejection fraction", label: "EF", color: "--healthy", pts: hd.age.map((a, i) => [a, hd.EF[i] * 100]) }] });
+}
+
+// ---------- hypotheses ----------
+const HYP = [
+  ["H1", "Crosslinked collagen escapes turnover, so damage compounds where renewal is slow.", "supported", "ok"],
+  ["H2", "Cells read the matrix's nonlinearity; crosslinks flatten strain-stiffening before raising stiffness much.", "supported", "ok"],
+  ["H3", "Oxidative crosslinking is a developmental program that harms only once it outlasts renewal (BLI-3, PXN-2).", "competing SKN-1 explanation", "warn"],
+  ["H4", "Crosslinks pile up along the load axis, making tissue brittle where it is used.", "partly supported", "ok"],
+  ["H5", "The recovery time of the matrix–YAP loop predicts each worm's remaining lifespan.", "open gap", "neu"],
+  ["H6", "YAP→LOX feed-forward: crosslink breakers work only together with collagen renewal.", "unverified", "bad"],
+  ["H7", "Long-lived species keep matrix young by renewal, not by low glycation.", "not yet checked", "neu"],
+  ["H8", "Arginine glycation (MG-H1), not lysine glycation (CML), decouples GAGs from collagen.", "simulated (ALCHEMI)", "warn"],
+];
+const hl = document.getElementById("hyps");
+HYP.forEach(([id, t, s, k]) => { const li = document.createElement("li"); li.innerHTML = `<b>${id}</b><span>${t}</span><span class="chip ${k}">${s}</span>`; hl.appendChild(li); });
+
+function drawAll() { drawPipe(); drawMolecules(); drawBranch(); drawFail(); drawGagChart(); drawCell(); drawTissues(); drawTens(); drawNet(); }
+drawAll();
+requestAnimationFrame(netLoop); requestAnimationFrame(tensLoop);
+let gl = 0; (function gagLoop(ts) { const dt = Math.min(0.05, (ts - gl) / 1000 || 0.016); gl = ts; const d = gagStep(reduce ? 0 : dt); drawGag(d); requestAnimationFrame(gagLoop); })(0);
+if (reduce) { for (let i = 0; i < 300; i++) gagStep(0.02); }
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawAll, 150); });
+</script>
